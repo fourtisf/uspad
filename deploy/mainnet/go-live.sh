@@ -152,6 +152,22 @@ run_backup() {
 # The release's node_modules come from `pnpm install` as divvy: root never runs that code. These read
 # only public data, as divvy-api (which runs the API from the same release anyway; audit).
 asapi() { sudo -u divvy-api -H env RPC_URL="${RPC:-}" "$@"; }
+# The PlatformConfig address follows the admin wallet. prepare keeps env files that already exist, so
+# after a new admin key (2026-11-01: wallets remade after a leak) they pointed at the old address and
+# switch refused. prepare, platform-config and switch call this to put the current one in.
+sync_platform_pda() {
+  local admin pda f
+  admin=$(pubkey "$ADMIN_KEY")
+  pda=$(platform_pda "$admin")
+  [ -n "$pda" ] || die "alamat PlatformConfig tidak bisa dihitung dari admin $admin"
+  for f in $ENV_DIR/api.env $ENV_DIR/worker.env; do
+    [ -f "$f" ] || continue
+    [ "$(env_get "$f" DIVVY_PLATFORM_CONFIG)" = "$pda" ] && continue
+    set_env "$f" DIVVY_PLATFORM_CONFIG "$pda"
+    note "$(basename "$f"): DIVVY_PLATFORM_CONFIG → $pda (admin $admin)"
+  done
+}
+
 platform_pda() { # admin pubkey → PlatformConfig PDA, from the SDK (seed ["platform_config", admin])
   (cd "$CUR/packages/solana" && asapi node -e '
     const { getPdaPlatformId, LAUNCHPAD_PROGRAM } = require("@raydium-io/raydium-sdk-v2");
@@ -417,6 +433,7 @@ EOF
 DATABASE_URL=$DATABASE_URL
 RCLONE_REMOTE=
 EOF
+  sync_platform_pda
 
   migrate
 
@@ -466,6 +483,7 @@ platform_config() {
   (cd "$CUR/packages/solana" && env RPC_URL="$RPC" PLATFORM_ADMIN_KEYPAIR="$ADMIN_KEY" FEE_WALLET="$fee" NFT_WALLET="$fee" \
     NAME="$BRAND" WEB="https://$BRAND_DOMAIN" IMG="https://$BRAND_DOMAIN/brand/hwai-mark-512.png" I_HAVE_OWNER_APPROVAL="${I_HAVE_OWNER_APPROVAL:-}" \
     ./node_modules/.bin/tsx scripts/phase0/create-platform-config.ts "${send[@]}" 2>&1) | sed 's/api-key=[^&" ]*/api-key=…/g'
+  sync_platform_pda
   note "PDA di api.env: $(env_get $ENV_DIR/api.env DIVVY_PLATFORM_CONFIG)"
 }
 
@@ -475,6 +493,7 @@ switch() {
   load_secrets
   [ -L "$CUR" ] || die "jalankan 'go-live.sh prepare' dulu"
   local pda
+  sync_platform_pda
   pda=$(env_get $ENV_DIR/api.env DIVVY_PLATFORM_CONFIG)
   [ "$(account_exists "$pda")" = yes ] || die "PlatformConfig $pda belum ada di mainnet. Buat dulu: go-live.sh platform-config"
 
