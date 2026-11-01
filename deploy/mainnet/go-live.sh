@@ -725,7 +725,7 @@ set_launches() { # open (true/false), reason
 open_launches() {
   load_secrets
   [ -f "$LIVE_MARK" ] || die "jalankan 'go-live.sh switch' dulu"
-  [ "${I_HAVE_OWNER_APPROVAL:-}" = yes ] || die "butuh I_HAVE_OWNER_APPROVAL=yes: setiap launch dibayar wallet operasional (CLAUDE.md rule 3)"
+  [ "${I_HAVE_OWNER_APPROVAL:-}" = yes ] || die "butuh I_HAVE_OWNER_APPROVAL=yes: mainnet gate menyala dan launch mulai sungguhan (CLAUDE.md rule 3)"
   [ -f "$CUR/packages/solana/src/live/rawtx.ts" ] || die "kode di server masih lama: jalankan 'go-live.sh update' dulu"
 
   say "Cek: indexer membaca 300 transaksi LaunchLab terbaru di mainnet (termasuk versi baru)"
@@ -759,7 +759,7 @@ open_launches() {
 
    Launch uji coba (hanya wallet $w yang bisa):
      1. Buka https://$DOMAIN/create, connect wallet itu, lalu sign in.
-     2. Launch satu koin. Biayanya sekitar 0,012 SOL, dibayar wallet operasional.
+     2. Launch satu koin. Wallet itu yang menandatangani dan membayar (~0,009 SOL, saldo minimal 0,012).
      3. Setelah live, beli dan jual sedikit di halaman koin, lalu cek di Solscan.
      4. Kalau semuanya benar, buka untuk semua orang:  /root/go-live.sh launches open
 EOF
@@ -772,6 +772,20 @@ launches() {
     *) die "pakai: go-live.sh launches open | pause [alasan]" ;;
   esac
   say "Setelan launch: $(launch_setting)"
+  [ "$1" = open ] || return 0
+  # The setting is one of three locks: Nginx's pause file and the mainnet gate are lifted only by
+  # open-launches, so say plainly when a launch would still be refused.
+  local blocked=() live
+  [ -f /etc/nginx/divvy-launches-paused ] && blocked+=("Nginx masih menjeda /api/launch")
+  [ "$(env_get $ENV_DIR/worker.env DIVVY_MAINNET_ENABLED)" = true ] || blocked+=("mainnet gate masih mati (worker tidak mengirim create)")
+  if [ ${#blocked[@]} -gt 0 ]; then
+    printf '\033[1;33m   Launch BELUM terbuka: %s.\033[0m\n' "$(IFS=';'; echo "${blocked[*]}" | sed 's/;/; /g')"
+    note "Jalankan: I_HAVE_OWNER_APPROVAL=yes /root/go-live.sh open-launches  (launch uji coba admin dulu), lalu 'launches open' lagi."
+    return 0
+  fi
+  live=$(sudo -u postgres psql -X -d divvy -Atc "SELECT count(*) FROM \"Coin\" WHERE status IN ('live','graduated')" 2>/dev/null || echo '?')
+  [ "$live" = 0 ] && printf '\033[1;33m   Belum ada satu koin pun yang live: launch uji coba admin belum dilakukan.\033[0m\n'
+  note "Launch terbuka untuk semua orang: https://$DOMAIN/create"
 }
 
 # Creator-paid launches (owner decision 2026-10-27, apps/api/src/live/launchfee.ts): before each launch
