@@ -1,4 +1,7 @@
-"""hwai.ai brand (owner, 2026-10-31): a square-holed cash coin mark with a custom-drawn "hwai" / "hwai.ai" wordmark.
+"""RETIRED (2026-11-01): design A's coin mark, replaced by the brush seal 牛 (src/niu.py). Kept for the record;
+running it overwrites brand/hwai/*.svg with the coin.
+
+hwai.ai brand (owner, 2026-10-31): a square-holed cash coin mark with a custom-drawn "hwai" / "hwai.ai" wordmark.
 
 Usage: python3 -I brand/hwai/src/hwai.py brand/hwai
 Letters: a geometric system (x-height 40, stems 8), every one a filled path, so no font file is needed.

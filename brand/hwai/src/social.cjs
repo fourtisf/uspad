@@ -1,8 +1,8 @@
 // hwai.ai share image (the site's opengraph-image.png and twitter-image.png), X profile photo, X header,
 // and the PNG icons: mark-512.png, app-icon-512.png, apple-icon-180.png and favicon-32.png.
-// Usage (repo root): node brand/hwai/src/social.cjs brand/hwai
-// Same layout as brand/uspad/src/social.cjs; the headline is the Chinese hero line with the English one
-// under it. Noto Sans SC comes from Google Fonts, so this needs network access.
+// Usage (repo root): python3 -I brand/hwai/src/niu.py brand/hwai && node brand/hwai/src/social.cjs brand/hwai
+// Design 牛 (owner, 2026-11-01): near black with a faint grid, green and lime glow, the brush-seal mark, and the
+// hero line with 美股 on a lime marker stroke, as on the site. Noto Sans SC comes from Google Fonts (network).
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
@@ -13,53 +13,36 @@ fs.mkdirSync(OUT, { recursive: true });
 const read = (f) => fs.readFileSync(path.join(DIR, f), "utf8");
 const sized = (s, w) => s.replace(/ width="[^"]*" height="[^"]*"/, "").replace("<svg ", `<svg width="${w}" `);
 
-// Engraved wave lines, like the background of a share certificate. Kept faint.
-function guilloche(width, height, lines, amp, opacity) {
-  let d = "";
-  for (let i = 0; i < lines; i++) {
-    const y0 = (height / (lines - 1)) * i;
-    const ph = i * 0.42;
-    const pts = [];
-    for (let x = -20; x <= width + 20; x += 6) pts.push(`${x.toFixed(1)} ${(y0 + Math.sin(x / 95 + ph) * amp + Math.sin(x / 37 - ph * 1.7) * amp * 0.35).toFixed(1)}`);
-    d += `M${pts.join("L")}`;
-  }
-  return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" style="position:absolute;inset:0"><path d="${d}" fill="none" stroke="#F4C24E" stroke-opacity="${opacity}" stroke-width="1"/></svg>`;
-}
+const FONTS = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;700;900&display=block">`;
+const base = `*{box-sizing:border-box}html,body{margin:0}body{background:#060807;color:#ECF5EF;font-family:"Noto Sans SC",sans-serif;-webkit-font-smoothing:antialiased}
+.h{font-weight:900;letter-spacing:-.01em;line-height:1.08;margin:0}
+.hl{position:relative;color:#061006;padding:0 .1em;z-index:0}
+.hl::before{content:"";position:absolute;inset:.1em -.02em .02em;background:#C3FF3C;border-radius:.14em;transform:rotate(-1.5deg);z-index:-1}
+.up{color:#2EF08A}`;
+const bg = (cx, cy) => `background:radial-gradient(560px 420px at ${cx}px ${cy}px,rgba(46,240,138,.20),transparent 70%),
+  radial-gradient(520px 360px at 6% 30%,rgba(195,255,60,.07),transparent 70%),
+  linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px) 0 0/100% 48px,
+  linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px) 0 0/48px 100%,#060807`;
+const seal = (cx, cy, size) => `<div style="position:absolute;left:${cx}px;top:${cy}px;transform:translate(-50%,-50%);filter:drop-shadow(0 30px 50px rgba(0,0,0,.6)) drop-shadow(0 0 40px rgba(195,255,60,.28))">${sized(read("mark.svg"), size)}</div>`;
+const line = (size) => `<p class="h" style="font-size:${size}px">土狗也分红，<br>分的是<span class="hl">美股</span><span class="up">↗</span></p>`;
 
-const FONTS = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;700;900&family=ZCOOL+QingKe+HuangYou&family=Barlow+Condensed:wght@600;800&display=block">`;
-// Design A (owner, 2026-10-31): red lacquer, gold, the poster face for Chinese headlines.
-const base = `*{box-sizing:border-box}html,body{margin:0}body{background:#A3121C;color:#FFF4E2;font-family:"Noto Sans SC",sans-serif;-webkit-font-smoothing:antialiased}
-.zh{font-family:"ZCOOL QingKe HuangYou","Noto Sans SC",sans-serif;font-weight:400;letter-spacing:.03em}
-.en{font-family:"Barlow Condensed",sans-serif;font-weight:600}
-.glow{color:#F4C24E}`;
-const bg = (w, h, cx, cy) => `radial-gradient(520px 440px at ${cx}px ${cy}px,rgba(244,194,78,.28),transparent 70%),
-  radial-gradient(700px 400px at ${w / 6}px -70px,rgba(255,80,80,.25),transparent 70%),linear-gradient(180deg,#B3141F,#8A0E17)`;
-const coin = (cx, cy, size, rings) => `${rings.map((r, i) => `<div style="position:absolute;left:${cx}px;top:${cy}px;width:${r}px;height:${r}px;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(244,194,78,${i ? 0.3 : 0.2})"></div>`).join("")}
-  <div style="position:absolute;left:${cx}px;top:${cy}px;transform:translate(-50%,-50%);filter:drop-shadow(0 30px 50px rgba(0,0,0,.45)) drop-shadow(0 0 30px rgba(244,194,78,.35))">${sized(read("mark.svg"), size)}</div>`;
-
-const profile = `<div style="width:1000px;height:1000px;position:relative;overflow:hidden;background:radial-gradient(620px 560px at 50% 44%,#D62532 0%,#A3121C 55%,#7A0C14 100%)">
-  ${guilloche(1000, 1000, 46, 14, 0.05)}
-  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-    <div style="filter:drop-shadow(0 40px 60px rgba(0,0,0,.45)) drop-shadow(0 0 34px rgba(244,194,78,.35))">${sized(read("mark.svg"), 660)}</div>
-  </div></div>`;
+const profile = `<div style="width:1000px;height:1000px;position:relative;overflow:hidden;${bg(500, 470)}">${seal(500, 500, 640)}</div>`;
 
 // X lays the profile photo over the lower left of the header, so the text starts at x = 470.
-const header = `<div style="width:1500px;height:500px;position:relative;overflow:hidden;background:${bg(1500, 500, 1210, 250)}">
-  ${guilloche(1500, 500, 30, 12, 0.055)}
-  ${coin(1210, 250, 300, [620, 470])}
+const header = `<div style="width:1500px;height:500px;position:relative;overflow:hidden;${bg(1290, 250)}">
+  ${seal(1300, 250, 250)}
   <div style="position:absolute;left:470px;top:250px;transform:translateY(-50%)">
-    <p class="zh" style="margin:0;font-size:70px;line-height:1.08">土狗也分红，<br><span class="glow">分的是美股。</span></p>
-    <p class="en" style="margin:18px 0 0;font-size:26px;color:#FBE3A1">Memecoins that pay you real stock dividends, every hour.</p>
+    ${line(70)}
+    <p style="margin:18px 0 0;font-size:24px;font-weight:500;color:#9DB0A6">Memecoins that pay you real stock dividends, every hour.</p>
   </div></div>`;
 
-const og = `<div style="width:1200px;height:630px;position:relative;overflow:hidden;background:${bg(1200, 630, 935, 330)}">
-  ${guilloche(1200, 630, 36, 12, 0.05)}
-  ${coin(935, 330, 300, [560, 420])}
-  <div style="position:absolute;left:72px;top:66px">${sized(read("lockup-ai-dark.svg"), 250)}</div>
-  <div style="position:absolute;left:72px;top:200px;width:660px">
-    <p class="zh" style="margin:0;font-size:84px;line-height:1.08">土狗也分红，<br><span class="glow">分的是美股。</span></p>
-    <p class="en" style="margin:26px 0 0;font-size:32px">Memecoins that pay you real stock dividends.</p>
-    <p style="margin:10px 0 0;font-weight:500;font-size:22px;color:#FBE3A1">Solana 发币 · 每小时美股分红</p>
+const og = `<div style="width:1200px;height:630px;position:relative;overflow:hidden;${bg(940, 330)}">
+  ${seal(950, 330, 300)}
+  <div style="position:absolute;left:72px;top:62px">${sized(read("lockup-dark.svg"), 230)}</div>
+  <div style="position:absolute;left:72px;top:196px;width:680px">
+    ${line(84)}
+    <p style="margin:26px 0 0;font-size:30px;font-weight:700">Memecoins that pay you real stock dividends.</p>
+    <p style="margin:10px 0 0;font-weight:500;font-size:22px;color:#9DB0A6">Solana 发币 · 每小时美股分红</p>
   </div></div>`;
 
 (async () => {
