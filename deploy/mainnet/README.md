@@ -39,7 +39,7 @@ After that the steps are the ones above (`cp-creator` from the next epoch, `open
 ```bash
 sudo -u divvy git -C /srv/divvy/repo.git fetch -q origin
 sudo -u divvy git -C /srv/divvy/repo.git show refs/heads/claude/tender-curie-4uer50:deploy/mainnet/go-live.sh > /root/go-live.sh && chmod 700 /root/go-live.sh
-/root/go-live.sh update                  # the hwai site: design A, Chinese first
+/root/go-live.sh update                  # the hwai site: design 牛, Chinese first
 /root/go-live.sh domain                  # certificate, Nginx and WEB_ORIGIN for hwai.ai; uspad.fun redirects there
 /root/go-live.sh platform-info all       # dry run: the name, web and picture Raydium shows; then, with the owner's OK:
 I_HAVE_OWNER_APPROVAL=yes /root/go-live.sh platform-info all --send

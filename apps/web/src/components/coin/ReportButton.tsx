@@ -70,7 +70,7 @@ export function ReportButton({ mint, ticker }: { mint: string; ticker: string })
               <textarea className="tinput" rows={3} maxLength={500} placeholder={t.details} value={details} onChange={(e) => setDetails(e.target.value)} />
               <div className="report-acts">
                 <button className="btn btn-ghost" type="button" onClick={() => setOpen(false)}>{t.cancel}</button>
-                <button className="btn btn-g" type="submit" disabled={busy}>{t.send}</button>
+                <button className="btn btn-lime" type="submit" disabled={busy}>{t.send}</button>
               </div>
             </div>
           </form>

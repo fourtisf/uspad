@@ -16,8 +16,8 @@ import { common } from "@/i18n/msgs/common";
 import { Chip } from "../Chip";
 import { Countdown } from "../Countdown";
 import { CountUp } from "../CountUp";
-import { Icon } from "../Icon";
 import { Mark } from "../Mark";
+import { Spark } from "../Spark";
 import { TokenCa } from "../TokenCa";
 import { TelegramJoin, XFollow } from "../XFollow";
 
@@ -53,7 +53,7 @@ function CoinRow({ c, now }: { c: CoinSummary; now: number }) {
       <span className="c-chg"><span className={"chg " + (c.change24hPct >= 0 ? "up" : "down")}>{pct(c.change24hPct)}</span></span>
       <span className="c-prog prog">
         {graduated ? (
-          <span style={{ color: "#1E7A55", fontWeight: 700, fontSize: 13 }}>{t.badgeGraduated}</span>
+          <span className="badge grad">{t.badgeGraduated}</span>
         ) : (
           <>
             <span className="bar"><i style={{ width: (c.progress * 100).toFixed(1) + "%" }} /></span>
@@ -95,14 +95,19 @@ export function Board({ stats, leaders, initialCoins, now: renderedAt }: { stats
   const stocksToEarn = config.dividendAssets.filter((a) => a.kind === "stock" && a.enabled).length;
   const paidLaunch = !!config.launchFee.to;
 
+  // The live card shows the coin paying the most today, else the hottest one; before any coin, an invitation.
+  const top = leaders[0] ?? initialCoins.items[0];
+  const drips = (round?.items ?? []).slice(0, 2);
+  const claim = config.payouts.delivery === "claim";
+
   return (
     <>
       <section className="hero">
         <div>
           <div className="hero-chips">
-            <span className="eyecatch">
-              <span className="dot"><Icon name="bolt" size={12} /></span>
-              {t.paidThisHour(usd(roundUsd))}
+            <span className="kick">
+              <i className="pulse" />
+              {roundUsd > 0 ? t.paidThisHour(usd(roundUsd)) : t.kickIdle}
             </span>
             <TokenCa />
             <XFollow />
@@ -111,82 +116,103 @@ export function Board({ stats, leaders, initialCoins, now: renderedAt }: { stats
           <h1>{t.h1}</h1>
           <p className="lede">{t.lede(paidLaunch, deliveryCopy(config, lang).heroTail)}</p>
           <div className="ctas">
-            <Link className="btn btn-gold btn-lg" href="/create">{t.createCoin}</Link>
+            <Link className="btn btn-lime btn-lg" href="/create">{t.createCoin}</Link>
             <Link className="btn btn-ghost btn-lg" href="/how">{t.howItWorks}</Link>
           </div>
-          <div className="promises">
-            <Link className="pill" href="/how">{t.devBuysShown(paidLaunch)}</Link>
-            <Link className="pill" href="/how">{t.liquidityLocked}</Link>
-            <Link className="pill" href="/how">{t.noSniper}</Link>
-            <Link className="pill" href="/payouts">{t.payoutsOnChain}</Link>
-          </div>
+          {/* Zeros on an empty board read as a dead site: the numbers appear with the first coin. */}
+          {stats.coinsLive > 0 && (
+            <div className="stats">
+              <div><b><CountUp value={stats.paidToHoldersUsd} format={usdFull} /></b><span>{t.paidToHolders}</span></div>
+              <div><b><CountUp value={stats.volume24hUsd} format={usdFull} /></b><span>{t.traded24h}</span></div>
+              <div><b>{stats.coinsLive}</b><span>{t.coinsLive}</span></div>
+              <div><b>{stocksToEarn}</b><span>{t.stocksToEarn}</span></div>
+            </div>
+          )}
         </div>
         <div className="stage">
-          <div className="env" aria-label={t.nextPayout}>
-            <span className="seal"><Mark size={88} variant="red" /></span>
-            <div className="amt">
-              <b className="tab"><Countdown nextAt={stats.nextRoundAt} /></b>
-              <span>{t.untilNext}</span>
-            </div>
-          </div>
-          <div className="panel ticket">
-            <div className="k">{t.lastRound}</div>
-            <div className="v"><CountUp value={roundUsd} format={usdFull} /></div>
-            <div className="k">{t.paidToWallets((round?.wallets ?? 0).toLocaleString("en-US"))}</div>
-            <div className="rows">
-              {round?.items.map((p) => (
-                <div className="row" key={p.mint}>
-                  <Avatar src={p.imageUrl} size={20} />
-                  <span>${p.ticker}</span>
-                  <b>{num(p.amount.ui)} {p.assetSymbol}</b>
+          <div className="live" aria-label={t.nextPayout}>
+            {top ? (
+              <Link className="live-h" href={coinHref(top)}>
+                <Avatar src={top.imageUrl} size={46} />
+                <div className="nm">
+                  <b>{top.name}</b>
+                  <span>{t.liveTick(top.ticker, top.dividendAsset)}</span>
+                </div>
+                <div className="lchg">
+                  <b className={top.change24hPct >= 0 ? "up" : "down"}>{pct(top.change24hPct)}</b>
+                  <span>{t.h24}</span>
+                </div>
+              </Link>
+            ) : null}
+            <div className="live-chart">
+              {top && top.spark.length > 1 ? (
+                <Spark values={top.spark} className="area" w={520} h={220} />
+              ) : (
+                <div className="live-empty">
+                  <Mark size={64} />
+                  <b>{top ? t.noChart : t.liveEmptyH}</b>
+                  {top ? null : <span>{t.liveEmptyP}</span>}
+                </div>
+              )}
+              {drips.map((p, i) => (
+                <div className={"drip d" + (i + 1)} key={p.mint}>
+                  {t.dripLabel(p.ticker)} <b>+{num(p.amount.ui)} {p.assetSymbol}</b>
                 </div>
               ))}
             </div>
+            <div className="cd">
+              <b className="tab"><Countdown nextAt={stats.nextRoundAt} /></b>
+              <div className="l"><b>{t.nextPayout}</b>{t.untilNext(claim)}</div>
+              {roundUsd > 0 && (
+                <div className="r">{t.lastRound}<b><CountUp value={roundUsd} format={usdFull} /></b></div>
+              )}
+            </div>
           </div>
         </div>
       </section>
-
-      <div className="stats">
-        <div><b><CountUp value={stats.paidToHoldersUsd} format={usdFull} /></b><span>{t.paidToHolders}</span></div>
-        <div><b><CountUp value={stats.volume24hUsd} format={usdFull} /></b><span>{t.traded24h}</span></div>
-        <div><b>{stats.coinsLive}</b><span>{t.coinsLive}</span></div>
-        <div><b>{stocksToEarn}</b><span>{t.stocksToEarn}</span></div>
+      <div className="promises">
+        <Link href="/how">{t.devBuysShown(paidLaunch)}</Link>
+        <Link href="/how">{t.liquidityLocked}</Link>
+        <Link href="/how">{t.noSniper}</Link>
+        <Link href="/payouts">{t.payoutsOnChain}</Link>
       </div>
 
-      <section className="sec" aria-labelledby="leadH">
-        <div className="sec-h">
-          <div>
-            <h2 id="leadH">{t.leadersH}</h2>
-            <p>{t.leadersP}</p>
+      {leaders.length > 0 && (
+        <section className="sec" aria-labelledby="leadH">
+          <div className="sec-h">
+            <div>
+              <h2 id="leadH">{t.leadersH}</h2>
+              <p>{t.leadersP}</p>
+            </div>
           </div>
-        </div>
-        <div className="leaders">
-          {leaders.map((c, i) => (
-            <Link className="lcard" href={coinHref(c)} key={c.mint}>
-              <div className="top">
-                <Avatar src={c.imageUrl} size={44} />
-                <div style={{ minWidth: 0 }}>
-                  <div className="nm">{c.name}</div>
-                  <div className="tk">{t.leaderTick(c.ticker, usd(c.marketCapUsd))}</div>
+          <div className="leaders">
+            {leaders.map((c) => (
+              <Link className="lcard" href={coinHref(c)} key={c.mint}>
+                <div className="top">
+                  <Avatar src={c.imageUrl} size={42} />
+                  <div>
+                    <div className="nm">{c.name}</div>
+                    <div className="tk">${c.ticker}</div>
+                  </div>
+                  <span className={"chg " + (c.change24hPct >= 0 ? "up" : "down")}>{pct(c.change24hPct)}</span>
                 </div>
-                <span className="rank">{i + 1}</span>
-              </div>
-              <div className="bd">
-                <div className="paid">
-                  <b className="num">{usd(c.paid24hUsd)}</b>
-                  <span>{t.paidToday}<br />{num(c.paid24h.ui)} {c.dividendAsset}</span>
+                {c.spark.length > 1 ? <Spark values={c.spark} /> : <div className="spark-empty">{t.noChart}</div>}
+                <div className="mc">
+                  <b>{usd(c.marketCapUsd)}</b>
+                  <span>{c.status === "graduated" ? t.badgeGraduated : t.curveShort(Math.round(c.progress * 100) + "%")}</span>
                 </div>
+                <div className="bar"><i style={{ width: (c.progress * 100).toFixed(1) + "%" }} /></div>
                 <div className="pays">
                   <strong><Chip sym={c.dividendAsset} />{c.dividendAsset}</strong>
-                  <span className="tab">{t.leaderTotal(usd(c.paidUsd), c.holders.toLocaleString("en-US"))}</span>
+                  <span>{t.paidToday} <b>{usd(c.paid24hUsd)}</b></span>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
-      <section className="sec" style={{ paddingTop: 6 }} aria-labelledby="allH">
+      <section className="sec" style={leaders.length ? { paddingTop: 6 } : undefined} aria-labelledby="allH">
         <div className="sec-h"><div><h2 id="allH">{t.allCoins}</h2></div></div>
         <div className="panel board">
           <div className="toolbar">
@@ -212,7 +238,21 @@ export function Board({ stats, leaders, initialCoins, now: renderedAt }: { stats
             <span>{t.colCoin}</span><span>{t.colMcap}</span><span>{t.col24h}</span><span>{t.colCurve}</span><span>{t.colPays}</span><span>{t.colPaid}</span><span>{t.colHolders}</span><span>{t.colAge}</span>
           </div>
           <div id="grid">
-            {list.length ? list.map((c) => <CoinRow key={c.mint} c={c} now={now} />) : data ? <div className="empty">{t.noMatch(q)}</div> : null}
+            {list.length ? (
+              list.map((c) => <CoinRow key={c.mint} c={c} now={now} />)
+            ) : data ? (
+              <div className="empty">
+                {q || pays !== "all" ? (
+                  t.noMatch(q)
+                ) : (
+                  <>
+                    {t.noCoins}
+                    <br />
+                    <Link className="btn btn-lime" href="/create">{t.createCoin}</Link>
+                  </>
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
       </section>

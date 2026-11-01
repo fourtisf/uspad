@@ -18,7 +18,7 @@ export function TokenCa() {
   const t = useMsgs(hero);
   if (!CA) {
     return (
-      <span className="eyecatch ca-pill">
+      <span className="pill ca-pill">
         <span>
           <b>CA:</b> {t.caSoon}
         </span>
@@ -27,7 +27,7 @@ export function TokenCa() {
   }
   const copy = () => navigator.clipboard?.writeText(CA).then(() => toast(t.caCopied), () => {});
   return (
-    <button type="button" className="eyecatch ca-pill" onClick={copy} title={CA} aria-label={t.copyCa(CA)}>
+    <button type="button" className="pill ca-pill" onClick={copy} title={CA} aria-label={t.copyCa(CA)}>
       <span>
         <b>CA:</b> {short(CA)}
       </span>

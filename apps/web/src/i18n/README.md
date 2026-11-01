@@ -3,7 +3,8 @@
 hwai is Chinese first (owner, 2026-10-31): the site opens in Simplified Chinese and the 中 / EN switch in
 the header changes the language for the whole site. The choice lives in the `lang` cookie, so the server
 renders the right language on the first request. The footer's up/down switch (`updown` cookie) picks
-red up (the default since design A, as Chinese stock apps show it) or green up.
+green up (the default since design 牛, owner 2026-11-01, as crypto apps show it) or red up (as Chinese stock
+apps show it).
 
 ## How copy is written
 

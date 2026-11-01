@@ -65,7 +65,7 @@ export function CreatorFees({ coin }: { coin: CoinDetail }) {
       {!signedIn ? (
         <>
           <p className="note">{t.signInNote}</p>
-          <button className="btn btn-g" type="button" style={{ width: "100%" }} disabled={busy} onClick={() => void run(async () => void (await ensureSignedIn()), t.signInFailed)}>
+          <button className="btn btn-lime" type="button" style={{ width: "100%" }} disabled={busy} onClick={() => void run(async () => void (await ensureSignedIn()), t.signInFailed)}>
             {t.signInToClaim}
           </button>
         </>
@@ -75,7 +75,7 @@ export function CreatorFees({ coin }: { coin: CoinDetail }) {
         <>
           <div className="kv"><span>{t.earnedOn(coin.ticker)}</span><b>{sol(earned)}</b></div>
           <div className="kv"><span>{t.ready}</span><b className="up">{sol(ready!.ui)}</b></div>
-          <button className="btn btn-g" type="button" id="claimCreator" style={{ width: "100%", marginTop: 10 }} disabled={busy || ready!.raw === "0"} onClick={() => void claim()}>
+          <button className="btn btn-lime" type="button" id="claimCreator" style={{ width: "100%", marginTop: 10 }} disabled={busy || ready!.raw === "0"} onClick={() => void claim()}>
             {busy ? t.claiming : ready!.raw === "0" ? t.nothing : t.claim(sol(ready!.ui))}
           </button>
           <p className="note" style={{ marginTop: 10 }}>

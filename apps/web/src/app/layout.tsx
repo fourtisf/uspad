@@ -38,7 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#7A0C14" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#060807" };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const [config, stats, lang, upDown] = await Promise.all([sharedApi<Config>("/api/config"), sharedApi<Stats>("/api/stats"), getLang(), getUpDown()]);
@@ -47,9 +47,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* Design A's faces (prototype/hwai-a-prototype.html). Google splits the Han fonts by unicode-range, so a page only loads the slices it uses. */}
+        {/* Design 牛's faces (prototype/hwai-niu-prototype.html). Google splits the Han font by unicode-range, so a page only loads the slices it uses. */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=ZCOOL+QingKe+HuangYou&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
       </head>
       <body>
         <div className="bgpat" aria-hidden="true" />

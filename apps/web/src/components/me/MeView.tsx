@@ -72,7 +72,7 @@ export function MeView() {
       <>
         <h1 className="page-h">{t.title}</h1>
         <p className="page-lede">{t.connectLede}</p>
-        <button className="btn btn-g btn-lg" type="button" onClick={() => setVisible(true)}>{tc.connectWallet}</button>
+        <button className="btn btn-lime btn-lg" type="button" onClick={() => setVisible(true)}>{tc.connectWallet}</button>
       </>
     );
   }
@@ -83,7 +83,7 @@ export function MeView() {
         <h1 className="page-h">{t.title}</h1>
         <p className="page-lede">{t.signInLede}</p>
         <div className="me-actions">
-          <button className="btn btn-g btn-lg" type="button" disabled={busy === "signin"} onClick={() => run("signin", async () => void (await ensureSignedIn()))}>
+          <button className="btn btn-lime btn-lg" type="button" disabled={busy === "signin"} onClick={() => run("signin", async () => void (await ensureSignedIn()))}>
             {t.signInAs(short(addr))}
           </button>
           <button className="btn btn-ghost" type="button" onClick={() => void wallet.disconnect()}>{t.disconnect}</button>
@@ -110,7 +110,7 @@ export function MeView() {
         <div className="panel" style={{ marginBottom: 18 }} id="creatorFees">
           <div className="panel-h">
             <h3>{t.creatorTitle}</h3>
-            <button className="btn btn-g" type="button" disabled={!!busy || creator.claimable.raw === "0"} onClick={() => void claimCreator()}>
+            <button className="btn btn-lime" type="button" disabled={!!busy || creator.claimable.raw === "0"} onClick={() => void claimCreator()}>
               {busy === "creator" ? t.claiming : creator.claimable.raw === "0" ? t.nothingToClaim : t.claimAmount(sol(creator.claimable.ui))}
             </button>
           </div>
@@ -155,7 +155,7 @@ export function MeView() {
                     <td className="r">{usd(c.usd)}</td>
                     <td className="r">
                       {claimModel ? (
-                        <button className="btn btn-g" type="button" disabled={!!busy || !!me?.blocked} onClick={() => void claim(c.assetSymbol)}>
+                        <button className="btn btn-lime" type="button" disabled={!!busy || !!me?.blocked} onClick={() => void claim(c.assetSymbol)}>
                           {busy === c.assetSymbol ? t.claiming : t.claim}
                         </button>
                       ) : (

@@ -11,11 +11,11 @@ export const DEFAULT_LANG: Lang = "zh";
 export const LANG_COOKIE = "lang";
 
 /**
- * "cn": red up, green down (A-share apps), the default since design A made red the brand colour
- * (owner, 2026-10-31). "intl": green up, red down (Binance and OKX's default).
+ * "intl": green up, red down (Binance and OKX's default), the default again since design 牛 (owner,
+ * 2026-11-01: the all-red design A read as bearish). "cn": red up, green down (A-share apps).
  */
 export type UpDown = "intl" | "cn";
-export const DEFAULT_UPDOWN: UpDown = "cn";
+export const DEFAULT_UPDOWN: UpDown = "intl";
 export const UPDOWN_COOKIE = "updown";
 
 export const parseLang = (v: string | undefined | null): Lang => (v === "en" || v === "zh" ? v : DEFAULT_LANG);

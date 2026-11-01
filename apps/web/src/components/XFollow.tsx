@@ -18,7 +18,7 @@ export function XFollow() {
   const t = useMsgs(hero);
   if (!X_HANDLE) return null;
   return (
-    <a className="eyecatch ca-pill x-pill" href={X_URL} target="_blank" rel="noopener noreferrer" aria-label={t.followOnX(X_HANDLE)}>
+    <a className="pill ca-pill x-pill" href={X_URL} target="_blank" rel="noopener noreferrer" aria-label={t.followOnX(X_HANDLE)}>
       <XLogo />
       <span>
         {t.follow} <b>@{X_HANDLE}</b>
@@ -41,7 +41,7 @@ export function TelegramJoin() {
   const t = useMsgs(hero);
   if (!TELEGRAM_HANDLE) return null;
   return (
-    <a className="eyecatch ca-pill x-pill" href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={t.joinOnTelegram(TELEGRAM_HANDLE)}>
+    <a className="pill ca-pill x-pill" href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={t.joinOnTelegram(TELEGRAM_HANDLE)}>
       <TelegramLogo />
       <span>
         {t.join} <b>@{TELEGRAM_HANDLE}</b>

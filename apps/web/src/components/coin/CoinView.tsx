@@ -154,7 +154,7 @@ export function CoinView({ coin: initialCoin, initialMeter, initialPayouts }: { 
             />
             <div className="legend">
               <span>{t.ath(usd(coin.athUsd))}</span>
-              <span><i style={{ background: "var(--gold-deep)" }} />{t.hourlyPayout}</span>
+              <span><i style={{ background: "var(--gold)" }} />{t.hourlyPayout}</span>
             </div>
           </div>
           <div className="panel">
@@ -282,15 +282,15 @@ export function CoinView({ coin: initialCoin, initialMeter, initialPayouts }: { 
           <div className="panel">
             <h3>{t.whereFee}</h3>
             <div className="split" aria-hidden="true">
-              <i style={{ flex: f.holdersBps, background: "var(--red)" }} />
-              <i style={{ flex: f.creatorBps, background: "var(--gold)" }} />
-              <i style={{ flex: f.divvyBps, background: "var(--gold-deep)" }} />
+              <i style={{ flex: f.holdersBps, background: "var(--lime)" }} />
+              <i style={{ flex: f.creatorBps, background: "var(--green-d)" }} />
+              <i style={{ flex: f.divvyBps, background: "var(--gold)" }} />
               <i style={{ flex: f.protocolBps, background: "rgba(255,255,255,.14)" }} />
             </div>
             <div className="split-legend">
-              <span><i style={{ background: "var(--red)" }} />{t.buysFor(coin.dividendAsset)}<b>{bpsLabel(f.holdersBps)}</b></span>
-              <span><i style={{ background: "var(--gold)" }} />{t.creator}<b>{bpsLabel(f.creatorBps)}</b></span>
-              <span><i style={{ background: "var(--gold-deep)" }} />{BRAND}<b>{bpsLabel(f.divvyBps)}</b></span>
+              <span><i style={{ background: "var(--lime)" }} />{t.buysFor(coin.dividendAsset)}<b>{bpsLabel(f.holdersBps)}</b></span>
+              <span><i style={{ background: "var(--green-d)" }} />{t.creator}<b>{bpsLabel(f.creatorBps)}</b></span>
+              <span><i style={{ background: "var(--gold)" }} />{BRAND}<b>{bpsLabel(f.divvyBps)}</b></span>
               <span><i style={{ background: "rgba(255,255,255,.14)" }} />{t.raydiumProtocol}<b>{bpsLabel(f.protocolBps)}</b></span>
             </div>
           </div>
@@ -300,7 +300,7 @@ export function CoinView({ coin: initialCoin, initialMeter, initialPayouts }: { 
               <span className={"status " + meter.status}><i />{statusLabel}</span>
             </div>
             <div className="meter-bar" aria-hidden="true">
-              <i style={{ flex: meter.paid24hUsd / tot, background: "var(--red)" }} />
+              <i style={{ flex: meter.paid24hUsd / tot, background: "var(--lime)" }} />
               <i style={{ flex: meter.pendingUsd / tot, background: "var(--gold)" }} />
             </div>
             <div className="kv"><span>{t.paid24h}</span><b>{usd(meter.paid24hUsd)}</b></div>

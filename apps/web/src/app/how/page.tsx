@@ -170,7 +170,7 @@ export default async function HowPage() {
         <p>{t.fine4}</p>
       </div>
       <div style={{ marginBottom: 80 }}>
-        <Link className="btn btn-g btn-lg" href="/create">{t.createCoin}</Link>
+        <Link className="btn btn-lime btn-lg" href="/create">{t.createCoin}</Link>
       </div>
     </>
   );

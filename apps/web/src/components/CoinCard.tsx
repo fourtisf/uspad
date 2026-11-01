@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { pct, usd } from "@divvy/shared";
 import { Chip } from "./Chip";
+import { Spark } from "./Spark";
 import { coinHref } from "@/lib/links";
 import { shareLabel } from "@/lib/devbuy";
 import { useMsgs } from "@/i18n/client";
@@ -31,8 +32,8 @@ export interface CardCoin {
 }
 
 /**
- * A coin as an envelope card (prototype `.lcard`): the create page's preview and the list of coins that
- * share a ticker. `asDiv` renders the preview, which isn't a link.
+ * A coin as a card (prototype `.lcard`, the same as the home page's leaders): the create page's preview and
+ * the list of coins that share a ticker. `asDiv` renders the preview, which isn't a link.
  */
 export function CoinCard({ c, asDiv = false }: { c: CardCoin; asDiv?: boolean }) {
   const t = useMsgs(board);
@@ -42,35 +43,26 @@ export function CoinCard({ c, asDiv = false }: { c: CardCoin; asDiv?: boolean })
     <>
       <div className="top">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="av" src={c.imageUrl} alt="" width={44} height={44} loading="lazy" style={{ width: 44, height: 44, borderRadius: 12, objectFit: "cover" }} />
-        <div style={{ minWidth: 0 }}>
+        <img className="av" src={c.imageUrl} alt="" width={42} height={42} loading="lazy" style={{ width: 42, height: 42, borderRadius: 12 }} />
+        <div>
           <div className="nm">{c.name}</div>
           <div className="tk" suppressHydrationWarning>${c.ticker} · {t.agoBy(ago(c.ageMin), c.creatorLabel)}</div>
         </div>
-        {isNew ? <span className="badge new">{t.badgeNew}</span> : c.graduated ? <span className="badge grad">{t.badgeGraduated}</span> : null}
+        {isNew ? <span className="badge new">{t.badgeNew}</span> : <span className={"chg " + (c.ch >= 0 ? "up" : "down")}>{pct(c.ch)}</span>}
       </div>
-      <div className="bd">
-        <div className="stat">
-          <b className="num">{usd(c.mcap)}</b>
-          <span>
-            {t.marketCap} <span className={"chg " + (c.ch >= 0 ? "up" : "down")}>{pct(c.ch)}</span>
-            {c.devBuyPct ? <><br /><span title={t.devBadgeTitle(shareLabel(c.devBuyPct))}>{t.devBadge(shareLabel(c.devBuyPct))}</span></> : null}
-          </span>
-        </div>
-        {c.graduated ? null : (
-          <div>
-            <div className="bar-row" style={{ margin: "0 0 6px" }}>
-              <span>{t.bondingCurve}</span>
-              <span>{Math.round(c.progress * 100)}%</span>
-            </div>
-            <div className="bar"><i style={{ width: (c.progress * 100).toFixed(1) + "%" }} /></div>
-          </div>
-        )}
-        <div className="pays">
-          <strong><Chip sym={c.pays} />{c.pays}</strong>
-          <span className="tab">{usd(c.paidUsd)} {t.paidOut} · {c.holders.toLocaleString("en-US")} {t.holders}</span>
-        </div>
+      {c.spark.length > 1 ? <Spark values={c.spark} /> : <div className="spark-empty">{t.noChart}</div>}
+      <div className="mc">
+        <b>{usd(c.mcap)}</b>
+        <span>{c.graduated ? t.badgeGraduated : t.curveShort(Math.round(c.progress * 100) + "%")}</span>
       </div>
+      <div className="bar"><i style={{ width: (c.graduated ? 100 : c.progress * 100).toFixed(1) + "%" }} /></div>
+      <div className="pays">
+        <strong><Chip sym={c.pays} />{c.pays}</strong>
+        <span className="tab">
+          {t.paidOut} <b>{usd(c.paidUsd)}</b> · {c.holders.toLocaleString("en-US")} {t.holders}
+        </span>
+      </div>
+      {c.devBuyPct ? <div className="dev" title={t.devBadgeTitle(shareLabel(c.devBuyPct))} style={{ marginTop: 8 }}>{t.devBadge(shareLabel(c.devBuyPct))}</div> : null}
     </>
   );
   return asDiv ? (

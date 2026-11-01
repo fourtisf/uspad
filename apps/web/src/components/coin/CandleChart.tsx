@@ -48,13 +48,13 @@ export function CandleChart({ candles, solUsd, payoutHours, label }: { candles: 
     let chart: IChartApi | undefined;
     void import("lightweight-charts").then((lw) => {
       if (off || !box.current) return;
-      const up = css("--up", "#4ADE80");
-      const down = css("--down", "#FF6B81");
-      const faint = css("--ink-3", "#9A6F6B");
+      const up = css("--up", "#2EF08A");
+      const down = css("--down", "#FF4D61");
+      const faint = css("--tx-3", "#64776D");
       chart = lw.createChart(box.current, {
         autoSize: true,
         layout: { background: { type: lw.ColorType.Solid, color: "transparent" }, textColor: faint, fontFamily: "inherit", fontSize: 11 },
-        grid: { vertLines: { color: "rgba(43,3,6,.05)" }, horzLines: { color: "rgba(43,3,6,.07)" } },
+        grid: { vertLines: { color: "rgba(255,255,255,.03)" }, horzLines: { color: "rgba(255,255,255,.05)" } },
         crosshair: { mode: lw.CrosshairMode.Normal },
         rightPriceScale: { borderVisible: false },
         timeScale: {
@@ -96,8 +96,8 @@ export function CandleChart({ candles, solUsd, payoutHours, label }: { candles: 
     const a = api.current;
     if (!ready || !a || !candles) return;
     // Read on every update so the footer's up/down switch recolours the chart in place.
-    const up = css("--up", "#4ADE80");
-    const down = css("--down", "#FF6B81");
+    const up = css("--up", "#2EF08A");
+    const down = css("--down", "#FF4D61");
     a.bars.applyOptions({ upColor: up, downColor: down, wickUpColor: up, wickDownColor: down });
     a.bars.setData(candles.items.map((b) => ({ time: b.t as Time, open: b.o, high: b.h, low: b.l, close: b.c })));
     a.vol.setData(candles.items.map((b) => ({ time: b.t as Time, value: b.vol.ui * solUsd, color: (b.c >= b.o ? up : down) + "55" })));
@@ -108,7 +108,7 @@ export function CandleChart({ candles, solUsd, payoutHours, label }: { candles: 
       .filter((t): t is number => t !== undefined)
       .filter((t, i, all) => all.indexOf(t) === i)
       .sort((x, y) => x - y)
-      .map((t) => ({ time: t as Time, position: "belowBar" as const, shape: "circle" as const, color: css("--gold-deep", "#B98A1E"), size: 0.6 }));
+      .map((t) => ({ time: t as Time, position: "belowBar" as const, shape: "circle" as const, color: css("--gold", "#FFC84A"), size: 0.6 }));
     a.marks.setMarkers(marks);
     // Fit once per time frame and unit; later refreshes keep where the viewer scrolled to.
     const key = `${candles.tf}:${candles.unit}`;

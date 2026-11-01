@@ -9,10 +9,10 @@ export default function GlobalError({ reset }: { error: Error; reset: () => void
   const t = common[lang];
   return (
     <html lang={htmlLang(lang)}>
-      <body style={{ background: "#0A0F0D", color: "#EAFBF1", fontFamily: "system-ui, sans-serif", display: "grid", placeItems: "center", minHeight: "100vh", margin: 0 }}>
+      <body style={{ background: "#060807", color: "#ECF5EF", fontFamily: "system-ui, sans-serif", display: "grid", placeItems: "center", minHeight: "100vh", margin: 0 }}>
         <div style={{ textAlign: "center", padding: 24 }}>
           <p>{t.serverDown}</p>
-          <button type="button" onClick={reset} style={{ marginTop: 12, padding: "10px 18px", borderRadius: 999, border: 0, background: "#4ADE80", color: "#03140A", fontWeight: 600, cursor: "pointer" }}>
+          <button type="button" onClick={reset} style={{ marginTop: 12, padding: "10px 18px", borderRadius: 12, border: 0, background: "#C3FF3C", color: "#061006", fontWeight: 800, cursor: "pointer" }}>
             {t.tryAgain}
           </button>
         </div>

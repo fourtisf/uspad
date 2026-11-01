@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { defineMsgs } from "../lang";
 
-/** The board: hero, stats, leaders, coin grid, coin table and envelope cards (components/board, CoinCard). */
+/** The board: hero, live card, stats, leaders, coin table and coin cards (components/board, CoinCard). */
 export const board = defineMsgs(
   {
     paidThisHour: (usd: string) => `Holders paid ${usd} in stocks this hour`,
-    untilNext: "until the next payout",
+    kickIdle: "Hourly stock dividends on Solana",
+    untilNext: (claim: boolean): string => (claim ? "Credited to holders every hour" : "Sent to wallets every hour"),
     h1: (
       <>
-        Memecoins that pay you <em>real stock dividends.</em>
+        Memecoins that pay you real <em>stock dividends</em>
+        <span className="arr" aria-hidden="true">↗</span>
       </>
     ),
     lede: (paidLaunch: boolean, tail: string) => `Launch a coin${paidLaunch ? " in seconds" : " for free"}. Every trade buys the stock you picked, like NVDAx or SPYx, ${tail}`,
@@ -19,17 +21,22 @@ export const board = defineMsgs(
     noSniper: "No sniper in block 0",
     payoutsOnChain: "Every payout on chain",
     nextPayout: "Next payout",
-    lastRound: "Last hourly round",
-    paidToWallets: (n: string) => `paid to ${n} wallets`,
+    lastRound: "Last round",
+    liveTick: (ticker: string, asset: string) => `$${ticker} · pays in ${asset}`,
+    h24: "24h",
+    dripLabel: (ticker: string) => `$${ticker} holders got`,
+    liveEmptyH: "No coin is live yet",
+    liveEmptyP: "Launch the first one. Its holders get the first payout.",
+    noCoins: "No coins yet. Be the first to launch one.",
     paidToHolders: "Paid to holders",
     traded24h: "Traded in 24h",
     coinsLive: "Coins live",
     stocksToEarn: "Stocks to earn",
     leadersH: "Paying the most today",
     leadersP: "Ranked by what holders were paid in the last 24 hours.",
-    leaderTick: (ticker: string, mcap: string) => `$${ticker}, ${mcap} market cap`,
-    paidToday: "paid today",
-    leaderTotal: (paid: string, holders: string) => `${paid} paid · ${holders} holders`,
+    paidToday: "Paid today",
+    curveShort: (pct: string) => `Curve ${pct}`,
+    noChart: "New coin, no chart yet",
     colCoin: "Coin",
     colMcap: "Market cap",
     col24h: "24h",
@@ -55,19 +62,19 @@ export const board = defineMsgs(
     devBadge: (share: string) => `Dev ${share}`,
     devBadgeTitle: (share: string) => `The creator bought ${share} of the supply in the create`,
     agoBy: (ago: string, creator: string) => `${ago} by ${creator}`,
-    marketCap: "Market cap",
-    bondingCurve: "Bonding curve",
-    paidOut: "paid out",
+    paidOut: "Paid out",
     holders: "holders",
   },
   {
-    paidThisHour: (usd: string) => `本小时已发 ${usd} 美股红包`,
-    untilNext: "距离下一个红包",
+    paidThisHour: (usd: string) => `本小时已发 ${usd} 美股`,
+    kickIdle: "每小时美股分红 · Solana",
+    untilNext: (claim: boolean) => (claim ? "每小时自动记入持有人" : "每小时自动发到钱包"),
     h1: (
       <>
         土狗也分红，
         <br />
-        <em>分的是美股。</em>
+        分的是<em>美股</em>
+        <span className="arr" aria-hidden="true">↗</span>
       </>
     ),
     lede: (paidLaunch: boolean, tail: string) => `${paidLaunch ? "几秒钟就能发币。" : "免费发币。"}每一笔交易都会买入你选的股票代币，比如 NVDAx、SPYx，${tail}`,
@@ -77,18 +84,23 @@ export const board = defineMsgs(
     liquidityLocked: "流动性永久锁定",
     noSniper: "0 号区块无狙击",
     payoutsOnChain: "每笔分红链上可查",
-    nextPayout: "下次分红",
-    lastRound: "上一轮分红",
-    paidToWallets: (n: string) => `已分给 ${n} 个钱包`,
+    nextPayout: "下一轮分红",
+    lastRound: "上一轮",
+    liveTick: (ticker: string, asset: string) => `$${ticker} · 分红 ${asset}`,
+    h24: "24 小时",
+    dripLabel: (ticker: string) => `$${ticker} 持有人领到`,
+    liveEmptyH: "还没有代币上线",
+    liveEmptyP: "发第一个代币，它的持有人领第一笔分红。",
+    noCoins: "还没有代币。来发第一个吧。",
     paidToHolders: "累计分红",
     traded24h: "24 小时交易额",
     coinsLive: "在线代币",
     stocksToEarn: "可分红股票",
     leadersH: "今日分红最多",
     leadersP: "按过去 24 小时持有人所得排名。",
-    leaderTick: (ticker: string, mcap: string) => `$${ticker}，市值 ${mcap}`,
     paidToday: "今日已分",
-    leaderTotal: (paid: string, holders: string) => `累计 ${paid} · ${holders} 人`,
+    curveShort: (pct: string) => `内盘 ${pct}`,
+    noChart: "新币，暂无走势",
     colCoin: "代币",
     colMcap: "市值",
     col24h: "24h",
@@ -114,8 +126,6 @@ export const board = defineMsgs(
     devBadge: (share: string) => `首买 ${share}`,
     devBadgeTitle: (share: string) => `创建者在创建时买入了 ${share} 的供应量`,
     agoBy: (ago: string, creator: string) => `${ago} · ${creator} 创建`,
-    marketCap: "市值",
-    bondingCurve: "内盘进度",
     paidOut: "已分红",
     holders: "持有人",
   },

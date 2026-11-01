@@ -237,7 +237,7 @@ export function LaunchModal({
             <div className="modal-actions">
               <button
                 type="button"
-                className="btn btn-g btn-lg"
+                className="btn btn-lime btn-lg"
                 onClick={() => onDone(live.status)}
               >
                 {t.openCoin}
@@ -289,7 +289,7 @@ export function LaunchModal({
                     ? t.didntSign(walletSaid || t.noAnswer)
                     : t.cantSee}
                 </p>
-                <button type="button" className="btn btn-g" style={{ width: "100%", marginTop: 10 }} onClick={() => void signCreate(toSign)}>
+                <button type="button" className="btn btn-lime" style={{ width: "100%", marginTop: 10 }} onClick={() => void signCreate(toSign)}>
                   {t.approve}
                 </button>
               </>

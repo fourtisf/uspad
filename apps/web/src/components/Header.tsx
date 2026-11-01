@@ -6,11 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { short } from "@divvy/shared";
-import { BRAND } from "@/lib/brand";
 import { useLang, useMsgs } from "@/i18n/client";
 import { common } from "@/i18n/msgs/common";
 import { Icon } from "./Icon";
-import { Mark } from "./Mark";
+import { Mark, Wordmark } from "./Mark";
 import { useToast } from "./Toasts";
 
 /** Which nav item a path belongs to (prototype `route` nav map). */
@@ -108,8 +107,8 @@ export function Header() {
     <header className="top">
       <div className="wrap">
         <Link className="logo" href="/" aria-label={t.home}>
-          <Mark size={30} />
-          {BRAND}
+          <Mark size={36} />
+          <Wordmark height={24} />
         </Link>
         <nav className="links" aria-label="Main">
           <Link href="/" {...cur("board")}>{t.navBoard}</Link>
@@ -125,7 +124,7 @@ export function Header() {
           <kbd>/</kbd>
         </label>
         <LangSwitch />
-        <Link className="btn btn-g" href="/create" id="createTop">
+        <Link className="btn btn-lime" href="/create" id="createTop">
           {t.createCoin}
         </Link>
         <ConnectButton />

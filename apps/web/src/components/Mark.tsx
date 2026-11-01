@@ -1,20 +1,22 @@
-import { useId } from "react";
+import { NIU, SEAL, TILT, WORD, WORD_BOX, WORD_RATIO } from "./markPaths";
 
-/** The hwai mark: a gold square-holed cash coin (brand/hwai). `variant="red"` is the red coin on the envelope. */
-export function Mark({ size = 30, variant = "gold" }: { size?: number; variant?: "gold" | "red" }) {
-  const id = useId();
-  const stops = variant === "red" ? [["0", "#E33240"], ["1", "#8C0D17"]] : [["0", "#FFE8A8"], [".5", "#F4C24E"], ["1", "#B98A1E"]];
-  const rim = variant === "red" ? "#FFE6A3" : "#5A0A0F";
+/** The hwai mark: 牛 brushed in a hand-stamped lime seal (brand/hwai, design 牛). */
+export function Mark({ size = 34 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-          {stops.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
-        </linearGradient>
-      </defs>
-      <path d="M8 50A42 42 0 1 1 92 50A42 42 0 1 1 8 50Z M38 38V62H62V38Z" fill={`url(#${id})`} fillRule="evenodd" />
-      <circle cx="50" cy="50" r="34" fill="none" stroke={rim} strokeOpacity=".38" strokeWidth="2" />
-      <rect x="32" y="32" width="36" height="36" fill="none" stroke={rim} strokeOpacity=".38" strokeWidth="2" />
+      <g transform={`rotate(${TILT} 50 50)`}>
+        <path d={SEAL} fill="#C3FF3C" fillRule="evenodd" />
+        <path d={NIU} fill="#061006" />
+      </g>
+    </svg>
+  );
+}
+
+/** The brush "hwai" wordmark, in the current text colour. */
+export function Wordmark({ height = 24 }: { height?: number }) {
+  return (
+    <svg className="word" height={height} width={Math.round(height * WORD_RATIO)} viewBox={WORD_BOX} aria-hidden="true">
+      <path d={WORD} fill="currentColor" />
     </svg>
   );
 }

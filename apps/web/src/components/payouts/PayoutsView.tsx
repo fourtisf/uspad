@@ -43,13 +43,13 @@ export function PayoutsView({ initial, assetsInUse, nextRoundAt }: { initial: Pa
           </span>
         </div>
         <div className="meter-bar">
-          <i style={{ flex: s.paidUsd, background: "var(--red)" }} />
+          <i style={{ flex: s.paidUsd, background: "var(--lime)" }} />
           <i style={{ flex: s.pendingUsd, background: "var(--gold)" }} />
         </div>
         <div className="legend">
-          <span><i style={{ background: "var(--red)" }} />{t.legendPaid}</span>
+          <span><i style={{ background: "var(--lime)" }} />{t.legendPaid}</span>
           <span><i style={{ background: "var(--gold)" }} />{t.legendWaiting(<Countdown nextAt={nextRoundAt} />)}</span>
-          <span><i style={{ background: "var(--red)" }} />{t.legendLate}</span>
+          <span><i style={{ background: "#FF4D61" }} />{t.legendLate}</span>
         </div>
       </div>
       <div className="panel" style={{ marginBottom: 80 }}>

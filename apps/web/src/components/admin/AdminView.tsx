@@ -44,7 +44,7 @@ export function AdminView() {
         <h1 className="page-h">Admin</h1>
         <p className="page-lede">{me?.wallet ? "This wallet isn't an admin." : "Sign in with an admin wallet."}</p>
         {!me?.wallet && (
-          <button className="btn btn-g btn-lg" type="button" onClick={() => void ensureSignedIn().catch((e) => toast(errorText(e, "Couldn't sign in") ?? ""))}>
+          <button className="btn btn-lime btn-lg" type="button" onClick={() => void ensureSignedIn().catch((e) => toast(errorText(e, "Couldn't sign in") ?? ""))}>
             Sign in
           </button>
         )}
@@ -81,12 +81,12 @@ export function AdminView() {
             }}
           >
             <input className="tinput" placeholder="Reason shown on the create page" maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} />
-            <button className="btn btn-red" type="submit" disabled={busy}>Pause launches</button>
+            <button className="btn btn-danger" type="submit" disabled={busy}>Pause launches</button>
           </form>
         ) : (
           <div className="admin-row">
             <p className="note" style={{ margin: 0 }}>Paused: {o.launchesPausedReason ?? "no reason given"}</p>
-            <button className="btn btn-g" type="button" disabled={busy} onClick={() => void act(() => post("/api/admin/settings", { launchesOpen: true, reason: null }), "Launches open")}>
+            <button className="btn btn-lime" type="button" disabled={busy} onClick={() => void act(() => post("/api/admin/settings", { launchesOpen: true, reason: null }), "Launches open")}>
               Open launches
             </button>
           </div>

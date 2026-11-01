@@ -418,10 +418,10 @@ export function CreateForm() {
             <div className="sumline"><span>{t.yourShare}</span><b>{bpsLabel(config.fees.creatorBps)}</b></div>
             <div className="sumline"><span>{t.holdersShare}</span><b id="holdShare">{t.holdersShareValue(bpsLabel(config.fees.holdersBps), d.pays)}</b></div>
             <div className="sumline"><span>{t.devBuy}</span><b id="devSum">{devSol ? t.devSum(devSol, shareLabel(devShare)) : t.none}</b></div>
-            <button className="btn btn-g btn-lg" id="launchBtn" type="submit" form="frm" style={{ width: "100%", marginTop: 14 }} disabled={!ready || (!config.launchesOpen && !me?.isAdmin) || !!me?.blocked}>
+            <button className="btn btn-lime btn-lg" id="launchBtn" type="submit" form="frm" style={{ width: "100%", marginTop: 14 }} disabled={!ready || (!config.launchesOpen && !me?.isAdmin) || !!me?.blocked}>
               {t.launchCoin}
             </button>
-            <p className="note" id="launchHint" style={{ textAlign: "center", color: launchError ? "var(--red)" : undefined }}>
+            <p className="note" id="launchHint" style={{ textAlign: "center", color: launchError ? "#FF4D61" : undefined }}>
               {me?.blocked
                 ? t.blocked
                 : launchError
