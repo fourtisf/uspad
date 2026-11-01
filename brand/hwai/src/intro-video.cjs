@@ -285,9 +285,18 @@ const html = `<div class="stage"><div class="cam">
     "last",
   )}
 </div>
-<svg class="grain" width="${W}" height="${H}"><filter id="gr"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#gr)"/></svg>
+<img class="grain" src="GRAIN" width="${W}" height="${H}" alt="">
 <div class="vig"></div>
 </div>`;
+
+// Film grain, rendered once: an SVG turbulence filter redrawn on every frame made the render ten times slower.
+async function grain(b) {
+  const p = await b.newPage({ viewport: { width: W, height: H } });
+  await p.setContent(`<body style="margin:0"><svg width="${W}" height="${H}"><filter id="gr"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#gr)"/></svg></body>`);
+  const png = await p.screenshot();
+  await p.close();
+  return `data:image/png;base64,${png.toString("base64")}`;
+}
 
 // The product shots: the approved prototype (its demo data), rendered here so the video follows the design.
 async function shots(b) {
@@ -313,10 +322,25 @@ async function shots(b) {
   const b = await chromium.launch();
   const page = await b.newPage({ viewport: { width: W, height: H } });
   const fonts = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;700;900&family=JetBrains+Mono:wght@500;700&display=block">`;
-  await page.setContent(`<!doctype html><meta charset="utf-8">${fonts}<style>${css(await shots(b))}</style>${html}`, { waitUntil: "networkidle" });
+  await page.setContent(`<!doctype html><meta charset="utf-8">${fonts}<style>${css(await shots(b))}</style>${html.replace("GRAIN", await grain(b))}`, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => document.getAnimations().forEach((a) => a.pause()));
   const seek = (ms) => page.evaluate((t) => document.getAnimations().forEach((a) => (a.currentTime = t)), ms);
+  // Lossless PNG frames straight from the compositor; optimizeForSpeed halves the encoding time.
+  const cdp = await page.context().newCDPSession(page);
+  const frame = async () => Buffer.from((await cdp.send("Page.captureScreenshot", { format: "png", optimizeForSpeed: true })).data, "base64");
+
+  // --bench: how long a frame takes, on the busiest scenes.
+  if (process.argv[3] === "--bench") {
+    const t0 = Date.now();
+    for (let f = 0; f < 30; f++) {
+      await seek((10 + f / FPS) * 1000);
+      await frame();
+    }
+    console.log(`${((Date.now() - t0) / 30).toFixed(0)} ms a frame`);
+    await b.close();
+    return;
+  }
 
   // --stills <dir>: frames from each scene, to check the layout before a full render.
   if (process.argv[3] === "--stills") {
@@ -334,7 +358,7 @@ async function shots(b) {
   const frames = Math.round(DURATION * FPS);
   for (let f = 0; f < frames; f++) {
     await seek((f / FPS) * 1000);
-    const png = await page.screenshot({ type: "png" });
+    const png = await frame();
     if (!ff.stdin.write(png)) await new Promise((r) => ff.stdin.once("drain", r));
     if (f % (FPS * 5) === 0) process.stdout.write(`${(f / FPS).toFixed(0)}s `);
   }
