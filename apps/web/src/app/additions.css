@@ -51,6 +51,10 @@ button.link{border:0;background:none;padding:0;font:inherit;cursor:pointer}
 button.ca,button.ca-pill,a.x-pill,.tag.report{cursor:pointer;font:inherit;font-size:13px}
 button.ca:hover,button.ca-pill:hover,a.x-pill:hover,.tag.report:hover{border-color:var(--tx-3);color:var(--tx)}
 .x-pill svg{flex:none}
+/* Share on X (coin page, launch modal): the X logo next to the label. */
+.share-x{display:inline-flex;align-items:center;gap:7px}
+.share-x svg{flex:none}
+button.ca.share-x{color:var(--tx)}
 
 /* ---------- panels in the app ---------- */
 /* App panels hold their content directly, so they pad themselves; the prototype's structured panels keep their own. */

@@ -17,6 +17,10 @@ import { checkCreate, UnsafeTransaction } from "@/lib/txcheck";
 import { useMsgs } from "@/i18n/client";
 import { create } from "@/i18n/msgs/create";
 import { Icon } from "../Icon";
+import { XLogo } from "../XFollow";
+import { coinHref } from "@/lib/links";
+import { shareOnX } from "@/lib/share";
+import { X_HANDLE } from "@/lib/social";
 import { useToast } from "../Toasts";
 
 /** The modal's steps (create.steps): checks, wallet, bundle, on chain, on the board. */
@@ -258,6 +262,12 @@ export function LaunchModal({
               >
                 {t.openCoin}
               </button>
+              {live.status.mint && (
+                <button type="button" className="btn btn-ghost share-x" onClick={() => shareOnX(t.shareLaunchText(live.status.ticker, pays, X_HANDLE), coinHref({ ticker: live.status.ticker, mint: live.status.mint }))}>
+                  <XLogo size={13} />
+                  {t.shareLaunch}
+                </button>
+              )}
               {live.status.mint && (
                 <a
                   className="btn btn-ghost"

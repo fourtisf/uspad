@@ -31,6 +31,10 @@ import { Icon } from "../Icon";
 import { useToast } from "../Toasts";
 import { CandleChart } from "./CandleChart";
 import { ReportButton } from "./ReportButton";
+import { XLogo } from "../XFollow";
+import { coinHref } from "@/lib/links";
+import { shareOnX } from "@/lib/share";
+import { X_HANDLE } from "@/lib/social";
 import { TradeBox } from "./TradeBox";
 import { CreatorFees } from "./CreatorFees";
 import { shareLabel } from "@/lib/devbuy";
@@ -113,6 +117,10 @@ export function CoinView({ coin: initialCoin, initialMeter, initialPayouts }: { 
             <button className="ca" type="button" id="copyCa" title={t.copyCa} onClick={copyCa}>
               <Icon name="copy" />
               {short(coin.mint)}
+            </button>
+            <button className="ca share-x" type="button" onClick={() => shareOnX(t.shareText(coin.ticker, coin.dividendAsset, X_HANDLE), coinHref(coin))}>
+              <XLogo size={12} />
+              {t.shareX}
             </button>
             <span className="tag"><Icon name="shield" />{t.privateBundle}</span>
             <span className="tag" id="devBuyTag" title={coin.devBuyPct ? t.devBoughtTitle(shareLabel(coin.devBuyPct)) : t.noDevBuyTitle}>
