@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Logo 金牛 putih</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@500;700;800;900&display=swap">
+<style>
+/* The owner, 2026-11-02: "jangan koin emas, yang putih aja logonya" (no gold coin, a white logo).
+   One mark in two forms: W1, the brush 牛 in glossy white like porcelain on a soft grey tile (the main
+   mark, after the clean white site), and W2, the same 牛 flat white on black (small sizes, avatars,
+   dark places). Sketch: Ma Shan Zheng from Google Fonts (SIL OFL); the final mark is drawn as paths. */
+:root{--ink:#0E0E0E;--ink2:#5E5C57;--ink3:#9A968D;--rule:#E7E5E0}
+*{box-sizing:border-box}
+body{margin:0;background:#F4F3F0;color:var(--ink);font:15px/1.55 "Inter Tight","Noto Sans SC",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1360px;margin:0 auto;padding:40px 24px 60px}
+h1{font:800 34px/1.15 "Inter Tight","Noto Sans SC";margin:0 0 8px;letter-spacing:-.02em}
+.lede{color:var(--ink2);margin:0 0 26px;max-width:900px;font-size:16px}
+.c{background:#fff;border-radius:28px;padding:28px;margin-bottom:22px;box-shadow:0 0 0 1px var(--rule)}
+.ch{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.ch .no{display:grid;place-items:center;min-width:44px;height:36px;padding:0 10px;border-radius:999px;background:var(--ink);color:#fff;font:800 15px "Inter Tight"}
+.ch h2{margin:0;font:800 24px "Inter Tight","Noto Sans SC"}
+.ch .tag{margin-left:auto;background:#E3F5EC;color:#0E7A4F;border-radius:999px;padding:4px 12px;font:700 13px "Inter Tight"}
+.row{display:grid;grid-template-columns:300px 300px 1fr;gap:16px}
+.tile{display:grid;place-items:center;height:300px;border-radius:22px}
+.tile.w{background:#fff;box-shadow:inset 0 0 0 1px var(--rule)}
+.tile.k{background:#0B0B0C}
+.tile svg{width:210px;height:210px}
+.side{display:grid;grid-template-rows:auto auto 1fr;gap:16px}
+.uses{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:16px 18px;border-radius:22px;box-shadow:inset 0 0 0 1px var(--rule)}
+.uses svg.app{width:96px;height:96px;filter:drop-shadow(0 10px 16px rgba(0,0,0,.12))}
+.av{width:96px;height:96px;border-radius:50%;overflow:hidden;display:grid;place-items:center}
+.fav{display:flex;gap:12px;align-items:flex-end}
+.fav span{display:grid;place-items:center}
+.fav small{display:block;text-align:center;font:600 11px "Inter Tight";color:var(--ink3);margin-top:4px}
+.lock{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:999px;box-shadow:0 0 0 1px var(--rule);width:max-content;background:#fff}
+.lock b{font:800 21px "Noto Sans SC";letter-spacing:.02em}
+.lock small{font:600 12px "Inter Tight";color:var(--ink3);letter-spacing:.04em}
+.lock .btn{margin-left:22px;background:#111;color:#fff;border-radius:999px;padding:8px 16px;font:700 14px "Noto Sans SC"}
+.lock .btn.g{background:#FFC21A;color:#111}
+.txt{font-size:14.5px;color:var(--ink2)}
+.txt b{color:var(--ink)}
+.txt p{margin:0 0 8px}
+.ref{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.ref span{background:#F4F3F0;border-radius:999px;padding:3px 11px;font:600 12.5px "Inter Tight","Noto Sans SC";color:var(--ink2)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="tileG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3F3F1"/><stop offset="1" stop-color="#DADAD6"/></linearGradient>
+    <linearGradient id="glyphG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#FAFAFA"/><stop offset="1" stop-color="#E2E2E0"/></linearGradient>
+    <filter id="porcelain" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="b"/>
+      <feSpecularLighting in="b" surfaceScale="4.5" specularConstant=".85" specularExponent="26" lighting-color="#fff" result="s"><feDistantLight azimuth="235" elevation="42"/></feSpecularLighting>
+      <feComposite in="s" in2="SourceAlpha" operator="in" result="si"/>
+      <feComposite in="SourceGraphic" in2="si" operator="arithmetic" k1="0" k2="1" k3=".9" k4="0" result="lit"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="eb"/>
+      <feOffset in="eb" dx="0" dy="1.2" result="eo"/>
+      <feComposite in="SourceAlpha" in2="eo" operator="out" result="edge"/>
+      <feFlood flood-color="#000" flood-opacity=".22"/><feComposite in2="edge" operator="in" result="edgeC"/>
+      <feMerge><feMergeNode in="lit"/><feMergeNode in="edgeC"/></feMerge>
+    </filter>
+    <filter id="lift" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#2A2A26" flood-opacity=".30"/></filter>
+  </defs>
+  <!-- W1: glossy white 牛 on a soft grey tile -->
+  <symbol id="W1" viewBox="0 0 200 200">
+    <rect x="4" y="4" width="192" height="192" rx="46" fill="url(#tileG)"/>
+    <rect x="4.5" y="4.5" width="191" height="191" rx="45.5" fill="none" stroke="#000" stroke-opacity=".05"/>
+    <g filter="url(#lift)"><text x="100" y="108" text-anchor="middle" dominant-baseline="middle" font-family="Ma Shan Zheng" font-size="150" fill="url(#glyphG)" filter="url(#porcelain)">牛</text></g>
+  </symbol>
+  <!-- W1 without its tile, for white pages -->
+  <symbol id="W1g" viewBox="0 0 200 200">
+    <g filter="url(#lift)"><text x="100" y="108" text-anchor="middle" dominant-baseline="middle" font-family="Ma Shan Zheng" font-size="168" fill="url(#glyphG)" filter="url(#porcelain)">牛</text></g>
+  </symbol>
+  <!-- W2: flat white 牛 on black -->
+  <symbol id="W2" viewBox="0 0 200 200">
+    <rect x="4" y="4" width="192" height="192" rx="46" fill="#0E0E0E"/>
+    <text x="100" y="108" text-anchor="middle" dominant-baseline="middle" font-family="Ma Shan Zheng" font-size="150" fill="#fff">牛</text>
+  </symbol>
+  <symbol id="W2c" viewBox="0 0 200 200">
+    <circle cx="100" cy="100" r="100" fill="#0E0E0E"/>
+    <text x="100" y="108" text-anchor="middle" dominant-baseline="middle" font-family="Ma Shan Zheng" font-size="136" fill="#fff">牛</text>
+  </symbol>
+</svg>
+
+<div class="wrap">
+  <h1>Logo 金牛 putih</h1>
+  <p class="lede">Tanpa koin emas. Satu logo, yaitu 牛 kuas, dalam dua bentuk. W1 putih mengilap seperti porselen di atas ubin abu-abu muda, cocok dengan situs yang putih dan bersih. W2 putih polos di atas hitam, untuk ukuran kecil (favicon) dan tempat gelap (avatar X, Telegram). Ini masih sketsa; versi final digambar sebagai vektor.</p>
+
+  <div class="c">
+    <div class="ch"><span class="no">W1</span><h2>Putih porselen</h2><span class="tag">Logo utama</span></div>
+    <div class="row">
+      <div class="tile w"><svg><use href="#W1"/></svg></div>
+      <div class="tile" style="background:linear-gradient(#F3F3F1,#DADAD6)"><svg><use href="#W1g"/></svg></div>
+      <div class="side">
+        <div class="uses">
+          <svg class="app"><use href="#W1"/></svg>
+          <span class="av" style="background:linear-gradient(#F3F3F1,#DADAD6);box-shadow:0 0 0 1px var(--rule)"><svg width="84" height="84"><use href="#W1g"/></svg></span>
+          <span class="fav"><span><svg width="32" height="32"><use href="#W1"/></svg><small>32</small></span><span><svg width="16" height="16"><use href="#W1"/></svg><small>16</small></span></span>
+        </div>
+        <div class="lock"><svg width="40" height="40"><use href="#W1"/></svg><b>金牛</b><small>jinniu</small><span class="btn g">创建代币</span></div>
+        <div class="txt"><p><b>Ide:</b> 牛 kuas yang sama, dicetak putih mengilap seperti porselen atau giok putih, dengan bayangan lembut. Mewah, tenang, dan menyatu dengan halaman putih. Di 16 px terlalu pucat, jadi favicon memakai W2.</p>
+          <div class="ref"><span>Logo P kaca di Pons</span><span>Porselen putih 德化白瓷</span><span>Ikon aplikasi Apple</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="c">
+    <div class="ch"><span class="no">W2</span><h2>Putih di atas hitam</h2><span class="tag" style="background:#F1F0EC;color:#5E5C57">Ukuran kecil dan latar gelap</span></div>
+    <div class="row">
+      <div class="tile w"><svg><use href="#W2"/></svg></div>
+      <div class="tile k"><svg><use href="#W2"/></svg></div>
+      <div class="side">
+        <div class="uses">
+          <svg class="app"><use href="#W2"/></svg>
+          <span class="av"><svg width="96" height="96"><use href="#W2c"/></svg></span>
+          <span class="fav"><span><svg width="32" height="32"><use href="#W2"/></svg><small>32</small></span><span><svg width="16" height="16"><use href="#W2"/></svg><small>16</small></span></span>
+        </div>
+        <div class="lock"><svg width="40" height="40"><use href="#W2"/></svg><b>金牛</b><small>jinniu</small><span class="btn g">创建代币</span></div>
+        <div class="txt"><p><b>Ide:</b> 牛 putih polos di ubin hitam, satu warna, tanpa efek. Paling tegas dan paling mudah dibaca di ukuran kecil, cocok untuk favicon, foto profil X dan Telegram, dan avatar token.</p>
+          <div class="ref"><span>Ikon monokrom ala Apple, X, Notion</span><span>Cap 印章 satu warna</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -12,7 +12,7 @@ The owner asked to delete every uspad and hwai brand. Gone from the repo, all st
 - `prototype/divvy-prototype.html` and `prototype/hwai-a-prototype.html`, the retired designs.
 - `apps/web/public/brand/hwai-lockup.svg`, which nothing used.
 
-The 金牛 mark is 牛 brushed on a gold coin, so its generator can start from `brand/hwai/src/niu.py` and `glyphs.json` in that commit (`git show 57a8482:brand/hwai/src/glyphs.json`).
+The 金牛 mark is the brush 牛, so its generator can start from `brand/hwai/src/niu.py` and `glyphs.json` in that commit (`git show 57a8482:brand/hwai/src/glyphs.json`).
 
 ## What still says hwai or uspad, and why
 
@@ -52,7 +52,7 @@ A rename also touches: $HWAI (launched on pump.fun the same day; its name stays 
 
 After the proposals above the owner asked what set 发发 and 红利 apart (only the name, mark, meaning and button colour; the look is the same) and confirmed they want a new brand, not hwai. They picked **金牛 jinniu**, and for $HWAI, a new official token later.
 
-- **Name:** 金牛, written jinniu in Latin. 牛 stays from the hwai seal; the mark is 牛 brushed on a gold coin. The prototype sketches it in Ma Shan Zheng from Google Fonts; the final mark and wordmark get drawn as paths (starting from the deleted `niu.py`, see above), with the icons and share images regenerated.
+- **Name:** 金牛, written jinniu in Latin. 牛 stays from the hwai seal; the mark is the brush 牛 in white (below, "The white mark"). The prototype sketches it in Ma Shan Zheng from Google Fonts; the final mark and wordmark get drawn as paths (starting from the deleted `niu.py`, see above), with the icons and share images regenerated.
 - **Look:** v4 above, as a full prototype: [`prototype/jinniu-prototype.html`](../prototype/jinniu-prototype.html), one file with every page (首页, 代币, 创建代币, 分红记录, 玩法, 我的) behind its links, white only (the owner, after seeing it: "warna putih aja clean"; the dark theme and its button were dropped, the greys made neutral, cards drawn with hairlines instead of shadows and the hero's gold glow removed), the 中 / EN switch and the up/down colour switch. On phones the nav moves to a floating dock with + to launch, the coin page's trade box opens as a bottom sheet from 买入 / 卖出, and coin cards turn into rows. Faces: Inter Tight for Latin and numbers, Noto Sans SC for Chinese. Gold `#FFC21A` for the one button and the brand, green up, red down, dark gold for anything holders are paid. Copy follows the current app: launches cost 0.02 SOL plus the coin's create cost; the fee split is the prototype's demo split.
 - **$HWAI:** hidden from the new site (`go-live.sh token-ca off`) until the owner launches a new official token and sends its CA (`go-live.sh token-ca <CA>`). The hero shows "官方代币：即将公布" meanwhile.
 - **Open:** the domain (not checked from here; WHOIS is blocked), the PlatformConfig's name, web and picture (a mainnet transaction, owner approval), the X and Telegram handles, the intro video, the article and the share images.
@@ -69,6 +69,15 @@ The owner asked for premium logo references. [`brand/proposals/2026-11-02/logos/
 - **D, a luxury wordmark**: 金牛 in a heavy serif and "jinniu" spaced wide, with a thin gold rule, after the way Rolex, Cartier and Hermès set their names; the icon is a serif 牛 in gold on black.
 
 All are sketches with OFL Google Fonts glyphs (Ma Shan Zheng, Noto Serif SC, Cormorant Garamond) and SVG shapes; the chosen one gets drawn as paths. The named brands are style references only.
+
+### The white mark (owner, 2026-11-02)
+
+After the four concepts the owner said: "jangan koin emas, yang putih aja logonya" (no gold coin, a white logo). [`brand/proposals/2026-11-02/logos/white.html`](../brand/proposals/2026-11-02/logos/white.html) (`W1.png`, `W2.png`) draws one mark in two forms:
+
+- **W1, the main mark**: the brush 牛 in glossy white, like porcelain, on a soft grey tile (`#F3F3F1` to `#DADAD6`), with a specular bevel and a soft shadow. It sits in the prototype's header, footer and 我的 page. At 16 px it is too pale, so the favicon uses W2.
+- **W2, for small sizes and dark places**: the same 牛 flat white on black (`#0E0E0E`), for the favicon, the X and Telegram photos and token avatars.
+
+Both are sketches in Ma Shan Zheng; the final mark is drawn as paths, from the deleted `niu.py` and `glyphs.json` (see above). The gold stays for the 创建代币 button and for what holders are paid.
 
 ## Stock token logos
 

@@ -13,8 +13,8 @@
    room, white only (owner, 2026-11-02: no dark theme), a top bar with the nav as a centred pill, one gold button, the round's
    pool as the hero with the hour as a line, a bento of featured coins, coins browsed by dividend
    stock, coins as cards, a floating dock on phones. Faces: Inter Tight for Latin and numbers, Noto
-   Sans SC for Chinese. The mark is 牛 brushed on a gold coin (sketched here in Ma Shan Zheng; the
-   final mark is drawn as paths). Every number on the page is demo data. */
+   Sans SC for Chinese. The mark is the brush 牛 in glossy white on a soft grey tile (owner: a white
+   logo, no gold coin; sketched here in Ma Shan Zheng, the final mark is drawn as paths). Every number on the page is demo data. */
 :root{
   color-scheme:light;
   --bg:#FFFFFF;--card:#FFFFFF;--s1:#F5F5F5;--s2:#EDEDED;--line:#EEEEEE;--line2:#E2E2E2;
@@ -43,9 +43,8 @@ button{cursor:pointer}
 svg.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-/* mark and wordmark (sketch) */
-.mk{display:inline-grid;place-items:center;flex:none;border-radius:50%;background:var(--acc);box-shadow:inset 0 -2px 0 rgba(120,80,0,.25);width:var(--s);height:var(--s)}
-.mk b{font:400 calc(var(--s)*.66)/1 "Ma Shan Zheng",serif;color:#111;transform:translateY(4%)}
+/* mark and wordmark (sketch): 牛 in glossy white on a soft grey tile (owner, 2026-11-02: a white logo, no gold coin) */
+.mk{display:inline-block;flex:none;width:var(--s);height:var(--s);overflow:visible}
 .brand{display:inline-flex;align-items:center;gap:10px;font:800 21px/1 "Noto Sans SC";letter-spacing:.02em;white-space:nowrap}
 .brand small{font:600 12px var(--ff);color:var(--tx3);letter-spacing:.04em}
 
@@ -482,6 +481,27 @@ footer.foot{margin-top:40px;border-top:1px solid var(--line)}
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="jnTile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3F3F1"/><stop offset="1" stop-color="#DADAD6"/></linearGradient>
+    <linearGradient id="jnGlyph" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#FAFAFA"/><stop offset="1" stop-color="#E2E2E0"/></linearGradient>
+    <filter id="jnPorcelain" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="b"/>
+      <feSpecularLighting in="b" surfaceScale="4.5" specularConstant=".85" specularExponent="26" lighting-color="#fff" result="s"><feDistantLight azimuth="235" elevation="42"/></feSpecularLighting>
+      <feComposite in="s" in2="SourceAlpha" operator="in" result="si"/>
+      <feComposite in="SourceGraphic" in2="si" operator="arithmetic" k1="0" k2="1" k3=".9" k4="0" result="lit"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="eb"/>
+      <feOffset in="eb" dx="0" dy="1.2" result="eo"/>
+      <feComposite in="SourceAlpha" in2="eo" operator="out" result="edge"/>
+      <feFlood flood-color="#000" flood-opacity=".22"/><feComposite in2="edge" operator="in" result="edgeC"/>
+      <feMerge><feMergeNode in="lit"/><feMergeNode in="edgeC"/></feMerge>
+    </filter>
+    <filter id="jnLift" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#2A2A26" flood-opacity=".30"/></filter>
+  </defs>
+  <symbol id="jn" viewBox="0 0 200 200">
+    <rect x="4" y="4" width="192" height="192" rx="46" fill="url(#jnTile)"/>
+    <rect x="4.5" y="4.5" width="191" height="191" rx="45.5" fill="none" stroke="#000" stroke-opacity=".06"/>
+    <g filter="url(#jnLift)"><text x="100" y="108" text-anchor="middle" dominant-baseline="middle" font-family="Ma Shan Zheng" font-size="150" fill="url(#jnGlyph)" filter="url(#jnPorcelain)">牛</text></g>
+  </symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-gift" viewBox="0 0 24 24"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-2-4-6-4-6-1s6 1 6 1zm0 0c2-4 6-4 6-1s-6 1-6 1z"/></symbol>
@@ -500,7 +520,7 @@ footer.foot{margin-top:40px;border-top:1px solid var(--line)}
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#home" aria-label="金牛 首页"><span class="mk" style="--s:38px"><b>牛</b></span>金牛<small>jinniu</small></a>
+    <a class="brand" href="#home" aria-label="金牛 首页"><svg class="mk" style="--s:38px" viewBox="0 0 200 200" aria-hidden="true"><use href="#jn"/></svg>金牛<small>jinniu</small></a>
     <nav class="navpill" aria-label="主导航">
       <a href="#home" data-nav="home">首页</a>
       <a href="#payouts" data-nav="payouts">分红记录</a>
@@ -744,7 +764,7 @@ footer.foot{margin-top:40px;border-top:1px solid var(--line)}
     <h1 class="page-h">我的分红</h1>
     <p class="page-lede">连接钱包，查看你持有的代币、收到的每一笔美股分红和可以领取的创建者手续费。</p>
     <div class="card connect" id="meBox">
-      <span class="mk" style="--s:76px"><b>牛</b></span>
+      <svg class="mk" style="--s:80px" viewBox="0 0 200 200" aria-hidden="true"><use href="#jn"/></svg>
       <h3>连接钱包查看分红</h3>
       <p>支持 Phantom、Solflare、Backpack。只需要签名登录，不会花费任何资金。</p>
       <button class="btn btn-acc btn-lg" type="button" id="meConnect">连接钱包</button>
@@ -770,7 +790,7 @@ footer.foot{margin-top:40px;border-top:1px solid var(--line)}
 
 <footer class="foot">
   <div class="wrap">
-    <span class="brand"><span class="mk" style="--s:26px"><b>牛</b></span>金牛</span>
+    <span class="brand"><svg class="mk" style="--s:28px" viewBox="0 0 200 200" aria-hidden="true"><use href="#jn"/></svg>金牛</span>
     <span>演示原型，页面上的数字都是演示数据。股票代币由第三方发行，并非所有地区都能使用。本站内容不构成投资建议。<a href="#how">条款</a></span>
     <div class="ud" role="group" aria-label="涨跌颜色"><span>涨跌颜色</span><div class="seg sm"><button type="button" data-ud="green" aria-pressed="true">绿涨红跌</button><button type="button" data-ud="red" aria-pressed="false">红涨绿跌</button></div></div>
   </div>
