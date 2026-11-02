@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>金牛 Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800;900&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700;800;900&display=swap">
+<style>
+/* 金牛 jinniu (owner, 2026-11-02): the brand that replaces hwai, in the clean look of proposal v4
+   (brand/proposals/2026-11-02/v4-clean.html). Clean like Pons without its layout: a light page with
+   room (dark one click away), a top bar with the nav as a centred pill, one gold button, the round's
+   pool as the hero with the hour as a line, a bento of featured coins, coins browsed by dividend
+   stock, coins as cards, a floating dock on phones. Faces: Inter Tight for Latin and numbers, Noto
+   Sans SC for Chinese. The mark is 牛 brushed on a gold coin (sketched here in Ma Shan Zheng; the
+   final mark is drawn as paths). Every number on the page is demo data. */
+:root{
+  color-scheme:light;
+  --bg:#FAFAF8;--card:#FFFFFF;--s1:#F3F3F0;--s2:#EAEAE6;--line:#ECECE8;--line2:#E0E0DB;
+  --tx:#0F0F0E;--tx2:#6B6B66;--tx3:#A2A29C;
+  --green:#13A04A;--red:#E23B3B;
+  --div:#9C6B00;--div-bg:#FFF3D1;
+  --acc:#FFC21A;--acc-hi:#FFCD3F;--acc-ink:#111;--acc-soft:#FFF6DA;
+  --sh:0 1px 2px rgba(20,20,10,.04),0 12px 32px -18px rgba(20,20,10,.18);
+  --sh-lg:0 30px 70px -30px rgba(20,20,10,.4);
+  --ff:"Inter Tight","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --up:var(--green);--dn:var(--red);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0B0B0C;--card:#141416;--s1:#1A1A1D;--s2:#232327;--line:#212124;--line2:#2C2C30;
+  --tx:#F4F4F5;--tx2:#9A9AA0;--tx3:#5E5E65;--green:#22C55E;--red:#F05252;
+  --div:#FFCB45;--div-bg:rgba(255,203,69,.10);--acc-soft:rgba(255,194,26,.10);
+  --sh:0 1px 0 rgba(255,255,255,.03),0 16px 40px -20px rgba(0,0,0,.9);
+  --sh-lg:0 30px 70px -30px rgba(0,0,0,.95);
+}
+:root[data-updown="cn"]{--up:var(--red);--dn:var(--green)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.55 var(--ff);-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:8px}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.n{font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+svg.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* mark and wordmark (sketch) */
+.mk{display:inline-grid;place-items:center;flex:none;border-radius:50%;background:var(--acc);box-shadow:inset 0 -2px 0 rgba(120,80,0,.25);width:var(--s);height:var(--s)}
+.mk b{font:400 calc(var(--s)*.66)/1 "Ma Shan Zheng",serif;color:#111;transform:translateY(4%)}
+.brand{display:inline-flex;align-items:center;gap:10px;font:800 21px/1 "Noto Sans SC";letter-spacing:.02em;white-space:nowrap}
+.brand small{font:600 12px var(--ff);color:var(--tx3);letter-spacing:.04em}
+
+/* coin pictures: stand-ins for creators' uploads */
+.tile{position:relative;display:grid;place-items:center;overflow:hidden;flex:none;background:var(--t-bg);color:var(--t-fg);font-size:var(--z)}
+.tile.dots{background:radial-gradient(circle,var(--t-dot) 1px,transparent 1.4px) 0 0/calc(var(--z)*.06) calc(var(--z)*.06),var(--t-bg)}
+:root[data-theme="dark"] .tile{box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
+.tile .em{font:400 .52em/1 "Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;filter:drop-shadow(0 .03em .05em rgba(0,0,0,.18))}
+.tile .brush{font:400 .62em/1 "Ma Shan Zheng",serif}
+.tile .heavy{font:900 .34em/1 "Noto Sans SC",sans-serif;letter-spacing:-.02em}
+.tile .num{font:900 .4em/1 "Inter Tight",sans-serif;letter-spacing:-.06em}
+.tile .arc{position:absolute;inset:14%;border-radius:50%;border:.035em solid var(--t-acc);border-left-color:transparent;border-bottom-color:transparent;transform:rotate(20deg)}
+.tile .dot{position:absolute;width:.12em;height:.12em;border-radius:50%;background:var(--t-acc);right:22%;top:22%}
+.stk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--c);color:#fff;font:800 9px/1 "Inter Tight";flex:none}
+.stk.lg{width:34px;height:34px;font-size:12px}
+
+/* buttons, pills, cards */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:44px;padding:0 20px;border-radius:999px;border:0;font:700 15px var(--ff);white-space:nowrap;transition:transform .1s,filter .15s,box-shadow .15s}
+.btn:active{transform:translateY(1px)}
+.btn-acc{background:var(--acc);color:var(--acc-ink)}
+.btn-acc:hover{filter:brightness(1.04)}
+.btn-ghost{background:var(--card);color:var(--tx);box-shadow:var(--sh)}
+.btn-line{background:transparent;color:var(--tx);box-shadow:inset 0 0 0 1px var(--line2)}
+.btn-lg{height:54px;padding:0 28px;font-size:16.5px}
+.btn-block{width:100%}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.icb{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:0;background:var(--card);box-shadow:var(--sh);color:var(--tx);flex:none}
+.icb svg{width:19px;height:19px}
+.card{background:var(--card);border-radius:24px;box-shadow:var(--sh)}
+.pill{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;border:0;background:var(--s1);color:var(--tx2);font:600 13px var(--ff);white-space:nowrap}
+.pill.gold{background:var(--div-bg);color:var(--div)}
+button.pill:hover{color:var(--tx)}
+.dvl{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 3px;border-radius:999px;background:var(--div-bg);color:var(--div);font:700 12.5px var(--ff);white-space:nowrap}
+.seg{display:inline-flex;padding:4px;border-radius:999px;background:var(--card);box-shadow:var(--sh);flex:none}
+.seg button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font:600 14.5px var(--ff);color:var(--tx2);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--tx);color:var(--bg)}
+.seg.sm button{padding:6px 12px;font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 15px 0 9px;border-radius:999px;border:1px solid var(--line2);background:var(--card);font:600 14px var(--ff);white-space:nowrap;color:var(--tx)}
+.chip.all{padding-left:15px}
+.chip[aria-pressed="true"]{border-color:var(--tx);box-shadow:inset 0 0 0 1px var(--tx)}
+.chip em{font-style:normal;font:600 12.5px var(--ff);color:var(--tx3)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.live{width:8px;height:8px;border-radius:50%;background:var(--up);box-shadow:0 0 0 4px color-mix(in srgb,var(--up) 16%,transparent);flex:none}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
+.kv>span{color:var(--tx2)}
+.kv>b{font-weight:700;text-align:right}
+.note{font-size:13px;color:var(--tx2);margin:10px 0 0}
+.bar{position:relative;height:8px;border-radius:99px;background:var(--s1);overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--acc)}
+
+/* header */
+header.top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.top .wrap{position:relative;display:flex;align-items:center;gap:10px;height:76px}
+.navpill{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:2px;padding:4px;border-radius:999px;background:var(--card);box-shadow:var(--sh)}
+.navpill a{padding:8px 18px;border-radius:999px;font:600 15px var(--ff);color:var(--tx2)}
+.navpill a[aria-current="page"]{background:var(--tx);color:var(--bg)}
+.top .tr{margin-left:auto;display:flex;align-items:center;gap:10px}
+.lang{display:inline-flex;font:700 13px var(--ff);color:var(--tx3);padding:0 4px}
+.lang button{border:0;background:transparent;padding:4px 5px;color:var(--tx3);font-weight:700}
+.lang button[aria-pressed="true"]{color:var(--tx)}
+.lang i{font-style:normal;align-self:center}
+
+/* home: hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:24px;margin-top:20px}
+.pool{position:relative;overflow:hidden;padding:32px 36px 30px;border-radius:30px}
+.pool::after{content:"";position:absolute;right:-110px;top:-110px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,var(--acc-soft),transparent 70%);pointer-events:none}
+.eyebrow{position:relative;z-index:1;display:flex;align-items:center;gap:9px;font:600 14px var(--ff);color:var(--tx2);flex-wrap:wrap}
+.eyebrow .pill{margin-left:auto}
+.pool .big{position:relative;z-index:1;font:800 clamp(56px,8vw,96px)/1 var(--ff);letter-spacing:-.045em;margin:16px 0 12px}
+.pool p{position:relative;z-index:1;margin:0;font-size:17px;color:var(--tx2);max-width:580px}
+.pool p b{color:var(--tx)}
+.hour{position:relative;margin:30px 0 10px;height:8px;border-radius:99px;background:var(--s1)}
+.hour i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--acc)}
+.hour i::after{content:"";position:absolute;right:-7px;top:50%;width:14px;height:14px;border-radius:50%;background:var(--card);border:3px solid var(--acc);transform:translateY(-50%)}
+.ticks{display:flex;justify-content:space-between;font:600 12px var(--ff);color:var(--tx3)}
+.pool .ctas{position:relative;z-index:1;display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+.feed{padding:24px 24px 12px;border-radius:30px}
+.feed h3,.panel-h{display:flex;justify-content:space-between;align-items:center;margin:0 0 6px;font:700 17px var(--ff)}
+.feed h3 a,.panel-h a{font:600 13px var(--ff);color:var(--tx3)}
+.fr{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.fr:first-of-type{border-top:0}
+.fr .tile{width:40px;height:40px;border-radius:12px;--z:40px}
+.fr .t b{display:block;font:600 14.5px var(--ff)}
+.fr .t small{font:500 12.5px var(--ff);color:var(--tx3)}
+.fr .v{margin-left:auto;text-align:right}
+.fr .v b{display:block;font:700 14.5px var(--ff);color:var(--div)}
+.fr .v small{font:500 12px var(--ff);color:var(--tx3)}
+.fr.in{animation:fin .5s ease}
+@keyframes fin{from{opacity:0;transform:translateY(-6px)}}
+.stats{display:flex;margin-top:22px;padding:0 6px}
+.stats>div{flex:1;padding:4px 22px;border-left:1px solid var(--line2)}
+.stats>div:first-child{border-left:0;padding-left:0}
+.stats b{display:block;font:800 26px/1.2 var(--ff);letter-spacing:-.02em}
+.stats b.g{color:var(--div)}
+.stats span{font:500 13.5px var(--ff);color:var(--tx2)}
+.promises{display:flex;gap:26px;flex-wrap:wrap;margin-top:22px;padding:16px 6px 0;border-top:1px solid var(--line)}
+.promises a{display:inline-flex;align-items:center;gap:8px;font:600 14px var(--ff);color:var(--tx2)}
+.promises a::before{content:"";width:18px;height:18px;border-radius:50%;flex:none;background:color-mix(in srgb,var(--green) 15%,transparent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2313A04A' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/11px no-repeat}
+
+/* home: sections */
+.sec{margin-top:60px}
+.sh{display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.sh h2{margin:0;font:800 28px/1.15 var(--ff)}
+.sh p{margin:0;font:500 14.5px var(--ff);color:var(--tx3)}
+.sh .r{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.bento{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:16px}
+.feat{grid-row:span 2;padding:24px;border-radius:28px;display:flex;flex-direction:column;cursor:pointer}
+.feat .hd{display:flex;gap:18px;align-items:center}
+.feat .tile{width:112px;height:112px;border-radius:24px;--z:112px}
+.feat h3{margin:8px 0 2px;font:800 26px/1.15 var(--ff)}
+.feat .tk{font:500 15px var(--ff);color:var(--tx3)}
+.feat .row{display:flex;align-items:baseline;gap:10px;margin-top:20px;flex-wrap:wrap}
+.feat .row b{font:800 40px/1 var(--ff);letter-spacing:-.03em}
+.feat .row .chg{font:700 16px var(--ff)}
+.feat .row small{color:var(--tx3);font-size:14px}
+.feat .chart{flex:1;min-height:150px;margin:16px -6px 0}
+.feat .chart svg{width:100%;height:100%;min-height:150px;display:block}
+.feat .ft{display:flex;gap:10px;margin-top:14px}
+.box{flex:1;background:var(--s1);border-radius:16px;padding:11px 14px;min-width:0}
+.box>span{display:block;font:500 12.5px var(--ff);color:var(--tx2)}
+.box>b{display:inline-flex;align-items:center;gap:7px;font:700 17px var(--ff)}
+.box>b.g{color:var(--div)}
+.mini{padding:18px;border-radius:24px;cursor:pointer;transition:transform .15s}
+.mini:hover,.cc:hover{transform:translateY(-2px)}
+.mini .tile{width:100%;aspect-ratio:1.55;border-radius:18px;--z:150px}
+.mini .tile .em{font-size:.62em}.mini .tile .heavy{font-size:.4em}.mini .tile .num{font-size:.46em}.mini .tile .brush{font-size:.66em}
+.mini .nm{display:flex;align-items:baseline;gap:7px;margin-top:12px;font:700 16px var(--ff)}
+.mini .nm small{font:500 13px var(--ff);color:var(--tx3)}
+.mini .mr{display:flex;align-items:baseline;gap:8px;margin:2px 0 8px}
+.mini .mr b{font:800 22px var(--ff);letter-spacing:-.02em}
+.mini .mr span{font:700 13.5px var(--ff)}
+.search{display:flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:999px;background:var(--card);box-shadow:var(--sh);color:var(--tx3);min-width:280px}
+.search input{border:0;outline:0;background:transparent;flex:1;min-width:0;color:var(--tx);font-size:14.5px}
+.search input::placeholder{color:var(--tx3)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:20px}
+.cc{padding:18px;border-radius:24px;cursor:pointer;transition:transform .15s}
+.cc .hd{display:flex;align-items:center;gap:12px}
+.cc .tile{width:54px;height:54px;border-radius:16px;--z:54px}
+.cc .nm{min-width:0}
+.cc .nm b{display:block;font:700 16px var(--ff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc .nm small{font:500 13px var(--ff);color:var(--tx3)}
+.cc .chg{margin-left:auto;align-self:flex-start;font:700 13.5px var(--ff);padding:3px 8px;border-radius:8px;background:color-mix(in srgb,currentColor 10%,transparent)}
+.cc .mc{margin-top:16px;font:800 24px/1.1 var(--ff);letter-spacing:-.02em}
+.cc .lbl{font:500 12.5px var(--ff);color:var(--tx3)}
+.curve{display:flex;align-items:center;gap:8px;margin-top:4px;font:600 12px var(--ff);color:var(--tx2)}
+.curve .bar{flex:1;height:6px}
+.cc .sp{height:40px;margin:10px 0 12px}
+.cc .sp svg{width:100%;height:40px;display:block}
+.cc .ft{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid var(--line);font:600 13px var(--ff)}
+.cc .ft .stock{display:inline-flex;align-items:center;gap:7px}
+.cc .ft .paid{color:var(--div);font-weight:700;white-space:nowrap}
+.cc .ft .wait{color:var(--tx3);white-space:nowrap}
+.empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--tx2)}
+.empty b{display:block;font-size:17px;color:var(--tx);margin-bottom:4px}
+.more{display:flex;justify-content:center;margin:26px 0 0}
+
+/* inner pages */
+.page{padding:20px 0 70px}
+.back{display:inline-flex;align-items:center;gap:6px;font:600 14px var(--ff);color:var(--tx2);margin:6px 0 14px}
+.page-h{margin:10px 0 8px;font:800 clamp(30px,4.4vw,42px)/1.1 var(--ff);letter-spacing:-.02em}
+.page-lede{margin:0 0 26px;font-size:16.5px;color:var(--tx2);max-width:760px}
+
+/* coin page */
+.chead{display:flex;align-items:center;gap:20px;padding:22px;border-radius:28px}
+.chead .tile{width:88px;height:88px;border-radius:22px;--z:88px}
+.chead h1{margin:0;font:800 32px/1.15 var(--ff);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.chead h1 small{font:600 17px var(--ff);color:var(--tx3)}
+.chead .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:13.5px;color:var(--tx2)}
+.chead .acts{margin-left:auto;display:flex;gap:8px;align-self:flex-start}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:16px;padding:18px 6px;border-radius:24px}
+.kpis>div{padding:0 20px;border-left:1px solid var(--line)}
+.kpis>div:first-child{border-left:0}
+.kpis span{display:block;font:500 13px var(--ff);color:var(--tx2)}
+.kpis b{font:800 22px/1.3 var(--ff);letter-spacing:-.01em}
+.kpis b.g{color:var(--div)}
+.cgrid{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:16px;margin-top:16px;align-items:start}
+.chartc{padding:18px 18px 12px;border-radius:28px}
+.chart-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.chart-top .seg{box-shadow:none;background:var(--s1)}
+.chart-top .seg button[aria-pressed="true"]{background:var(--card);color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:14px 4px 0;font:600 12.5px var(--ff);color:var(--tx3)}
+.legend b{color:var(--tx);font-weight:700}
+svg.kl{display:block;width:100%;height:320px;margin-top:6px}
+.chart-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font:600 12.5px var(--ff);color:var(--tx3);padding:4px 4px 0}
+.chart-foot i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);margin-right:6px}
+.tabsc{margin-top:16px;padding:8px 18px 14px;border-radius:28px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:transparent;padding:14px 12px 12px;font:600 15.5px var(--ff);color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--tx);border-color:var(--acc)}
+table.t{width:100%;border-collapse:collapse}
+.t th{text-align:right;font:500 13px var(--ff);color:var(--tx3);padding:12px 8px 8px;white-space:nowrap}
+.t th:first-child,.t td:first-child{text-align:left}
+.t td{text-align:right;padding:11px 8px;border-top:1px solid var(--line);font-size:14px;white-space:nowrap}
+.t .side{font-weight:700}
+.t .w{font:500 13px var(--ff);color:var(--tx2)}
+.t a.tx{color:var(--tx2);font-weight:600}
+.t a.tx:hover{color:var(--tx)}
+.hbar{display:inline-block;width:90px;height:6px;border-radius:9px;background:var(--s1);vertical-align:middle;margin-left:10px;position:relative;overflow:hidden}
+.hbar i{position:absolute;inset:0 auto 0 0;background:var(--acc);border-radius:9px}
+.trade{padding:20px;border-radius:28px}
+.bs{display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:14px;background:var(--s1)}
+.bs button{border:0;background:transparent;padding:10px 0;border-radius:11px;font:700 15px var(--ff);color:var(--tx2)}
+.bs button[aria-pressed="true"].b{background:var(--up);color:#fff}
+.bs button[aria-pressed="true"].s{background:var(--dn);color:#fff}
+.amount{display:flex;align-items:center;gap:10px;margin-top:14px;padding:14px 16px;border-radius:18px;background:var(--s1)}
+.amount input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:800 30px/1 var(--ff);letter-spacing:-.02em}
+.amount .unit{display:inline-flex;align-items:center;gap:7px;font:700 15px var(--ff)}
+.amount .sol{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#9945FF,#14F195)}
+.flab{display:flex;justify-content:space-between;margin-top:14px;font:600 13px var(--ff);color:var(--tx2)}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.quick button{border:0;padding:9px 0;border-radius:12px;background:var(--card);box-shadow:inset 0 0 0 1px var(--line2);font:700 13.5px var(--ff);color:var(--tx2)}
+.quick button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--tx);color:var(--tx)}
+.trade .kvs{margin-top:12px}
+.trade .go{margin-top:14px}
+.divc{margin-top:16px;padding:20px;border-radius:28px}
+.divc .hd{display:flex;align-items:center;gap:14px}
+.ring{position:relative;width:64px;height:64px;flex:none}
+.ring svg{width:64px;height:64px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6}
+.ring .bgc{stroke:var(--s1)}
+.ring .fg{stroke:var(--acc);stroke-linecap:round}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 13px var(--ff);font-variant-numeric:tabular-nums}
+.divc .hd div>span{display:block;font:500 13px var(--ff);color:var(--tx2)}
+.divc .hd strong{font:800 20px var(--ff)}
+.est{margin-top:12px;padding:12px 14px;border-radius:16px;background:var(--div-bg);font-size:13.5px;color:var(--tx2)}
+.est b{color:var(--div)}
+.est i{font-style:normal;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:6px;background:var(--card);color:var(--tx3)}
+.warn{display:flex;gap:10px;margin-top:16px;padding:14px 16px;border-radius:20px;background:var(--s1);font-size:13.5px;color:var(--tx2)}
+.tradebar{display:none}
+.sheet-bg{display:none}
+
+/* create */
+.cgrid2{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
+.fsec{padding:24px;border-radius:28px;margin-bottom:16px}
+.fsec-h{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+.step{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--tx);color:var(--bg);font:800 15px var(--ff);flex:none}
+.fsec-h h3{margin:2px 0 2px;font:800 18px var(--ff)}
+.fsec-h p{margin:0;font-size:14px;color:var(--tx2)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.inp{display:block;margin-bottom:12px}
+.inp>span{display:block;font:600 13.5px var(--ff);color:var(--tx2);margin-bottom:6px}
+.inp>span small{color:var(--tx3);font-weight:500}
+.inp input,.inp textarea{width:100%;border:0;outline:0;border-radius:14px;background:var(--s1);padding:13px 14px;font-size:15px;color:var(--tx);box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .15s}
+.inp input:focus,.inp textarea:focus{box-shadow:inset 0 0 0 2px var(--tx)}
+.inp textarea{min-height:84px;resize:vertical}
+.drop{display:flex;align-items:center;gap:14px;padding:18px;border-radius:18px;border:1.5px dashed var(--line2);background:var(--bg)}
+.drop .ico{display:grid;place-items:center;width:52px;height:52px;border-radius:14px;background:var(--s1);color:var(--tx2)}
+.drop b{display:block;font-size:15px}
+.drop small{color:var(--tx2);font-size:13px}
+.stocks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.stocks button{display:flex;align-items:center;gap:10px;padding:11px 12px;border:0;border-radius:16px;background:var(--s1);text-align:left;box-shadow:inset 0 0 0 1px transparent}
+.stocks button b{display:block;font:700 14px var(--ff)}
+.stocks button small{display:block;font:500 12px var(--ff);color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stocks button[aria-pressed="true"]{background:var(--card);box-shadow:inset 0 0 0 2px var(--tx)}
+.stocks button>span:last-child{min-width:0}
+.sticky{position:sticky;top:92px}
+.prev-h{font:800 18px var(--ff);margin:0 0 10px}
+.checks{padding:20px;border-radius:24px;margin-top:16px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--tx2)}
+.chk i{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;flex:none;margin-top:1px;font:800 11px var(--ff);font-style:normal;background:var(--s1);color:var(--tx3)}
+.chk.ok i{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
+.chk.ok{color:var(--tx)}
+
+/* payouts */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:20px 6px;border-radius:24px}
+.tiles>div{padding:0 22px;border-left:1px solid var(--line)}
+.tiles>div:first-child{border-left:0}
+.tiles b{display:block;font:800 28px/1.2 var(--ff);letter-spacing:-.02em}
+.tiles b.g{color:var(--div)}
+.tiles span{font:500 13.5px var(--ff);color:var(--tx2)}
+.meter{margin-top:16px;padding:22px 24px;border-radius:24px}
+.meter .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.meter h3{margin:0;font:800 17px var(--ff)}
+.meter .lg{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:13.5px;color:var(--tx2)}
+.ontime{display:inline-flex;align-items:center;gap:7px;font:700 13px var(--ff);color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);border-radius:999px;padding:4px 11px}
+.rcard{margin-top:16px;padding:20px 22px 12px;border-radius:24px}
+.rcard .chips{margin:6px 0 4px}
+.rtable{overflow-x:auto}
+.coin-cell{display:flex;align-items:center;gap:10px}
+.coin-cell .tile{width:34px;height:34px;border-radius:10px;--z:34px}
+.coin-cell b{font-weight:700}
+.coin-cell small{color:var(--tx3);margin-left:4px}
+
+/* how */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.hstep{padding:24px;border-radius:26px}
+.hstep .no{font:800 44px/1 var(--ff);letter-spacing:-.04em;color:var(--acc)}
+.hstep h3{margin:14px 0 6px;font:800 18px var(--ff)}
+.hstep p{margin:0;font-size:14.5px;color:var(--tx2)}
+.fees{padding:24px;border-radius:26px}
+.feebar{display:flex;height:16px;border-radius:99px;overflow:hidden;margin:6px 0 18px}
+.feebar i{display:block;height:100%}
+.fees .t td,.fees .t th{font-size:15px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:10px;vertical-align:-1px}
+
+/* me */
+.connect{display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 24px;border-radius:30px}
+.connect h3{margin:18px 0 6px;font:800 24px var(--ff)}
+.connect p{margin:0 0 22px;color:var(--tx2);max-width:420px}
+.mesum{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:16px}
+.mesum .card{padding:22px 24px;border-radius:26px}
+.mesum .card>span{display:block;font:500 13.5px var(--ff);color:var(--tx2)}
+.mesum .card>b{font:800 30px/1.2 var(--ff);letter-spacing:-.02em}
+.mesum .first{background:linear-gradient(160deg,var(--acc-soft),transparent 60%),var(--card)}
+.mesum .first>b{color:var(--div);font-size:40px}
+.mesum small{display:block;margin-top:2px;color:var(--tx2);font-size:13.5px}
+.mesum small b{font-weight:700;color:var(--up)}
+.hold{margin-top:16px;padding:20px 22px 12px;border-radius:26px}
+.cfee{display:flex;align-items:center;gap:16px;margin-top:16px;padding:20px 24px;border-radius:26px}
+.cfee .tile{width:52px;height:52px;border-radius:14px;--z:52px}
+.cfee b{display:block;font:800 18px var(--ff)}
+.cfee div>span{color:var(--tx2);font-size:14px}
+.cfee .btn{margin-left:auto}
+
+/* footer and dock */
+footer.foot{margin-top:40px;border-top:1px solid var(--line)}
+.foot .wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:24px;padding-bottom:30px;font-size:13px;color:var(--tx3)}
+.foot .brand{font-size:16px}
+.foot .ud{margin-left:auto;display:flex;align-items:center;gap:10px}
+.foot a{text-decoration:underline}
+.dock{display:none}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;z-index:90;background:var(--tx);color:var(--bg);padding:11px 18px;border-radius:999px;font:600 14px var(--ff);transition:opacity .2s,transform .2s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+[hidden]{display:none!important}
+[data-view]{display:none}
+[data-view].on{display:block}
+
+/* tablet */
+@media (max-width:1100px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .bento{grid-template-columns:1fr 1fr}
+  .feat{grid-column:1/-1;grid-row:auto}
+  .steps{grid-template-columns:1fr 1fr}
+  .stocks{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:1100px) and (min-width:1001px){.top .lang,.top .theme{display:none}}
+@media (max-width:1000px){
+  .navpill{display:none}
+  body{padding-bottom:110px}
+  .dock{display:grid;grid-template-columns:repeat(4,1fr) auto;align-items:center;gap:2px;position:fixed;left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 28px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:80;padding:7px;border-radius:26px;background:var(--card);box-shadow:0 18px 40px -14px rgba(0,0,0,.35),0 0 0 1px var(--line)}
+  .dock a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;border-radius:18px;font:600 10.5px var(--ff);color:var(--tx3)}
+  .dock a[aria-current="page"]{color:var(--tx);background:var(--s1)}
+  .dock svg{width:21px;height:21px}
+  .dock .plus{display:grid;place-items:center;width:52px;height:52px;border-radius:19px;background:var(--acc);color:var(--acc-ink);margin-left:4px}
+  .dock .plus svg{width:24px;height:24px;stroke-width:2.4}
+  .toast{bottom:110px}
+}
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .cgrid,.cgrid2{grid-template-columns:minmax(0,1fr)}
+  .sticky{position:static}
+  .grid{grid-template-columns:1fr 1fr}
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:14px}
+  .kpis>div:nth-child(4){border-left:0}
+  .mesum{grid-template-columns:1fr}
+}
+/* phone */
+@media (max-width:640px){
+  .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .top .wrap{height:64px}
+  .top .connectb,.top .createb{display:none}
+  .brand{font-size:19px}
+  .pool{padding:20px 20px 18px;border-radius:26px}
+  .pool .big{font-size:54px;margin:10px 0 6px}
+  .pool p{font-size:14.5px}
+  .pool .ctas{display:none}
+  .hour{margin:18px 0 8px;height:6px}
+  .feed{border-radius:26px;padding:18px 18px 8px}
+  .stats{flex-wrap:wrap;row-gap:14px;padding:0}
+  .stats>div{flex:0 0 50%;padding:0 0 0 14px}
+  .stats>div:nth-child(odd){border-left:0;padding-left:0}
+  .stats b{font-size:21px}
+  .promises{gap:10px 18px}
+  .promises a{font-size:13px}
+  .sec{margin-top:40px}
+  .sh h2{font-size:22px}
+  .sh .r{margin-left:0;width:100%}
+  .search{min-width:0;flex:1 1 100%}
+  .sh .r .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
+  .bento{grid-template-columns:1fr 1fr;gap:12px}
+  .feat{padding:18px}
+  .feat .tile{width:76px;height:76px;--z:76px;border-radius:18px}
+  .feat h3{font-size:21px}
+  .feat .row b{font-size:30px}
+  .feat .ft{flex-wrap:wrap}
+  .feat .ft .box{flex:1 1 40%}
+  .mini{padding:12px;border-radius:20px}
+  .mini .mr b{font-size:18px}
+  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding-right:16px}
+  .chips::-webkit-scrollbar{display:none}
+  .grid{grid-template-columns:1fr;gap:10px}
+  .cc{display:grid;grid-template-columns:auto 1fr auto;column-gap:12px;align-items:center;padding:12px 14px;border-radius:20px}
+  .cc .hd{display:contents}
+  .cc .tile{width:48px;height:48px;--z:48px;grid-column:1;grid-row:1/span 2}
+  .cc .chg{grid-column:3;grid-row:2;align-self:start;justify-self:end;margin:0;padding:0;background:none;font-size:13px}
+  .cc .nm{grid-column:2;grid-row:1}
+  .cc .mc{grid-column:3;grid-row:1;margin:0;font-size:17px;text-align:right}
+  .cc .lbl,.cc .sp{display:none}
+  .cc .curve{grid-column:2;grid-row:2;margin:0;font-size:11.5px}
+  .cc .ft{grid-column:2/-1;grid-row:3;border:0;padding:6px 0 0;font-size:12.5px}
+  .cc .ft .stock{display:none}
+  .cc.nocurve .ft{grid-row:2;grid-column:2;padding:0;justify-content:flex-start}
+  .page{padding-top:8px}
+  .chead{flex-wrap:wrap;padding:18px;gap:14px}
+  .chead .tile{width:64px;height:64px;--z:64px}
+  .chead h1{font-size:24px}
+  .chead .acts{margin-left:0;width:100%}
+  .kpis{grid-template-columns:1fr 1fr;padding:16px 4px}
+  .kpis>div{padding:0 14px}
+  .kpis>div:nth-child(odd){border-left:0}
+  .kpis>div:nth-child(4){border-left:1px solid var(--line)}
+  .kpis b{font-size:19px}
+  svg.kl{height:220px}
+  .tabsc{padding:4px 12px 10px}
+  .t .hide-s{display:none}
+  .cgrid aside .trade{position:fixed;left:0;right:0;bottom:0;z-index:95;border-radius:26px 26px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .25s ease;box-shadow:0 -20px 50px -20px rgba(0,0,0,.45)}
+  .cgrid aside .trade::before{content:"";display:block;width:40px;height:4px;border-radius:9px;background:var(--line2);margin:0 auto 12px}
+  body.sheet .cgrid aside .trade{transform:none}
+  body.sheet .sheet-bg{display:block;position:fixed;inset:0;z-index:94;background:rgba(0,0,0,.35)}
+  .tradebar{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:80}
+  .tradebar .btn{height:54px;border-radius:20px;font-size:16px;color:#fff}
+  .tradebar .b{background:var(--up)}.tradebar .s{background:var(--dn)}
+  body.v-coin .dock{display:none}
+  .frow{grid-template-columns:1fr}
+  .stocks{grid-template-columns:1fr 1fr}
+  .tiles{grid-template-columns:1fr 1fr;row-gap:16px;padding:16px 4px}
+  .tiles>div{padding:0 14px}
+  .tiles>div:nth-child(odd){border-left:0}
+  .tiles b{font-size:22px}
+  .steps{grid-template-columns:1fr}
+  .cfee{flex-wrap:wrap}
+  .cfee .btn{margin-left:0;width:100%}
+  .foot .ud{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-2-4-6-4-6-1s6 1 6 1zm0 0c2-4 6-4 6-1s-6 1-6 1z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h11v4"/><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M16 14.5h.01"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-me" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.5c1.3-2.2 3.2-3.3 5.5-3.3s4.2 1.1 5.5 3.3"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M4 4l16 16M20 4L4 20"/></symbol>
+  <symbol id="i-img" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#home" aria-label="金牛 首页"><span class="mk" style="--s:38px"><b>牛</b></span>金牛<small>jinniu</small></a>
+    <nav class="navpill" aria-label="主导航">
+      <a href="#home" data-nav="home">首页</a>
+      <a href="#payouts" data-nav="payouts">分红记录</a>
+      <a href="#how" data-nav="how">玩法</a>
+    </nav>
+    <div class="tr">
+      <button class="icb" type="button" id="findBtn" aria-label="搜索代币"><svg class="ic"><use href="#i-search"/></svg></button>
+      <button class="icb theme" type="button" id="themeBtn" aria-label="切换深色模式"><svg class="ic"><use href="#i-moon"/></svg></button>
+      <div class="lang" role="group" aria-label="语言"><button type="button" aria-pressed="true">中</button><i>/</i><button type="button" aria-pressed="false">EN</button></div>
+      <a class="btn btn-ghost connectb" href="#me"><svg class="ic" style="width:18px;height:18px"><use href="#i-wallet"/></svg>连接钱包</a>
+      <a class="btn btn-acc createb" href="#create">创建代币</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ HOME ============ -->
+  <section data-view="home" class="wrap">
+    <div class="hero">
+      <div class="card pool">
+        <div class="eyebrow"><i class="live"></i>本轮分红池 · 第 1,284 轮<button class="pill" type="button" id="caPill">官方代币：即将公布</button></div>
+        <div class="big n" data-pool>$482.16</div>
+        <p>每一笔交易都会买入你选的股票代币，比如 NVDAx、SPYx。<b class="n" data-countdown>--:--</b> 后按持仓比例发给所有持有人。</p>
+        <div class="hour" aria-hidden="true"><i data-hour></i></div>
+        <div class="ticks" aria-hidden="true"><span>:00</span><span>:15</span><span>:30</span><span>:45</span><span>:00</span></div>
+        <div class="ctas"><a class="btn btn-acc btn-lg" href="#create">创建代币</a><a class="btn btn-line btn-lg" href="#how">玩法说明</a></div>
+      </div>
+      <div class="card feed">
+        <h3>刚刚到账 <a href="#payouts">分红记录 →</a></h3>
+        <div id="feed"></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div><b class="g n">$49,751</b><span>累计分红</span></div>
+      <div><b class="n">$8.37M</b><span>24 小时交易额</span></div>
+      <div><b class="n">30</b><span>在线代币</span></div>
+      <div><b class="n">11</b><span>可分红股票</span></div>
+    </div>
+    <div class="promises"><a href="#how">开发者首买公开</a><a href="#how">流动性永久锁定</a><a href="#how">0 号区块无狙击</a><a href="#payouts">每笔分红链上可查</a></div>
+
+    <div class="sec">
+      <div class="sh"><h2>精选</h2><p>按过去 24 小时持有人所得排名</p></div>
+      <div class="bento" id="bento"></div>
+    </div>
+
+    <div class="sec" id="all">
+      <div class="sh">
+        <h2>全部代币</h2>
+        <div class="r">
+          <label class="search"><svg class="ic" style="width:17px;height:17px"><use href="#i-search"/></svg><span class="sr">搜索代币</span><input id="q" type="search" placeholder="搜索代币、股票或合约地址" autocomplete="off"></label>
+          <div class="seg" role="group" aria-label="排序" id="sorts">
+            <button type="button" data-sort="mc" aria-pressed="true">市值</button>
+            <button type="button" data-sort="new" aria-pressed="false">最新</button>
+            <button type="button" data-sort="paid" aria-pressed="false">分红最多</button>
+            <button type="button" data-sort="grad" aria-pressed="false">即将毕业</button>
+          </div>
+        </div>
+      </div>
+      <div class="chips" role="group" aria-label="按分红股票筛选" id="chips"></div>
+      <div class="grid" id="grid"></div>
+      <div class="more"><button class="btn btn-ghost" type="button" id="moreBtn">查看更多 <svg class="ic" style="width:16px;height:16px"><use href="#i-arrow"/></svg></button></div>
+    </div>
+  </section>
+
+  <!-- ============ COIN ============ -->
+  <section data-view="coin" class="wrap page">
+    <a class="back" href="#home"><svg class="ic" style="width:16px;height:16px"><use href="#i-back"/></svg>返回首页</a>
+    <div class="card chead">
+      <span id="cTile"></span>
+      <div style="min-width:0">
+        <h1><span id="cName">躺赚</span><small id="cTicker">$TANG</small></h1>
+        <div class="meta">
+          <span>创建者 7xKp…3fQa · <span id="cAge">5 小时前</span></span>
+          <button class="pill" type="button" id="cCa"><svg class="ic" style="width:14px;height:14px"><use href="#i-copy"/></svg>ug3P…2kMY</button>
+          <span class="pill">私密捆绑发币</span>
+          <span class="pill" id="cDev">开发者首买 2.4%</span>
+        </div>
+      </div>
+      <div class="acts">
+        <a class="btn btn-line" href="#coin" id="shareX">分享到 X</a>
+        <button class="icb" type="button" aria-label="举报" id="report"><svg class="ic" style="width:17px;height:17px"><use href="#i-flag"/></svg></button>
+      </div>
+    </div>
+    <div class="card kpis" id="kpis"></div>
+    <div class="cgrid">
+      <div style="min-width:0">
+        <div class="card chartc">
+          <div class="chart-top">
+            <div class="seg sm" role="group" aria-label="K 线周期" id="tfs"><button type="button" aria-pressed="false">1m</button><button type="button" aria-pressed="true">15m</button><button type="button" aria-pressed="false">1h</button><button type="button" aria-pressed="false">4h</button><button type="button" aria-pressed="false">1D</button></div>
+            <div class="seg sm" role="group" aria-label="单位" id="units"><button type="button" aria-pressed="false">价格</button><button type="button" aria-pressed="true">市值</button></div>
+          </div>
+          <div class="legend" id="legend"></div>
+          <svg class="kl" id="kl" viewBox="0 0 800 320" preserveAspectRatio="none" role="img" aria-label="市值 K 线图"></svg>
+          <div class="chart-foot"><span><i></i>每小时持有人分红</span><span id="ath">历史最高市值 $431K</span></div>
+        </div>
+        <div class="card tabsc">
+          <div class="tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-ctab="trades">交易</button><button type="button" role="tab" aria-selected="false" data-ctab="holders">持有人</button><button type="button" role="tab" aria-selected="false" data-ctab="divs">分红</button></div>
+          <div id="ctab"></div>
+        </div>
+      </div>
+      <aside>
+        <div class="card trade" id="trade">
+          <div class="bs" role="group" aria-label="买入或卖出"><button type="button" class="b" aria-pressed="true" data-side="buy">买入</button><button type="button" class="s" aria-pressed="false" data-side="sell">卖出</button></div>
+          <div class="flab"><span id="payLbl">你支付</span><span>余额 —</span></div>
+          <label class="amount"><input id="amt" inputmode="decimal" value="0.5" aria-label="金额"><span class="unit"><i class="sol" id="unitIc"></i><span id="unit">SOL</span></span></label>
+          <div class="quick" id="quick"><button type="button" aria-pressed="false">0.1</button><button type="button" aria-pressed="true">0.5</button><button type="button" aria-pressed="false">1</button><button type="button" aria-pressed="false">5</button></div>
+          <div class="kvs">
+            <div class="kv"><span>你将收到</span><b class="n" id="recv">—</b></div>
+            <div class="kv"><span>路径</span><b id="route">SOL 进入内盘</b></div>
+            <div class="kv"><span>交易手续费</span><b>1.25%，其中 0.50% 分给持有人</b></div>
+            <div class="kv"><span>最大滑点</span><b>5%</b></div>
+          </div>
+          <a class="btn btn-acc btn-lg btn-block go" href="#me" id="tradeBtn">连接钱包后交易</a>
+        </div>
+        <div class="card divc">
+          <div class="hd">
+            <div class="ring"><svg viewBox="0 0 64 64"><circle class="bgc" cx="32" cy="32" r="26"/><circle class="fg" cx="32" cy="32" r="26" data-ring/></svg><b data-countdown>--:--</b></div>
+            <div><span>下一轮分红</span><strong id="dStock">NVDAx</strong></div>
+          </div>
+          <div class="kvs" style="margin-top:12px">
+            <div class="kv"><span>上一轮</span><b class="n" id="dLast">0.0127 NVDAx · 412 个钱包</b></div>
+            <div class="kv"><span>24 小时分红</span><b class="n" id="d24" style="color:var(--div)">$2,187</b></div>
+            <div class="kv" id="dCurveRow"><span>内盘进度</span><b class="n" id="dCurve">86%</b></div>
+          </div>
+          <div class="bar" id="dBar" style="margin:2px 0 4px"><i style="width:86%"></i></div>
+          <div class="est" id="est">连接钱包后，这里会显示你按上一轮估算的分红。<i>估算</i></div>
+          <p class="note">每小时快照时持有 $10 以上的钱包都能分到。内盘满了以后，代币进入 Raydium 池子，分红照常。</p>
+        </div>
+        <div class="warn"><span aria-hidden="true">⚠️</span><span>不同代币可以用同一个代币符号和名称。买入前，先和项目方公布的合约地址核对一下。</span></div>
+      </aside>
+    </div>
+    <div class="tradebar"><button class="btn b" type="button" data-open="buy">买入</button><button class="btn s" type="button" data-open="sell">卖出</button></div>
+    <div class="sheet-bg" id="sheetBg"></div>
+  </section>
+
+  <!-- ============ CREATE ============ -->
+  <section data-view="create" class="wrap page">
+    <a class="back" href="#home"><svg class="ic" style="width:16px;height:16px"><use href="#i-back"/></svg>返回首页</a>
+    <h1 class="page-h">创建代币</h1>
+    <p class="page-lede">你的钱包签名创建交易，并支付 0.02 SOL 发币费，另加代币的创建费用。它通过私有捆绑交易发出，没人能抢在你之前买入，你的持有人每小时拿到美股分红。</p>
+    <div class="cgrid2">
+      <form id="cform" onsubmit="return false">
+        <div class="card fsec">
+          <div class="fsec-h"><span class="step">1</span><div><h3>代币</h3><p>名称、代币符号和图片创建后不能修改。</p></div></div>
+          <div class="frow">
+            <label class="inp"><span>名称</span><input id="fName" placeholder="招财猫" maxlength="32"></label>
+            <label class="inp"><span>代币符号</span><input id="fTicker" placeholder="ZHAOCAI" maxlength="10" style="text-transform:uppercase"></label>
+          </div>
+          <label class="inp"><span>简介 <small>选填</small></span><textarea id="fDesc" placeholder="一句让人记住的话"></textarea></label>
+          <div class="inp"><span>图片</span>
+            <div class="drop" id="drop"><span class="ico"><svg class="ic" style="width:24px;height:24px"><use href="#i-img"/></svg></span><div><b>拖入图片，或点击选择</b><small>正方形最好看，至少 512 px。PNG、JPG、WEBP 或 GIF，最大 8 MB。</small></div></div>
+          </div>
+        </div>
+        <div class="card fsec">
+          <div class="fsec-h"><span class="step">2</span><div><h3>分红</h3><p>持有人每小时拿到的股票。代币上线后锁定。</p></div></div>
+          <div class="stocks" id="stocks" role="group" aria-label="分红股票"></div>
+          <p class="note">买家始终用 SOL 买入。股票只是持有人拿到的分红。</p>
+        </div>
+        <div class="card fsec">
+          <div class="fsec-h"><span class="step">3</span><div><h3>链接</h3><p>全部选填。</p></div></div>
+          <div class="frow">
+            <label class="inp"><span>X 账号</span><input placeholder="x.com/yourproject"></label>
+            <label class="inp"><span>Telegram</span><input placeholder="t.me/yourgroup"></label>
+          </div>
+          <label class="inp"><span>网站</span><input placeholder="https://"></label>
+        </div>
+        <div class="card fsec">
+          <div class="fsec-h"><span class="step">4</span><div><h3>开发者首买</h3><p>选填。你的买入包含在创建交易里，比任何人都早，代币页面会公开显示。</p></div></div>
+          <label class="amount" style="margin-top:0"><input id="fDev" inputmode="decimal" placeholder="0" aria-label="开发者首买金额"><span class="unit"><i class="sol"></i>SOL</span></label>
+          <div class="quick" id="devQuick"><button type="button" aria-pressed="false">0.1</button><button type="button" aria-pressed="false">0.5</button><button type="button" aria-pressed="false">1</button><button type="button" aria-pressed="false">最大</button></div>
+        </div>
+      </form>
+      <aside class="sticky">
+        <h2 class="prev-h">首页预览</h2>
+        <div id="preview"></div>
+        <div class="card checks">
+          <h3 style="margin:0 0 4px;font:800 16px var(--ff)">检查</h3>
+          <div id="checks"></div>
+        </div>
+        <div class="card checks">
+          <div class="kv" style="border-top:0"><span>发币费</span><b>0.02 SOL</b></div>
+          <div class="kv"><span>代币创建费用</span><b>钱包里显示</b></div>
+          <div class="kv"><span>你在每笔交易中的分成</span><b>0.15%</b></div>
+          <div class="kv"><span>持有人分成</span><b id="sumPays">0.50%，以 NVDAx 发放</b></div>
+          <div class="kv"><span>开发者首买</span><b id="sumDev">无</b></div>
+          <button class="btn btn-acc btn-lg btn-block" type="button" style="margin-top:12px" id="launchBtn" disabled>发币</button>
+          <p class="note" id="launchNote">请先填写名称和代币符号。</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ PAYOUTS ============ -->
+  <section data-view="payouts" class="wrap page">
+    <h1 class="page-h">分红记录</h1>
+    <p class="page-lede">每小时，每个代币的金库买入它的股票，发给持有人。下面是分红收据，最新的在前，每一条都是可以打开查看的链上交易。</p>
+    <div class="card tiles"><div><b class="g n">$49,751</b><span>已分给持有人</span></div><div><b class="n">1,284</b><span>分红轮次</span></div><div><b class="n">45,974</b><span>钱包分红笔数</span></div><div><b class="n" data-pool>$482.16</b><span>等待下一轮</span></div></div>
+    <div class="card meter">
+      <div class="top"><h3>本小时进度，全部代币</h3><span class="ontime"><i class="live" style="background:var(--green);box-shadow:none"></i>所有代币都准时</span></div>
+      <div class="hour" style="margin:18px 0 8px"><i data-hour></i></div>
+      <div class="ticks"><span>:00</span><span>:15</span><span>:30</span><span>:45</span><span>:00</span></div>
+      <div class="lg"><span>距离下一轮 <b class="n" data-countdown>--:--</b></span><span>某个代币延迟超过 15 分钟，会在这里标红</span></div>
+    </div>
+    <div class="card rcard">
+      <div class="panel-h">收据</div>
+      <div class="chips" id="rchips" role="group" aria-label="按股票筛选"></div>
+      <div class="rtable"><table class="t"><thead><tr><th>代币</th><th>时间</th><th>分红</th><th class="hide-s">价值</th><th class="hide-s">钱包数</th><th>交易</th></tr></thead><tbody id="receipts"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ============ HOW ============ -->
+  <section data-view="how" class="wrap page">
+    <h1 class="page-h">金牛是怎么运作的</h1>
+    <p class="page-lede">用 SOL 买入代币，分红用真实的股票代币发放。下面是从填写表单到收到分红的完整流程。</p>
+    <div class="steps">
+      <div class="card hstep"><div class="no">01</div><h3>填写表单</h3><p>填上名称、代币符号、图片，再选好持有人将获得的股票：NVDAx、SPYx、TSLAx 等。代币上线后分红股票就锁定了。</p></div>
+      <div class="card hstep"><div class="no">02</div><h3>名称和代币符号不设限</h3><p>不同代币可以用同一个代币符号、名称和图片，所以要靠合约地址区分。每个代币页面都会显示合约地址。</p></div>
+      <div class="card hstep"><div class="no">03</div><h3>私密捆绑发币</h3><p>创建交易通过 Jito 私有捆绑提交，代币上链前没人知道合约地址，0 号区块里没有狙击。</p></div>
+      <div class="card hstep"><div class="no">04</div><h3>每笔交易都付手续费</h3><p>内盘上的每次买入和卖出都付 1.25% 手续费，由 Raydium LaunchLab 在链上收取，并按下表分配。</p></div>
+      <div class="card hstep"><div class="no">05</div><h3>每小时给持有人分红</h3><p>每个整点，金库买入代币对应的股票代币，按持仓比例发给持有 $10 以上的钱包。每一轮都是分红记录里的一张收据。</p></div>
+      <div class="card hstep"><div class="no">06</div><h3>毕业</h3><p>内盘满了以后，代币进入 Raydium 池子，流动性通过 Burn &amp; Earn 永久锁定。毕业后分红照常，每小时继续发放。</p></div>
+    </div>
+    <div class="sec" style="margin-top:40px">
+      <div class="sh"><h2>每笔交易的 1.25% 去了哪里</h2></div>
+      <div class="card fees">
+        <div class="feebar" aria-hidden="true"><i style="width:40%;background:var(--acc)"></i><i style="width:28%;background:#8A6A1F"></i><i style="width:20%;background:var(--tx3)"></i><i style="width:12%;background:var(--green)"></i></div>
+        <table class="t"><thead><tr><th>分给</th><th>比例</th></tr></thead>
+          <tbody>
+            <tr><td><span class="sw" style="background:var(--acc)"></span>持有人（以股票代币分红）</td><td class="n">0.50%</td></tr>
+            <tr><td><span class="sw" style="background:#8A6A1F"></span>金牛</td><td class="n">0.35%</td></tr>
+            <tr><td><span class="sw" style="background:var(--tx3)"></span>Raydium</td><td class="n">0.25%</td></tr>
+            <tr><td><span class="sw" style="background:var(--green)"></span>创建者</td><td class="n">0.15%</td></tr>
+            <tr><td><b>合计</b></td><td class="n"><b>1.25%</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ME ============ -->
+  <section data-view="me" class="wrap page">
+    <h1 class="page-h">我的分红</h1>
+    <p class="page-lede">连接钱包，查看你持有的代币、收到的每一笔美股分红和可以领取的创建者手续费。</p>
+    <div class="card connect" id="meBox">
+      <span class="mk" style="--s:76px"><b>牛</b></span>
+      <h3>连接钱包查看分红</h3>
+      <p>支持 Phantom、Solflare、Backpack。只需要签名登录，不会花费任何资金。</p>
+      <button class="btn btn-acc btn-lg" type="button" id="meConnect">连接钱包</button>
+    </div>
+    <div id="meList" hidden>
+      <div class="mesum">
+        <div class="card first"><span>今日已领</span><b class="n">$12.84</b><small>本小时 <b class="n">+$0.53</b> · 3 个代币</small></div>
+        <div class="card"><span>累计已领</span><b class="n">$214.07</b><small>来自 41 轮分红</small></div>
+        <div class="card"><span>下一轮</span><b class="n" data-countdown>--:--</b><small>预计约 $0.55（按上一轮估算）</small></div>
+      </div>
+      <div class="card hold">
+        <div class="panel-h">我持有的代币</div>
+        <div class="rtable"><table class="t"><thead><tr><th>代币</th><th class="hide-s">持仓</th><th class="hide-s">价值</th><th>本小时分红</th><th class="hide-s">累计分红</th></tr></thead><tbody id="holds"></tbody></table></div>
+      </div>
+      <div class="card cfee">
+        <span id="cfTile"></span>
+        <div><b>创建者手续费 0.84 SOL</b><span>你创建的 $DAGONG 每笔交易的 0.15%，随时可以领取。</span></div>
+        <button class="btn btn-acc" type="button" id="claim">领取</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span class="brand"><span class="mk" style="--s:26px"><b>牛</b></span>金牛</span>
+    <span>演示原型，页面上的数字都是演示数据。股票代币由第三方发行，并非所有地区都能使用。本站内容不构成投资建议。<a href="#how">条款</a></span>
+    <div class="ud" role="group" aria-label="涨跌颜色"><span>涨跌颜色</span><div class="seg sm"><button type="button" data-ud="green" aria-pressed="true">绿涨红跌</button><button type="button" data-ud="red" aria-pressed="false">红涨绿跌</button></div></div>
+  </div>
+</footer>
+
+<nav class="dock" aria-label="底部导航">
+  <a href="#home" data-nav="home"><svg class="ic"><use href="#i-home"/></svg>首页</a>
+  <a href="#payouts" data-nav="payouts"><svg class="ic"><use href="#i-gift"/></svg>分红</a>
+  <a href="#how" data-nav="how"><svg class="ic"><use href="#i-book"/></svg>玩法</a>
+  <a href="#me" data-nav="me"><svg class="ic"><use href="#i-me"/></svg>我的</a>
+  <a class="plus" href="#create" aria-label="创建代币"><svg class="ic"><use href="#i-plus"/></svg></a>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1800)};
+const store={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
+
+// the eleven dividend stocks the app has logos for (apps/web/src/lib/logos.ts); initials stand in for the logos
+const STOCKS=[["NVDAx","NVIDIA","#76B900"],["SPYx","标普 500","#1F6FEB"],["TSLAx","特斯拉","#E31937"],["AAPLx","苹果","#6E6E73"],["QQQx","纳斯达克 100","#00A3E0"],["GOOGLx","谷歌","#EA4335"],["AMZNx","亚马逊","#FF9900"],["MSTRx","Strategy","#F7931A"],["COINx","Coinbase","#0052FF"],["HOODx","Robinhood","#00A85A"],["CRCLx","Circle","#3D7BFF"]];
+const SC=Object.fromEntries(STOCKS.map(s=>[s[0],s[2]]));
+const stk=(s,cls="")=>`<span class="stk ${cls}" style="--c:${SC[s]}">${s[0]}</span>`;
+const T={
+  jiucai:{bg:"#E7F5EA",dot:"rgba(20,120,60,.18)",k:"em",g:"🥬"},tang:{bg:"#0E0E0E",fg:"#fff",acc:"#2BD67B",k:"brush",g:"躺",arc:1},
+  caishen:{bg:"#FFF3D3",dot:"rgba(160,110,0,.2)",k:"em",g:"💰"},liuliu:{bg:"#0E0E0E",fg:"#fff",k:"num",g:"666"},
+  dagong:{bg:"#D9FF3F",fg:"#0E0E0E",k:"heavy",g:"打工"},facai:{bg:"#F1F0EB",dot:"rgba(0,0,0,.12)",k:"em",g:"🌳"},
+  kaimen:{bg:"#FFE4E1",dot:"rgba(200,40,40,.15)",k:"em",g:"🧧"},tangping:{bg:"#EEE8FF",dot:"rgba(80,50,180,.15)",k:"em",g:"🛋️"},
+  juanwang:{bg:"#1F3A8A",fg:"#fff",k:"heavy",g:"卷"},panda:{bg:"#F4F4F2",dot:"rgba(0,0,0,.1)",k:"em",g:"🐼"},
+  niuma:{bg:"#EFE6DD",dot:"rgba(90,50,20,.15)",k:"em",g:"🐴"},moyu:{bg:"#123A6B",fg:"#fff",acc:"#7CC4FF",k:"em",g:"🐟",dotacc:1},
+  jinli:{bg:"#FFE9DF",dot:"rgba(220,80,30,.15)",k:"em",g:"🎏"},ningmeng:{bg:"#FFF8C4",dot:"rgba(160,140,0,.18)",k:"em",g:"🍋"},
+  blank:{bg:"var(--s1)",fg:"var(--tx3)",k:"heavy",g:"?"},
+};
+const tile=(id,size)=>{const t=T[id]||T.blank;
+  return `<span class="tile ${t.dot?"dots":""}" style="--t-bg:${t.bg};--t-fg:${t.fg||"#111"};--t-dot:${t.dot||"transparent"};--t-acc:${t.acc||"#fff"}${size?`;width:${size}px;height:${size}px;--z:${size}px;border-radius:${Math.round(size*.28)}px`:""}"><span class="${t.k}">${esc(t.g)}</span>${t.arc?'<i class="arc"></i>':""}${t.dotacc?'<i class="dot"></i>':""}</span>`};
+
+// demo coins: market cap in USD, age in minutes, curve = bonding-curve % (null once graduated)
+const COINS=[
+  {t:"JIUCAI",n:"韭菜之王",s:"SPYx",mc:1820000,ch:6.2,vol:612000,h:4118,p24:3412,pt:21840,curve:null,age:4320,tile:"jiucai",dev:0,seed:4,tr:1},
+  {t:"TANG",n:"躺赚",s:"NVDAx",mc:964000,ch:18.4,vol:388000,h:2902,p24:2187,pt:9120,curve:null,age:300,tile:"tang",dev:2.4,seed:9,tr:1.6},
+  {t:"CAISHEN",n:"财神爷",s:"AAPLx",mc:402300,ch:-4.1,vol:97000,h:1630,p24:988,pt:5210,curve:null,age:2880,tile:"caishen",dev:1.1,seed:6,tr:-.8},
+  {t:"LIULIU",n:"六六六",s:"GOOGLx",mc:311500,ch:2.0,vol:76000,h:1288,p24:640,pt:2950,curve:null,age:1500,tile:"liuliu",dev:0,seed:2,tr:.5},
+  {t:"DAGONG",n:"打工人",s:"GOOGLx",mc:249900,ch:3.3,vol:61000,h:1105,p24:571,pt:2330,curve:null,age:1100,tile:"dagong",dev:3.0,seed:3,tr:.7},
+  {t:"FACAI",n:"发财树",s:"MSTRx",mc:205100,ch:9.7,vol:51000,h:1004,p24:512,pt:1980,curve:null,age:900,tile:"facai",dev:0,seed:12,tr:1.2},
+  {t:"KAIMEN",n:"开门红",s:"HOODx",mc:188000,ch:-1.3,vol:40000,h:977,p24:455,pt:1710,curve:null,age:800,tile:"kaimen",dev:.8,seed:7,tr:-.3},
+  {t:"TANGPING",n:"躺平",s:"QQQx",mc:68400,ch:7.5,vol:41200,h:612,p24:118,pt:118,curve:96,age:38,tile:"tangping",dev:0,seed:8,tr:1.3},
+  {t:"JUANWANG",n:"卷王",s:"AMZNx",mc:61000,ch:4.1,vol:29800,h:540,p24:96,pt:96,curve:88,age:60,tile:"juanwang",dev:1.1,seed:10,tr:.9},
+  {t:"PANDA",n:"熊猫",s:"SPYx",mc:55300,ch:12.6,vol:22500,h:497,p24:141,pt:141,curve:81,age:120,tile:"panda",dev:0,seed:5,tr:1.4},
+  {t:"NIUMA",n:"牛马",s:"NVDAx",mc:21700,ch:22.0,vol:9400,h:141,p24:0,pt:0,curve:28,age:12,tile:"niuma",dev:0,seed:14,tr:1.8},
+  {t:"MOYU",n:"摸鱼",s:"SPYx",mc:14100,ch:31.0,vol:6200,h:102,p24:0,pt:0,curve:18,age:2,tile:"moyu",dev:0,seed:11,tr:2},
+  {t:"NINGMENG",n:"柠檬精",s:"AAPLx",mc:9800,ch:-2.4,vol:3900,h:66,p24:0,pt:0,curve:11,age:1,tile:"ningmeng",dev:.9,seed:15,tr:-.4},
+  {t:"JINLI",n:"锦鲤",s:"TSLAx",mc:6200,ch:8.8,vol:1100,h:23,p24:0,pt:0,curve:4,age:.2,tile:"jinli",dev:1.8,seed:13,tr:1.1},
+];
+const byT=Object.fromEntries(COINS.map(c=>[c.t,c]));
+const usd=v=>v>=1e6?`$${(v/1e6).toFixed(2)}M`:v>=1e3?`$${(v/1e3).toFixed(1)}K`:`$${Math.round(v).toLocaleString("en-US")}`;
+const money=v=>"$"+Math.round(v).toLocaleString("en-US");
+const pct=v=>`<span class="${v>=0?"up":"dn"}">${v>=0?"+":""}${v.toFixed(1)}%</span>`;
+const ago=m=>m<1?`${Math.max(1,Math.round(m*60))} 秒前`:m<60?`${Math.round(m)} 分钟前`:m<1440?`${Math.round(m/60)} 小时前`:`${Math.round(m/1440)} 天前`;
+function rng(seed){let s=seed*9301+49297;return()=>{s=(s*9301+49297)%233280;return s/233280}}
+function walk(seed,tr,n){const r=rng(seed);let v=0;const p=[];for(let i=0;i<n;i++){v+=(r()-.5)*2.2+tr*.35;p.push(v)}return p}
+function line(c,w,h,area){const n=area?70:36,p=walk(c.seed,c.tr,n),mn=Math.min(...p),mx=Math.max(...p),sy=y=>h-4-(y-mn)/(mx-mn||1)*(h-10);
+  const d=p.map((y,i)=>(i?"L":"M")+(i*w/(n-1)).toFixed(1)+" "+sy(y).toFixed(1)).join(" "),col=`var(${c.ch>=0?"--up":"--dn"})`,id="g"+c.t+(area?"a":"");
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">${area?`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".22"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><path d="${d} L${w} ${h} L0 ${h}Z" fill="url(#${id})"/>`:""}<path d="${d}" fill="none" stroke="${col}" stroke-width="${area?2.2:1.8}" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`}
+
+/* ---------- clock: the round, the pool, the hour line ---------- */
+let left=42*60+50,pool=482.16;const RC=2*Math.PI*26;
+function tick(){
+  const t=String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");
+  $$("[data-countdown]").forEach(e=>e.textContent=t);
+  $$("[data-hour]").forEach(e=>e.style.width=((3600-left)/3600*100).toFixed(2)+"%");
+  $$("[data-ring]").forEach(e=>{e.style.strokeDasharray=RC;e.style.strokeDashoffset=RC*left/3600});
+  $$("[data-pool]").forEach(e=>e.textContent="$"+pool.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}));
+}
+const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+setInterval(()=>{left=left>0?left-1:3599;if(!still)pool+=Math.random()*.9;tick()},1000);
+
+/* ---------- home ---------- */
+const FEED=[["JIUCAI","+0.0213 SPYx","刚刚"],["DAGONG","+2.3389 GOOGLx","12 秒前"],["TANG","+1.1556 NVDAx","31 秒前"],["CAISHEN","+0.5194 AAPLx","1 分钟前"],["FACAI","+0.0337 MSTRx","1 分钟前"],["KAIMEN","+0.0871 HOODx","2 分钟前"]];
+function renderFeed(){$("#feed").innerHTML=FEED.slice(0,5).map(([t,v,w],i)=>{const c=byT[t];return `<a class="fr${i===0?" in":""}" href="#coin" data-coin="${t}">${tile(c.tile)}<div class="t"><b>${esc(c.n)}</b><small>$${t} 持有人</small></div><div class="v"><b class="n">${v}</b><small>${w}</small></div></a>`}).join("")}
+renderFeed();
+if(!still)setInterval(()=>{FEED.unshift(FEED.pop());FEED.forEach((f,i)=>f[2]=i===0?"刚刚":f[2]);renderFeed()},6000);
+const f0=COINS[0];
+$("#bento").innerHTML=`<a class="card feat" href="#coin" data-coin="${f0.t}">
+  <div class="hd">${tile(f0.tile)}<div><span class="dvl" style="padding-left:10px">№1 · 24 小时分红最多</span><h3>${esc(f0.n)}</h3><span class="tk">$${f0.t}</span></div></div>
+  <div class="row"><b class="n">${usd(f0.mc)}</b><span class="chg">${pct(f0.ch)}</span><small>市值 · 24 小时</small></div>
+  <div class="chart">${line(f0,600,150,true)}</div>
+  <div class="ft"><div class="box"><span>分红股票</span><b>${stk(f0.s)}${f0.s}</b></div><div class="box"><span>24 小时分红</span><b class="g n">${money(f0.p24)}</b></div><div class="box"><span>持有人</span><b class="n">${f0.h.toLocaleString("en-US")}</b></div></div>
+</a>`+COINS.slice(1,5).map(c=>`<a class="card mini" href="#coin" data-coin="${c.t}">${tile(c.tile)}<div class="nm">${esc(c.n)}<small>$${c.t}</small></div><div class="mr"><b class="n">${usd(c.mc)}</b>${pct(c.ch)}</div><span class="dvl">${stk(c.s)}24h 分红 ${money(c.p24)}</span></a>`).join("");
+const state={sort:"mc",pay:"全部",q:"",coin:"TANG",side:"buy"};
+function chipsHtml(sel,attr){const counts={};COINS.forEach(c=>counts[c.s]=(counts[c.s]||0)+1);
+  return `<button type="button" class="chip all" ${attr}="全部" aria-pressed="${sel==="全部"}">全部 <em>${COINS.length}</em></button>`+STOCKS.filter(s=>counts[s[0]]).map(([s])=>`<button type="button" class="chip" ${attr}="${s}" aria-pressed="${sel===s}">${stk(s)}${s} <em>${counts[s]}</em></button>`).join("")}
+function card(c){const paid=c.p24?`<span class="paid n">24h 分红 ${money(c.p24)}</span>`:`<span class="wait">首轮 <span data-countdown>--:--</span></span>`;
+  return `<a class="card cc${c.curve===null?" nocurve":""}" href="#coin" data-coin="${c.t}"><div class="hd">${tile(c.tile)}<div class="nm"><b>${esc(c.n)}</b><small>$${c.t}</small></div><span class="chg ${c.ch>=0?"up":"dn"}">${c.ch>=0?"+":""}${c.ch.toFixed(1)}%</span></div>
+  <div class="mc n">${usd(c.mc)}</div><div class="lbl">市值 · ${c.curve===null?"已毕业":ago(c.age)}</div>
+  ${c.curve!==null?`<div class="curve">内盘 <span class="bar"><i style="width:${c.curve}%"></i></span>${c.curve}%</div>`:""}
+  <div class="sp">${line(c,200,40)}</div>
+  <div class="ft"><span class="stock">${stk(c.s)}${c.s}</span>${paid}</div></a>`}
+function renderGrid(){
+  const q=state.q.toLowerCase();
+  let list=COINS.filter(c=>(state.pay==="全部"||c.s===state.pay)&&(!q||c.n.includes(state.q)||c.t.toLowerCase().includes(q)||c.s.toLowerCase().includes(q)));
+  const by={mc:(a,b)=>b.mc-a.mc,new:(a,b)=>a.age-b.age,paid:(a,b)=>b.p24-a.p24,grad:(a,b)=>(b.curve??-1)-(a.curve??-1)}[state.sort];
+  list=[...list].sort(by);if(state.sort==="grad")list=list.filter(c=>c.curve!==null);
+  $("#grid").innerHTML=list.length?list.slice(0,12).map(card).join(""):`<div class="empty"><b>没有找到代币</b>换个名称、代币符号或股票试试。</div>`;
+  $("#chips").innerHTML=chipsHtml(state.pay,"data-pay");tick();
+}
+renderGrid();
+$("#sorts").onclick=e=>{const b=e.target.closest("button");if(!b)return;state.sort=b.dataset.sort;$$("#sorts button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderGrid()};
+$("#chips").onclick=e=>{const b=e.target.closest("button");if(!b)return;state.pay=b.dataset.pay;renderGrid()};
+$("#q").addEventListener("input",e=>{state.q=e.target.value.trim();renderGrid()});
+$("#findBtn").onclick=()=>{if(location.hash&&location.hash!=="#home")location.hash="home";setTimeout(()=>{$("#all").scrollIntoView({behavior:still?"auto":"smooth"});$("#q").focus({preventScroll:true})},50)};
+$("#caPill").onclick=()=>toast("官方代币还没公布");
+
+/* ---------- coin ---------- */
+function candles(c){const r=rng(c.seed+7),n=64,out=[];let v=50;for(let i=0;i<n;i++){const o=v;v=Math.max(8,v+(r()-.5)*7+c.tr*.55);const cl=v;out.push({o,c:cl,h:Math.max(o,cl)+r()*3,l:Math.min(o,cl)-r()*3})}return out}
+function drawChart(){const c=byT[state.coin],cs=candles(c),W=800,H=320,pad=16,mx=Math.max(...cs.map(k=>k.h)),mn=Math.min(...cs.map(k=>k.l)),y=v=>pad+(mx-v)/(mx-mn)*(H-pad*2-26),w=W/cs.length;
+  let g="";for(let i=1;i<4;i++)g+=`<line x1="0" x2="${W}" y1="${(H-26)*i/4}" y2="${(H-26)*i/4}" stroke="var(--line)" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+  cs.forEach((k,i)=>{const x=i*w+w/2,col=k.c>=k.o?"var(--up)":"var(--dn)";g+=`<line x1="${x}" x2="${x}" y1="${y(k.h)}" y2="${y(k.l)}" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/><rect x="${x-w*.32}" y="${Math.min(y(k.o),y(k.c))}" width="${w*.64}" height="${Math.max(1.5,Math.abs(y(k.o)-y(k.c)))}" rx="1.5" fill="${col}"/>`;if(i%4===3)g+=`<circle cx="${x}" cy="${H-10}" r="4.5" fill="var(--acc)"/>`});
+  $("#kl").innerHTML=g;const k=cs[cs.length-1],f=v=>usd(c.mc*v/k.c);
+  $("#legend").innerHTML=`<span>开 <b class="n">${f(k.o)}</b></span><span>高 <b class="n">${f(k.h)}</b></span><span>低 <b class="n">${f(k.l)}</b></span><span>收 <b class="n">${f(k.c)}</b></span><span>${pct(c.ch)}</span>`;
+  $("#ath").textContent="历史最高市值 "+usd(c.mc*mx/k.c)}
+const WAL=["7xKp…3fQa","9mQe…aa21","Hh3T…0pLw","2Zrd…Yk8c","Cq9s…v7Tn","5bWf…eR2m","Lm4x…9QpD","8pVa…kk3S"];
+function renderTab(tab){const c=byT[state.coin],r=rng(c.seed+3);
+  if(tab==="trades"){$("#ctab").innerHTML=`<table class="t"><thead><tr><th>时间</th><th>类型</th><th>SOL</th><th class="hide-s">$${c.t}</th><th>钱包</th></tr></thead><tbody>${Array.from({length:8},(_,i)=>{const buy=r()>.38,sol=(r()*3+.05).toFixed(2);return `<tr><td class="w">${i*7+3} 秒前</td><td class="side ${buy?"up":"dn"}">${buy?"买入":"卖出"}</td><td class="n">${sol}</td><td class="n hide-s">${Math.round(sol*287000/ (c.mc/964000)).toLocaleString("en-US")}</td><td class="w">${WAL[i]}</td></tr>`}).join("")}</tbody></table>`}
+  if(tab==="holders"){let rest=100;$("#ctab").innerHTML=`<table class="t"><thead><tr><th>#</th><th>钱包</th><th>持仓</th></tr></thead><tbody>${WAL.map((w,i)=>{const p=i===0?18.2:Math.max(.4,rest*(.12+r()*.08));rest-=p;return `<tr><td class="w">${i+1}</td><td class="w">${i===0?"Raydium 内盘金库（不参与分红）":w}</td><td class="n">${p.toFixed(1)}%<span class="hbar"><i style="width:${Math.min(100,p*4)}%"></i></span></td></tr>`}).join("")}</tbody></table>`}
+  if(tab==="divs"){$("#ctab").innerHTML=c.p24?`<table class="t"><thead><tr><th>轮次</th><th>分红</th><th class="hide-s">价值</th><th>钱包数</th><th>交易</th></tr></thead><tbody>${Array.from({length:6},(_,i)=>{const v=c.p24/24*(.7+r()*.6);return `<tr><td class="w">${String(13-i).padStart(2,"0")}:00</td><td class="n" style="color:var(--div);font-weight:700">${(v/310).toFixed(4)} ${c.s}</td><td class="n hide-s">${money(v)}</td><td class="n">${Math.round(c.h*(.3+r()*.1)).toLocaleString("en-US")}</td><td><a class="tx" href="#coin">查看 ↗</a></td></tr>`}).join("")}</tbody></table>`:`<div class="empty" style="padding:34px 10px"><b>首轮分红在 <span data-countdown>--:--</span> 后</b>每小时一轮，按持仓比例发给持有 $10 以上的钱包。</div>`;tick()}
+}
+function renderCoin(){const c=byT[state.coin];
+  $("#cTile").innerHTML=tile(c.tile);$("#cName").textContent=c.n;$("#cTicker").textContent="$"+c.t;$("#cAge").textContent=ago(c.age);
+  $("#cDev").textContent=c.dev?`开发者首买 ${c.dev}%`:"开发者没有首买";
+  $("#kpis").innerHTML=`<div><span>市值</span><b class="n">${usd(c.mc)}</b></div><div><span>24 小时涨跌</span><b class="n ${c.ch>=0?"up":"dn"}">${c.ch>=0?"+":""}${c.ch.toFixed(1)}%</b></div><div><span>24 小时交易额</span><b class="n">${usd(c.vol)}</b></div><div><span>持有人</span><b class="n">${c.h.toLocaleString("en-US")}</b></div><div><span>累计分红</span><b class="n g">${money(c.pt)}</b></div>`;
+  $("#dStock").innerHTML=`<span style="display:inline-flex;align-items:center;gap:8px">${stk(c.s)}${c.s}</span>`;
+  $("#dLast").textContent=c.p24?`${(c.p24/24/310).toFixed(4)} ${c.s} · ${Math.round(c.h*.32).toLocaleString("en-US")} 个钱包`:"还没有，首轮即将开始";
+  $("#d24").textContent=c.p24?money(c.p24):"—";
+  const grad=c.curve===null;$("#dCurve").textContent=grad?"已毕业":c.curve+"%";$("#dBar").hidden=grad;$("#dBar i").style.width=(c.curve||0)+"%";
+  $("#route").textContent=grad?"Jupiter，Raydium 池子":"SOL 进入内盘";
+  $("#shareX").href=`https://x.com/intent/post?text=${encodeURIComponent(`$${c.t} 每小时用 ${c.s} 给持有人分红 🐂`)}`;
+  $("#shareX").target="_blank";$("#shareX").rel="noopener";
+  drawChart();$$(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.ctab==="trades"));renderTab("trades");calc()}
+$(".tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;$$(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));renderTab(b.dataset.ctab)};
+$("#tfs").onclick=e=>{const b=e.target.closest("button");if(!b)return;$$("#tfs button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawChart()};
+$("#units").onclick=e=>{const b=e.target.closest("button");if(!b)return;$$("#units button").forEach(x=>x.setAttribute("aria-pressed",x===b))};
+function calc(){const c=byT[state.coin],a=parseFloat($("#amt").value)||0,px=c.mc/1e9/187.4;
+  $("#recv").textContent=state.side==="buy"?`${Math.round(a*.9875/px).toLocaleString("en-US")} $${c.t}`:`${(a*px*.9875).toFixed(4)} SOL`}
+function setSide(s){state.side=s;$$(".bs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.side===s));
+  const c=byT[state.coin];$("#payLbl").textContent=s==="buy"?"你支付":"你卖出";$("#unit").textContent=s==="buy"?"SOL":"$"+c.t;$("#unitIc").style.display=s==="buy"?"":"none";
+  $("#amt").value=s==="buy"?"0.5":"100000";$$("#quick button").forEach((b,i)=>{b.textContent=s==="buy"?["0.1","0.5","1","5"][i]:["25%","50%","75%","100%"][i];b.setAttribute("aria-pressed",i===1)});calc()}
+$(".bs").onclick=e=>{const b=e.target.closest("button");if(b)setSide(b.dataset.side)};
+$("#quick").onclick=e=>{const b=e.target.closest("button");if(!b)return;$$("#quick button").forEach(x=>x.setAttribute("aria-pressed",x===b));$("#amt").value=state.side==="buy"?b.textContent:String(Math.round(400000*parseInt(b.textContent)/100));calc()};
+$("#amt").addEventListener("input",()=>{$$("#quick button").forEach(x=>x.setAttribute("aria-pressed",false));calc()});
+$("#cCa").onclick=()=>toast("合约地址已复制");
+$("#report").onclick=()=>toast("已收到举报，我们会尽快查看");
+$$("[data-open]").forEach(b=>b.onclick=()=>{setSide(b.dataset.open);document.body.classList.add("sheet")});
+$("#sheetBg").onclick=()=>document.body.classList.remove("sheet");
+
+/* ---------- create ---------- */
+const cf={stock:"NVDAx"};
+$("#stocks").innerHTML=STOCKS.map(([s,nm])=>`<button type="button" data-stock="${s}" aria-pressed="${s===cf.stock}">${stk(s,"lg")}<span><b>${s}</b><small>${esc(nm)}</small></span></button>`).join("");
+$("#stocks").onclick=e=>{const b=e.target.closest("button");if(!b)return;cf.stock=b.dataset.stock;$$("#stocks button").forEach(x=>x.setAttribute("aria-pressed",x===b));updCreate()};
+$("#devQuick").onclick=e=>{const b=e.target.closest("button");if(!b)return;$$("#devQuick button").forEach(x=>x.setAttribute("aria-pressed",x===b));$("#fDev").value=b.textContent==="最大"?"3.9":b.textContent;updCreate()};
+$("#drop").onclick=()=>{cf.pic=!cf.pic;updCreate()};
+["fName","fTicker","fDesc","fDev"].forEach(id=>$("#"+id).addEventListener("input",updCreate));
+function updCreate(){const n=$("#fName").value.trim(),t=$("#fTicker").value.trim().toUpperCase(),dev=parseFloat($("#fDev").value)||0;
+  const taken=COINS.some(c=>c.n===n&&n);
+  const p={t:t||"TICKER",n:n||"代币名称",s:cf.stock,mc:4100,ch:0,vol:0,h:1,p24:0,pt:0,curve:0,age:0,tile:cf.pic?"ningmeng":"blank",seed:21,tr:.6};
+  $("#preview").innerHTML=card(p).replace('<a class="card cc','<a class="card cc preview"').replace(/href="#coin"/,'href="#create"');
+  const ck=[[!!n,"填写名称"],[/^[A-Z0-9]{2,10}$/.test(t),"代币符号是 2 到 10 个字母或数字"],[!!cf.pic,"上传一张图片"],[!taken,"名称和图片不像已有的代币（防抄袭检查）"]];
+  $("#checks").innerHTML=ck.map(([ok,l])=>`<div class="chk ${ok?"ok":""}"><i>${ok?"✓":""}</i>${l}</div>`).join("");
+  $("#sumPays").textContent=`0.50%，以 ${cf.stock} 发放`;$("#sumDev").textContent=dev?`${dev} SOL`:"无";
+  const ready=ck.every(x=>x[0]);$("#launchBtn").disabled=!ready;
+  $("#launchNote").textContent=!n||!t?"请先填写名称和代币符号。":!cf.pic?"再上传一张图片就可以发币了。":ready?"你的钱包会弹出签名请求。":"请先处理上面的检查。";tick()}
+updCreate();
+$("#launchBtn").onclick=()=>toast("演示原型：这里会请你的钱包签名");
+
+/* ---------- payouts ---------- */
+const RS=[];{const r=rng(99);for(let i=0;i<16;i++){const c=COINS[Math.floor(r()*8)];const v=c.p24/24*(.6+r()*.8);RS.push({c,v,amt:(v/310).toFixed(4),w:Math.round(c.h*(.28+r()*.1)),tm:`${String(13-Math.floor(i/4)).padStart(2,"0")}:0${8-(i%4)*2}`})}}
+let rpay="全部";
+function renderReceipts(){$("#rchips").innerHTML=chipsHtml(rpay,"data-rpay");
+  const list=RS.filter(x=>rpay==="全部"||x.c.s===rpay);
+  $("#receipts").innerHTML=list.length?list.map(x=>`<tr><td><a class="coin-cell" href="#coin" data-coin="${x.c.t}">${tile(x.c.tile)}<b>${esc(x.c.n)}</b><small>$${x.c.t}</small></a></td><td class="w">今天 ${x.tm}</td><td class="n" style="color:var(--div);font-weight:700">${x.amt} ${x.c.s}</td><td class="n hide-s">${money(x.v)}</td><td class="n hide-s">${x.w.toLocaleString("en-US")}</td><td><a class="tx" href="#payouts">查看 ↗</a></td></tr>`).join(""):`<tr><td colspan="6" class="w" style="text-align:center;padding:30px">这个股票今天还没有分红。</td></tr>`}
+renderReceipts();
+$("#rchips").onclick=e=>{const b=e.target.closest("button");if(!b)return;rpay=b.dataset.rpay;renderReceipts()};
+
+/* ---------- me ---------- */
+$("#meConnect").onclick=()=>{$("#meBox").hidden=true;$("#meList").hidden=false;store.set("jn-me","1");$(".connectb").innerHTML=`<svg class="ic" style="width:18px;height:18px"><use href="#i-wallet"/></svg>8xQ…3fA`;
+  $("#est").innerHTML=`你持有 1,204,551 枚，按上一轮约 <b>+0.0041</b> / 小时<i>估算</i>`;$("#tradeBtn").textContent="买入";$("#tradeBtn").removeAttribute("href")};
+$("#holds").innerHTML=[["JIUCAI","1,204,551","$2,191","+0.0213 SPYx","$118.40"],["TANG","356,020","$343","+0.0041 NVDAx","$61.22"],["DAGONG","88,400","$22","+0.0187 GOOGLx","$34.45"]].map(([t,b,v,h,tot])=>{const c=byT[t];return `<tr><td><a class="coin-cell" href="#coin" data-coin="${t}">${tile(c.tile)}<b>${esc(c.n)}</b><small>$${t}</small></a></td><td class="n hide-s">${b}</td><td class="n hide-s">${v}</td><td class="n" style="color:var(--div);font-weight:700">${h}</td><td class="n hide-s">${tot}</td></tr>`}).join("");
+$("#cfTile").innerHTML=tile("dagong");
+$("#claim").onclick=()=>toast("演示原型：这里会请你的钱包签名领取");
+
+/* ---------- theme, up/down, language ---------- */
+function setTheme(t){document.documentElement.dataset.theme=t;$("#themeBtn use").setAttribute("href",t==="dark"?"#i-sun":"#i-moon");store.set("jn-theme",t);if($("[data-view=coin].on"))drawChart()}
+setTheme(store.get("jn-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+$("#themeBtn").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");
+$$("[data-ud]").forEach(b=>b.onclick=()=>{document.documentElement.dataset.updown=b.dataset.ud==="red"?"cn":"intl";$$("[data-ud]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+$$(".lang button").forEach(b=>b.onclick=()=>$$(".lang button").forEach(x=>x.setAttribute("aria-pressed",x===b)));
+
+/* ---------- router ---------- */
+document.addEventListener("click",e=>{const a=e.target.closest("[data-coin]");if(!a)return;state.coin=a.dataset.coin;if(location.hash==="#coin"){renderCoin();window.scrollTo(0,0)}});
+$("#moreBtn").onclick=()=>toast("演示原型：这里会加载更多代币");
+function route(){const v=(location.hash||"#home").slice(1),view=$$("[data-view]").some(s=>s.dataset.view===v)?v:"home";
+  $$("[data-view]").forEach(s=>s.classList.toggle("on",s.dataset.view===view));
+  const navv=view==="coin"?"home":view;
+  $$("[data-nav]").forEach(a=>a.dataset.nav===navv?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+  document.body.className="v-"+view;
+  if(view==="coin")renderCoin();
+  window.scrollTo(0,0);tick()}
+addEventListener("hashchange",route);route();
+</script>
+</body>
+</html>

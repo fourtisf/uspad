@@ -245,6 +245,17 @@ Risks the board names: 金牛奖 (the 中国证券报 fund award) may hold the m
 
 A rename also touches: $HWAI (launched on pump.fun the same day; its name stays HWAI, so the owner decides whether it stays the official token), the hwai.ai domain (kept as a redirect), the PlatformConfig's name (a mainnet transaction, owner approval), @HwaiPad and Telegram, the intro video, the article and every share image. The marks on the board are sketches set in OFL Google Fonts; the chosen one gets drawn as paths, like `niu.py` draws the seal.
 
+## 金牛 jinniu (owner, 2026-11-02)
+
+After the proposals above the owner asked what set 发发 and 红利 apart (only the name, mark, meaning and button colour; the look is the same) and confirmed they want a new brand, not hwai. They picked **金牛 jinniu**, and for $HWAI, a new official token later.
+
+- **Name:** 金牛, written jinniu in Latin. 牛 stays from the hwai seal; the mark is 牛 brushed on a gold coin. The prototype sketches it in Ma Shan Zheng from Google Fonts; the final mark and wordmark get drawn as paths (like `brand/hwai/src/niu.py`), with the icons and share images regenerated.
+- **Look:** v4 above, as a full prototype: [`prototype/jinniu-prototype.html`](../prototype/jinniu-prototype.html), one file with every page (首页, 代币, 创建代币, 分红记录, 玩法, 我的) behind its links, light by default with a dark theme (the moon button, kept per browser), the 中 / EN switch and the up/down colour switch. On phones the nav moves to a floating dock with + to launch, the coin page's trade box opens as a bottom sheet from 买入 / 卖出, and coin cards turn into rows. Faces: Inter Tight for Latin and numbers, Noto Sans SC for Chinese. Gold `#FFC21A` for the one button and the brand, green up, red down, dark gold for anything holders are paid. Copy follows the current app: launches cost 0.02 SOL plus the coin's create cost; the fee split is the prototype's demo split.
+- **$HWAI:** hidden from the new site (`go-live.sh token-ca off`) until the owner launches a new official token and sends its CA (`go-live.sh token-ca <CA>`). The hero shows "官方代币：即将公布" meanwhile.
+- **Open:** the domain (not checked from here; WHOIS is blocked), the PlatformConfig's name, web and picture (a mainnet transaction, owner approval), the X and Telegram handles, the intro video, the article and the share images.
+
+Until the owner approves the prototype, the site and CLAUDE.md rule 1 stay on design 牛 and the name hwai.
+
 ## Stock token logos
 
 Every dividend asset shows its own token icon: in the round chips (filters, coupons, payouts, the trade box) and on the face of the 3D stock coins. They are the tokens' official icons from the Trust Wallet assets registry (`github.com/trustwallet/assets`, `blockchains/solana/assets/<mint>/logo.png`), fetched on 2026-10-26 by the mints verified in `docs/verified/jito-jupiter-xstocks.md`; each registry entry's `info.json` symbol matched (NVDAX, TSLAX, ...). They live in `apps/web/public/stocks/<SYMBOL>.png` (256 px); `apps/web/src/lib/logos.ts` lists them, and a symbol without one falls back to the prototype's initials. `scripts/fetch-stock-logos.sh` downloads them again.
