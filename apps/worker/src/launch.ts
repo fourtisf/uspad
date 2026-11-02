@@ -288,16 +288,19 @@ export const LIGHTHOUSE_PROGRAM_ID = new PublicKey("L2TExMFKdjpN9kozasaurPirfHy9
 const isWalletAddition = (ix: { programId: PublicKey }) => ix.programId.equals(ComputeBudgetProgram.programId) || ix.programId.equals(LIGHTHOUSE_PROGRAM_ID);
 
 /**
- * Same payer, blockhash and instructions, in order, apart from what a wallet adds (compute budget
- * instructions for its priority fee, Lighthouse assertions). An added instruction may only ask for the
- * creator's signature, and never names the mint: the mint signs the message as the wallet left it.
+ * Same payer, blockhash, signers and instructions, in order, apart from what a wallet adds (compute
+ * budget instructions for its priority fee, Lighthouse assertions on the accounts the create touches,
+ * the new mint included). The signers must be exactly the creator and the mint: a message's signer and
+ * writable flags belong to the account, not the instruction, so an assertion that reads the mint shows
+ * it as a signer, and the rule is on the message (2026-11-02: Phantom's assertions read the mint, and
+ * the first version refused them). The mint signs the message as the wallet left it.
  */
 function sameCreate(a: VersionedTransaction, b: VersionedTransaction, creator: PublicKey, mint: PublicKey): boolean {
   if (a.message.addressTableLookups.length || b.message.addressTableLookups.length) return false;
+  const signers = (t: VersionedTransaction) => t.message.staticAccountKeys.slice(0, t.message.header.numRequiredSignatures).map((k) => k.toBase58()).sort().join();
+  if (signers(a) !== signers(b) || signers(a) !== [creator.toBase58(), mint.toBase58()].sort().join()) return false;
   const [x, y] = [a, b].map((t) => TransactionMessage.decompile(t.message));
   if (!x!.payerKey.equals(y!.payerKey) || x!.recentBlockhash !== y!.recentBlockhash) return false;
-  const added = x!.instructions.filter(isWalletAddition);
-  if (added.some((ix) => ix.keys.some((k) => k.pubkey.equals(mint) || (k.isSigner && !k.pubkey.equals(creator))))) return false;
   const core = (m: TransactionMessage) => m.instructions.filter((ix) => !isWalletAddition(ix));
   const [p, q] = [core(x!), core(y!)];
   return (
@@ -322,7 +325,19 @@ export function signedDiff(b64: string, ours: VersionedTransaction, creator: Pub
     const sig = i >= 0 && i < back.message.header.numRequiredSignatures ? back.signatures[i] : undefined;
     const programs = (t: VersionedTransaction) => t.message.compiledInstructions.map((ix) => t.message.staticAccountKeys[ix.programIdIndex]?.toBase58() ?? `lookup:${ix.programIdIndex}`);
     const [p, q] = [programs(back), programs(ours)];
+    // Which keys the wallet's own instructions use, with how (s = signer, w = writable), the mint marked.
+    const mintKey = ours.message.staticAccountKeys.slice(0, ours.message.header.numRequiredSignatures).find((k) => !k.equals(creator))?.toBase58();
+    const addedKeys = back.message.compiledInstructions
+      .filter((ix) => !q.includes(back.message.staticAccountKeys[ix.programIdIndex]?.toBase58() ?? ""))
+      .flatMap((ix) =>
+        ix.accountKeyIndexes.map((k) => {
+          const key = back.message.staticAccountKeys[k]?.toBase58() ?? `lookup:${k}`;
+          const flags = (back.message.isAccountSigner(k) ? "s" : "") + (back.message.isAccountWritable(k) ? "w" : "");
+          return `${key === mintKey ? "MINT" : key === creator.toBase58() ? "CREATOR" : key.slice(0, 6)}${flags ? ":" + flags : ""}`;
+        }),
+      );
     return {
+      addedKeys: [...new Set(addedKeys)],
       creatorSigned: !!sig && signedBy(creator, back.message.serialize(), sig),
       sameBlockhash: back.message.recentBlockhash === ours.message.recentBlockhash,
       samePayer: back.message.staticAccountKeys[0]?.equals(ours.message.staticAccountKeys[0]!) ?? false,

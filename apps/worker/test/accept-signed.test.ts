@@ -57,9 +57,14 @@ describe("acceptSigned: what a wallet may change in the create it signs", () => 
     expect(signedDiff(b64, ours(), creator.publicKey)).toMatchObject({ creatorSigned: true, sameBlockhash: true, added: [other.programId.toBase58()] });
   });
 
-  it("refuses a Lighthouse instruction that names the mint, or asks anyone but the creator to sign", () => {
-    const named = walletSigns([createIx, feeIx, guard([{ pubkey: mint.publicKey, isSigner: false, isWritable: false }])]);
-    expect(acceptSigned(named, ours(), creator.publicKey, mint)).toBeNull();
+  it("takes a Lighthouse assertion on the new mint, as Phantom adds (2026-11-02)", () => {
+    const b64 = walletSigns([createIx, feeIx, guard([{ pubkey: mint.publicKey, isSigner: false, isWritable: false }, { pubkey: creator.publicKey, isSigner: false, isWritable: false }])]);
+    const back = acceptSigned(b64, ours(), creator.publicKey, mint);
+    expect(back).not.toBeNull();
+    expect(signedDiff(b64, ours(), creator.publicKey)).toMatchObject({ added: [LIGHTHOUSE_PROGRAM_ID.toBase58()] });
+  });
+
+  it("refuses a create that asks anyone but the creator and the mint to sign", () => {
     const stranger = Keypair.generate();
     const t = build([createIx, feeIx, guard([{ pubkey: stranger.publicKey, isSigner: true, isWritable: false }])]);
     t.sign([creator, stranger]);
