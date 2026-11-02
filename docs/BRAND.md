@@ -59,6 +59,17 @@ After the proposals above the owner asked what set 发发 and 红利 apart (only
 
 Until the owner approves the prototype, the site and CLAUDE.md rule 1 stay on design 牛 and the name hwai.
 
+### Logo concepts for 金牛 (2026-11-02)
+
+The owner asked for premium logo references. [`brand/proposals/2026-11-02/logos/index.html`](../brand/proposals/2026-11-02/logos/index.html) shows four, each on white and black, as an app icon, a token avatar, a 32 and 16 px favicon and in the header (`A.png` to `D.png`):
+
+- **A, recommended: a gold coin with a brush 牛**: a milled edge and a bead ring like a bullion coin (references: the China Panda gold coin, the Krugerrand, brush calligraphy, the old 牛 seal).
+- **B, 金牛座**: 金牛 is also Taurus, and the Taurus sign is a circle with horns: here the circle is a gold cash coin with a square hole (方孔钱) under a crescent of horns, the cash cow in one shape.
+- **C, a black and gold seal**: 金牛 in a serif read top to bottom, like a traditional seal (印章), the Palace Museum's seals or Moutai's label; black and gold, not red.
+- **D, a luxury wordmark**: 金牛 in a heavy serif and "jinniu" spaced wide, with a thin gold rule, after the way Rolex, Cartier and Hermès set their names; the icon is a serif 牛 in gold on black.
+
+All are sketches with OFL Google Fonts glyphs (Ma Shan Zheng, Noto Serif SC, Cormorant Garamond) and SVG shapes; the chosen one gets drawn as paths. The named brands are style references only.
+
 ## Stock token logos
 
 Every dividend asset shows its own token icon: in the round chips (filters, coupons, payouts, the trade box) and on the face of the 3D stock coins. They are the tokens' official icons from the Trust Wallet assets registry (`github.com/trustwallet/assets`, `blockchains/solana/assets/<mint>/logo.png`), fetched on 2026-10-26 by the mints verified in `docs/verified/jito-jupiter-xstocks.md`; each registry entry's `info.json` symbol matched (NVDAX, TSLAX, ...). They live in `apps/web/public/stocks/<SYMBOL>.png` (256 px); `apps/web/src/lib/logos.ts` lists them, and a symbol without one falls back to the prototype's initials. `scripts/fetch-stock-logos.sh` downloads them again.
