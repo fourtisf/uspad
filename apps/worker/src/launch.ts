@@ -247,7 +247,8 @@ async function creatorSigned(d: WorkerDeps, launchId: string, tx: VersionedTrans
     if (l.creatorSigned) {
       const back = acceptSigned(l.creatorSigned, tx, creator, mint);
       if (back) return back;
-      d.log("launch: the signed create isn't this create, or isn't signed by its creator", { launchId });
+      // What the wallet changed, so the next refusal can be read from the log (2026-11-02).
+      d.log("launch: the signed create isn't this create, or isn't signed by its creator", { launchId, ...signedDiff(l.creatorSigned, tx, creator) });
       // Only that one: a good signature posted meanwhile stays (audit).
       await d.prisma.launch.updateMany({ where: { id: launchId, creatorSigned: l.creatorSigned }, data: { creatorSigned: null } });
     }
@@ -272,17 +273,32 @@ export function acceptSigned(b64: string, ours: VersionedTransaction, creator: P
     ours.addSignature(creator, sig);
     return ours;
   }
-  if (!sameCreate(back, ours)) return null;
+  if (!sameCreate(back, ours, creator, mint.publicKey)) return null;
   back.sign([mint]);
   return back;
 }
 
-/** Same payer, blockhash and instructions, compute budget instructions aside (a wallet's priority fee). */
-function sameCreate(a: VersionedTransaction, b: VersionedTransaction): boolean {
+/**
+ * Lighthouse, the assertion program wallets add to what they sign (Phantom does, on a create that moves
+ * SOL, like one carrying the launch fee): its instructions only check account state and can't move
+ * anything. docs/VERIFIED.md item 32.
+ */
+export const LIGHTHOUSE_PROGRAM_ID = new PublicKey("L2TExMFKdjpN9kozasaurPirfHy9P8sbXoAN1qA3S95");
+/** What a wallet may add or change in the create it signs: a priority fee, and guard assertions. */
+const isWalletAddition = (ix: { programId: PublicKey }) => ix.programId.equals(ComputeBudgetProgram.programId) || ix.programId.equals(LIGHTHOUSE_PROGRAM_ID);
+
+/**
+ * Same payer, blockhash and instructions, in order, apart from what a wallet adds (compute budget
+ * instructions for its priority fee, Lighthouse assertions). An added instruction may only ask for the
+ * creator's signature, and never names the mint: the mint signs the message as the wallet left it.
+ */
+function sameCreate(a: VersionedTransaction, b: VersionedTransaction, creator: PublicKey, mint: PublicKey): boolean {
   if (a.message.addressTableLookups.length || b.message.addressTableLookups.length) return false;
   const [x, y] = [a, b].map((t) => TransactionMessage.decompile(t.message));
   if (!x!.payerKey.equals(y!.payerKey) || x!.recentBlockhash !== y!.recentBlockhash) return false;
-  const core = (m: TransactionMessage) => m.instructions.filter((ix) => !ix.programId.equals(ComputeBudgetProgram.programId));
+  const added = x!.instructions.filter(isWalletAddition);
+  if (added.some((ix) => ix.keys.some((k) => k.pubkey.equals(mint) || (k.isSigner && !k.pubkey.equals(creator))))) return false;
+  const core = (m: TransactionMessage) => m.instructions.filter((ix) => !isWalletAddition(ix));
   const [p, q] = [core(x!), core(y!)];
   return (
     p.length === q.length &&
@@ -296,6 +312,28 @@ function sameCreate(a: VersionedTransaction, b: VersionedTransaction): boolean {
       );
     })
   );
+}
+
+/** For the log: how a signed create that wasn't accepted differs from ours. */
+export function signedDiff(b64: string, ours: VersionedTransaction, creator: PublicKey): Record<string, unknown> {
+  try {
+    const back = VersionedTransaction.deserialize(Buffer.from(b64, "base64"));
+    const i = back.message.staticAccountKeys.findIndex((k) => k.equals(creator));
+    const sig = i >= 0 && i < back.message.header.numRequiredSignatures ? back.signatures[i] : undefined;
+    const programs = (t: VersionedTransaction) => t.message.compiledInstructions.map((ix) => t.message.staticAccountKeys[ix.programIdIndex]?.toBase58() ?? `lookup:${ix.programIdIndex}`);
+    const [p, q] = [programs(back), programs(ours)];
+    return {
+      creatorSigned: !!sig && signedBy(creator, back.message.serialize(), sig),
+      sameBlockhash: back.message.recentBlockhash === ours.message.recentBlockhash,
+      samePayer: back.message.staticAccountKeys[0]?.equals(ours.message.staticAccountKeys[0]!) ?? false,
+      lookupTables: back.message.addressTableLookups.length,
+      added: p.filter((x) => !q.includes(x)),
+      removed: q.filter((x) => !p.includes(x)),
+      instructions: [p.length, q.length],
+    };
+  } catch (e) {
+    return { unreadable: e instanceof Error ? e.message : String(e) };
+  }
 }
 
 /** The oldest signature touching the mint is its create (paged back to the beginning). */
