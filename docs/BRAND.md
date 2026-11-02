@@ -1,229 +1,32 @@
-# Divvy brand kit
+# Brand
 
-The reference logo and assets live in [`brand/`](../brand/). Open [`brand/index.html`](../brand/index.html) in a browser to see the brand sheet: every asset on dark and white backgrounds, plus color tokens, minimum sizes, clear space and the don't list.
+The brand is **金牛 jinniu** (owner, 2026-11-02; below). It isn't live yet: until its prototype is approved and installed, the site at hwai.ai still says hwai.
 
-Nothing in the kit is a new design. Every shape, color and size comes from the approved prototype, `prototype/divvy-prototype.html` (CLAUDE.md rule 1). Line numbers below refer to that file.
+## The old brands were deleted (owner, 2026-11-02)
 
-## Status of the wordmark: live text, not outlined yet
+The owner asked to delete every uspad and hwai brand. Gone from the repo, all still in git history (the last commit that has them is `57a8482`):
 
-Clash Display (the prototype's display face, line 10) comes from Fontshare under the ITF Free Font License. It isn't in this repo. The build environment can't reach api.fontshare.com, and there's no legitimate npm redistribution of it: on 2026-10-26, `clash-display`, `@fontshare/clash-display`, `@fontsource/clash-display` and `typeface-clash-display` all returned 404, and the npm search turned up only UI kits that reference it.
+- `brand/` as it was: the original Divvy kit (logos, coin, icons, share image, the brand sheet `brand/index.html`) and the six Divvy logo concepts (`brand/concepts/`).
+- `brand/uspad/`: the uspad identity, its posts, articles and videos.
+- `brand/hwai/`: the hwai identity (the brush seal and wordmark, the generators `niu.py` and `glyphs.py` with the Ma Shan Zheng outlines in `glyphs.json`), its share images, X photo and header, the "Meet hwai" article and the intro video with its soundtrack and renderer.
+- `prototype/divvy-prototype.html` and `prototype/hwai-a-prototype.html`, the retired designs.
+- `apps/web/public/brand/hwai-lockup.svg`, which nothing used.
 
-So:
+The 金牛 mark is 牛 brushed on a gold coin, so its generator can start from `brand/hwai/src/niu.py` and `glyphs.json` in that commit (`git show 57a8482:brand/hwai/src/glyphs.json`).
 
-- The wordmark in `logo-horizontal*.svg` and `og-default.svg`, and the ring text, `$` and "divvy" in `logo-coin.svg`, are SVG `<text>` with `font-family="Clash Display, 'Plus Jakarta Sans', system-ui, sans-serif"`. That's the prototype's `--display` stack (line 23).
-- All PNGs were rendered with Plus Jakarta Sans, the prototype's own fallback (line 13). They match what the prototype shows when Fontshare can't load, but not what it shows with Clash Display.
-- `brand/index.html` loads Clash Display from Fontshare like the prototype does, so on a normal network the sheet shows the real face.
-- The live site doesn't need any of this: the header logo there is CSS and text, and it loads the real fonts.
+## What still says hwai or uspad, and why
 
-**Before you use the wordmark in print or production files, outline it from a licensed copy of Clash Display:**
+These go when 金牛 is installed, not before, so the live site and what's on chain don't break:
 
-1. Download Clash Display from fontshare.com on a design machine. Don't commit the font files (the license doesn't allow redistribution).
-2. Open the SVG in Figma, Illustrator or Inkscape with Clash Display Semibold (600) installed. Use Bold (700) for the coin's `$`.
-3. Check the position. Baselines were placed for Plus Jakarta Sans metrics. In the prototype the wordmark is a `line-height: 1` box centered on the mark (line 47), so center the Clash Display text vertically on the 32px mark. Keep x = 42 (32px mark + 10px gap), 25px size and −0.75px letter-spacing (−0.03em). On the coin, each glyph is centered on its point (canvas `textBaseline: "middle"`, line 631).
-4. Convert the text to paths (Illustrator: Type → Create Outlines; Inkscape: Path → Object to Path; Figma: Flatten).
-5. Re-export the PNGs from the outlined SVGs at the sizes in the table below.
+- **The live site** (hwai.ai): the name from `BRAND` (`packages/shared/src/brand.ts`) in every user-facing string, the API's messages, the wallet sign-in statement, the worker's alerts and new coins' `createdOn` metadata; the brush seal in `apps/web/src/components/Mark.tsx` and `markPaths.ts`; the favicon, app icons and share image in `apps/web/src/app/`; and each coin's share image (`app/og/coin/[mint]/route.tsx`), which draws the seal, the wordmark and hwai.ai. Its approved design stays `prototype/hwai-niu-prototype.html` (CLAUDE.md rule 1) until then.
+- **`apps/web/public/brand/hwai-mark-512.png`**: the picture of hwai's PlatformConfig on mainnet points to `https://hwai.ai/brand/hwai-mark-512.png` (VERIFIED item 31). Replacing the file changes what Raydium shows without a transaction; renaming the PlatformConfig (`go-live.sh platform-info`) is a mainnet transaction and needs the owner's approval.
+- **`apps/web/public/brand/uspad-mark-512.png`**: uspad's PlatformConfig, on uspad's own server, points to `https://uspad.fun/brand/uspad-mark-512.png` (VERIFIED item 27). uspad.fun, $USPAD and its coins stay on that server (owner, 2026-10-31).
+- **$HWAI** (pump.fun, `9Qh9WLVQ69J2C7oeYx45yKrHiV8Dsn7hVdkRXiBYpump`): the site shows it through `go-live.sh token-ca` (build-time `NEXT_PUBLIC_TOKEN_CA`). It will be hidden (`go-live.sh token-ca off`) until the owner launches the new official token.
+- **Internal names**: `@divvy/*` packages, `DIVVY_*` env vars, `divvy:` Redis keys and server paths like `/root/uspad-keys`. Users don't see them.
 
-## Files
+X and Telegram handles are build-time env (`NEXT_PUBLIC_X_HANDLE`, `NEXT_PUBLIC_TELEGRAM_HANDLE`, set with `go-live.sh socials <x> <tg>`): while unset, the site shows no X or Telegram links.
 
-| File | Size | Use |
-|---|---|---|
-| `logo-mark.svg` | 32×32 | The mark, flat (no outer glow). UI, docs, anywhere small. |
-| `logo-mark-glow.svg` | 56×56 | The mark with its drop glow, for dark backgrounds. The mark sits at (12, 6) because the glow falls downward. |
-| `favicon.svg` | 32×32 | Same bytes as `logo-mark.svg`. Copy it to `apps/web/src/app/icon.svg`. |
-| `favicon-32.png` | 32×32 | Transparent PNG favicon for browsers that don't take SVG icons. |
-| `logo-horizontal.svg` | 104×32 | Mark and wordmark in `--text`, transparent. Dark backgrounds only. |
-| `logo-horizontal-ink.svg` | 104×32 | The same lockup with the wordmark in `--g-ink`, for light backgrounds. |
-| `logo-horizontal-dark.svg` | 152×70 | The header crop: lockup with the glow on `#0A0F0D`, 70px tall, 24px side padding. |
-| `logo-coin.svg` | 512×512 | The hero coin's face, circular with transparent corners. |
-| `logo-coin-512.png` | 512×512 | The full square coin texture, for avatar uploads (X, Telegram and DEX listings crop it to a circle). |
-| `app-icon.svg` | 512×512 | Source for the three app icon PNGs. |
-| `apple-touch-icon.png` | 180×180 | Copy it to `apps/web/src/app/apple-icon.png`. |
-| `icon-192.png`, `icon-512.png` | 192, 512 | Web app manifest icons. The mark stays inside the maskable safe zone, so they also work as `purpose: "maskable"`. |
-| `og-default.svg` | 1200×630 | Source for the share image. |
-| `og-default.png` | 1200×630 | Copy it to `apps/web/src/app/opengraph-image.png` and `twitter-image.png`, with alt text "Divvy: memecoins that pay you real stock dividends." in `opengraph-image.alt.txt`. |
-| `index.html` | | The brand sheet. |
-
-Next.js picks these files up by name in `app/`, so `layout.tsx` doesn't need an `icons` entry.
-
-## How each asset maps to the prototype
-
-### Mark (`logo-mark.svg`, `logo-mark-glow.svg`, `favicon.svg`)
-
-Source: `.logo-mark` and `.logo-mark::after`, lines 48–49. The mark is a 32px circle (28px on phones, line 408).
-
-| CSS (line 48–49) | SVG |
-|---|---|
-| `background: var(--foil)`, the 115° gradient on line 22 | `linearGradient` in user space from (−3.2706, 7.0139) to (35.2706, 24.9861). That's the CSS gradient line for 115° on a 32×32 box, with the same five stops. |
-| `inset 0 -4px 8px rgba(3,20,10,.35)` | The area outside a circle shifted 4px up, filled `#03140A` at .35, blurred with σ = 4 (half the CSS blur radius) and clipped to the disc. |
-| `inset 0 0 0 2px rgba(255,255,255,.45)` | Circle r = 15, 2px white stroke at .45, on top of the shade (the first shadow in the list paints on top). |
-| `::after`: `inset: 7px`, `border: 2px dashed rgba(3,20,10,.5)` | Five arcs on r = 8, 2px wide, `#03140A` at .5, square ends. |
-| `0 6px 16px -6px rgba(74,222,128,.7)` (glow variant only) | Circle r = 10 at (16, 22), `#4ADE80` at .7, blurred with σ = 8. |
-
-CSS doesn't define where the dashes of a dashed rounded border go; each browser decides. The arcs were measured from Chromium's render of the prototype at 32× zoom. Clockwise from 12 o'clock they run −9.0°→42.85°, 70.1°→113.1°, 140.5°→183.5°, 210.8°→253.75° and 280.95°→323.8°. Chromium uses 6px dashes with gaps of about 3.8px, starting at the top, and the leftover length merges into the first dash, which is why the top dash is longer. Other browsers may place the prototype's dashes differently; the SVG freezes Chromium's.
-
-### Horizontal lockups (`logo-horizontal*.svg`)
-
-Source: `.logo`, line 47, and the header markup, line 456. The 32px mark, a 10px gap, then "divvy" at 25px, weight 600, letter-spacing −0.03em (−0.75px), in `--text` `#EAFBF1` (inherited from `body`, line 31). In SVG units the text starts at x = 42 with its baseline at y = 26. The viewBox is 104 wide, which holds the glyphs (they end at about x = 103.4).
-
-`logo-horizontal-dark.svg` is the header itself: 70px tall (line 46), 24px side padding (`.wrap`, line 38), the logo centered vertically, and the mark's glow. The header background is `rgba(10,15,13,.78)` over the page (line 45), which is `#0A0F0D` to within a level or two.
-
-The prototype is dark only, so `logo-horizontal-ink.svg` is the one variant it doesn't draw. It uses the prototype's own ink color, `--g-ink` `#03140A` (line 19), which is what the prototype puts on light foil surfaces.
-
-### Coin (`logo-coin.svg`, `logo-coin-512.png`)
-
-Source: `logoFace()`, lines 633–644, with `hiCanvas()`, `ringText()` and `guilloche()` on lines 630–632. It's the texture on both faces of the 3D hero coin (line 713). The canvas is 1024px, drawn in 512 units, so the SVG uses a 512 viewBox.
-
-| Canvas | SVG |
-|---|---|
-| `createRadialGradient(180,160,30, 256,256,270)`: `#1f5236`, `#0d2819` at .65, `#06150d` | `radialGradient` with focal point fx 180, fy 160, fr 30 and end circle cx 256, cy 256, r 270 |
-| `guilloche(g, "rgba(134,239,172,.08)")`: 30 curves, a step of .025 rad | 30 separate paths, so overlaps build up alpha the way separate canvas strokes do |
-| Rings at r 236 (3px, .6) and r 192 (1.5px, .28) | Same circles, `#86EFAC` |
-| `ringText(..., 214, "600 19px", "rgba(200,255,224,.78)")`: one glyph per slot, slot angle i·360°/n | One rotated `<text>` per glyph. The baseline sits 0.3238em below the canvas "middle" line, measured from Plus Jakarta Sans in Chromium. |
-| `✦` in the ring text | A path. Neither Clash Display nor Plus Jakarta Sans has U+2726, so the prototype draws it from a system fallback. On Linux Chromium that's DejaVu Sans with synthetic bold. The path is DejaVu Sans's outline (Bitstream Vera license) with a 0.8 stroke, which best matches that synthetic bold. |
-| `$`: `700 230px` at (256, 236), gradient (200,120)→(330,380) `#E3FFEE`/`#4ADE80` .45/`#C5F56A`, `shadowBlur 40`, `rgba(74,222,128,.85)` | `<text>` with the same gradient and a drop-shadow filter with σ = 10. Canvas shadow blur is in device pixels and isn't scaled by the 2× transform, so it's 20 units of blur radius, which is σ = 10. |
-| "divvy": `600 46px`, `#DFFFEA` at (256, 370) | `<text>` at the same point, no glow (the canvas resets `shadowBlur` first) |
-
-`CircleGeometry` maps the texture's inscribed circle onto the coin face, so `logo-coin.svg` is clipped to r = 256. `logo-coin-512.png` is the whole square, like the canvas. The 3D coin adds a metallic rim, lighting and tilt (lines 671–681); those aren't part of the emblem.
-
-### App icons (`app-icon.svg` and its PNGs)
-
-The header's mark on `--bg` `#0A0F0D`, with its glow, at 9/16 of the tile (288px on 512). That keeps the mark's radius at 28% of the tile, inside the 40% maskable safe zone. The tile layout is the one choice the prototype doesn't make for us.
-
-### Share image (`og-default.svg`, `og-default.png`)
-
-Built from the hero, element by element:
-
-- Background: `#0A0F0D` with the page glow from `body::before` (line 32), sized to a 1200×720 box.
-- Lockup at 2× (64px mark), top left, 72px margin.
-- Headline: the hero `<h1>` copy (line 811) with the `.hero h1` style (line 94) at 84px: weight 600, line-height .98, letter-spacing −0.04em. It wraps the way the prototype does on desktop: "Memecoins that / pay you real stock / dividends." The `.glow` gradient (line 95, 100°) spans "real stock" and "dividends." as one strip, the way CSS paints an inline background across two lines.
-- Coin: the `logoFace()` emblem at 340px with the `.halo` (line 103) and the `.fallback-coin` drop glow (line 105), both scaled up from their hero sizes.
-
-## Colors
-
-All from `:root`, lines 15–28. The brand sheet shows them all.
-
-| Token | Value | Use |
-|---|---|---|
-| `--g` | `#4ADE80` | Primary green: buttons, up values, glows |
-| `--g-hi` | `#86EFAC` | Hover, active nav, links, the coin's rings |
-| `--g-deep` | `#16A34A` | Start of the curve progress bar (line 188) |
-| `--g-ink` | `#03140A` | Text on foil and green, the mark's dashed ring and shade |
-| `--bg` | `#0A0F0D` | Page background, app icon tiles |
-| `--text` | `#EAFBF1` | Body text and the wordmark |
-| `--foil` | 115°: `#C9FFE0` 0%, `#86EFAC` 26%, `#E4FFA6` 52%, `#7EF2D8` 76%, `#C9FFE0` 100% | The mark, coupon stubs (196), rank badges (140), step numbers (322, 363), wallet avatar (70) |
-| Headline glow | 100°: `#B6FFD2` 0%, `#4ADE80` 45%, `#D9F99D` 100% | Only "real stock dividends." in the hero (line 95) |
-
-## Usage
-
-- **Minimum size.** The mark alone works down to 16px (favicon only) and 20px in UI. Below 20px its white inner ring fades out on white, but the disc and dashed ring still read. Keep the lockup at a 24px mark or larger; the prototype's smallest is 28px on phones (lines 407–408).
-- **Clear space.** Keep half the mark's height clear on every side, which is 16px at the header's 32px. The prototype gives the logo 19px above and below in the 70px header (line 46) and 16px in the 60px phone header (line 406).
-- **Backgrounds.** Use `logo-horizontal.svg` on dark and `logo-horizontal-ink.svg` on light. The glow is for dark backgrounds only.
-- **Copy.** The wordmark is always lowercase "divvy". Everything else is sentence case with plain verbs (CLAUDE.md rule 8). The coin's ring text is the one all-caps line, and it stays as engraved in the prototype.
-
-### Don't
-
-- Don't recolor the mark or the foil, and don't add outlines or new effects.
-- Don't stretch, squash, skew or rotate the logo. Scale it evenly.
-- Don't use the foil on body text. Text is `--text` or `--muted`; only the hero headline gets the green glow.
-- Don't set the wordmark in caps or title case.
-- Don't put the light wordmark on a light background.
-- Don't redraw the dashed ring or change its five dashes.
-- Don't ship the live-text wordmark in print. Outline it first (see above).
-
-## How it was checked
-
-The SVGs were rendered in Chromium (Playwright) and compared with the prototype's own rendering:
-
-- **Header at 4×.** The brand sheet's header uses the same geometry as the prototype's. Diffed at 4×, the wordmark matches with no offset (mean difference 0.03/255). The mark differs only in anti-aliasing at the circle and dash edges (mean 0.6/255 across the crop, max 74 on edge pixels).
-- **Mark at 16×.** Compared with the CSS `.logo-mark` on the same background: mean 0.7/255, max 60, with 0.01% of pixels more than 24 off. Chromium cuts the box-shadow blur off at about 2σ, so the SVG glow keeps a faint tail of at most 2/255 past where the CSS one stops.
-- **Coin.** Compared with the `logoFace()` canvas, exported from the prototype page at 1024px: mean 0.36/255, max 58.
-- **Share image headline.** Compared with the same headline laid out by the prototype's CSS: no offset, mean 0.28/255 over the headline.
-
-The SVGs also parse as XML, and a visual check in librsvg (sharp) shows the gradients, the focal radius `fr` and the filters coming out the same. librsvg uses its own fallback font for the text.
-
-PNGs are Chromium screenshots of the SVGs placed inline in a page that loads Plus Jakarta Sans from Google Fonts, at 1× device scale and the exact pixel size of each file.
-
-## Known differences from the prototype
-
-1. The PNGs use Plus Jakarta Sans for the wordmark, the headline and the coin text. With Clash Display loaded, the prototype's letterforms and widths differ.
-2. The dashed ring and the `✦` star follow Chromium on Linux. Other browsers and systems draw the prototype's dashes and its fallback star a little differently.
-3. The coin emblem is the flat face texture. The hero shows it on a 3D coin with a metallic rim, lighting and motion.
-4. `logo-horizontal-ink.svg`, the app icon tile layout and the share image layout are put together from prototype parts. The prototype has no light theme, app icons or share image of its own.
-
-## Premium logo concepts (proposals, 2026-10-26)
-
-The owner asked for several premium logo options. They live in [`brand/concepts/`](../brand/concepts/) and are proposals only: the site still uses the prototype's mark above (CLAUDE.md rule 1) until the owner picks one.
-
-Open `brand/concepts/boards/00-overview.png` for all six, and `01-…` to `06-…` for each concept on dark and light backgrounds, as an app icon, as a token avatar, at 64/32/16 px and in one color.
-
-| # | Folder | Name | Idea |
-|---|---|---|---|
-| 01 | `split/` | Koin belah | One coin cut in two, the right half lifted: value being divided, and a lowercase d. |
-| 02 | `share/` | Potongan | A coin with one slice lifted out: the holders' share, paid every hour. |
-| 03 | `dial/` | Jam | A watch dial: twelve hours, twelve payouts, a coin at the top of the hour, the d at the centre. |
-| 04 | `seal/` | Segel | An engraved medallion with a bead border and guilloche, like the seal on a share certificate. Has `mark-small.svg` for 32 px and below. |
-| 05 | `facet/` | Permata | The coin cut like a gem, with the d on its table. |
-| 06 | `rise/` | Naik | A chart that dips and climbs, ending in a coin. |
-
-All six share one custom wordmark (`wordmark-dark.svg`, `wordmark-light.svg`): geometric lowercase "divvy", drawn as paths with pointed v's and a foil coin for the dot of the i. Because it's drawn, not typeset, it needs no font file or license, unlike the Clash Display wordmark above. Colors are the prototype's tokens: the foil gradient and `--bg`, `--text` and `--g-ink`, plus a darker "struck" foil (`#14532D` to `#4ADE80`) so the marks keep their contrast on light backgrounds.
-
-Each concept folder holds:
-
-| File | Use |
-|---|---|
-| `mark.svg`, `mark-512.png` | The mark in foil, for dark backgrounds |
-| `mark-light.svg` | The mark in the darker foil, for light backgrounds |
-| `mark-mono.svg`, `mark-ink.svg` | One color: `--text` for dark, `--g-ink` for light (stamps, print, embossing) |
-| `lockup-dark.svg`, `lockup-dark-1200.png` | Mark and wordmark for dark backgrounds |
-| `lockup-light.svg`, `lockup-light-1200.png` | Mark and wordmark for light backgrounds |
-| `app-icon.svg`, `app-icon-512.png` | 512 px rounded tile; the mark stays inside the maskable safe zone |
-
-To change a concept, edit `brand/concepts/src/gen.py`, then regenerate the SVGs and boards from the repo root:
-
-```sh
-python3 -I brand/concepts/src/gen.py brand/concepts
-node brand/concepts/src/boards.cjs brand/concepts brand/concepts/boards
-```
-
-Once the owner picks one, it replaces the mark, favicons, app icons and share image above, and the site header and `Coin3D` face are updated to match.
-
-## uspad.fun (name proposed by the owner, 2026-10-26)
-
-The owner proposed renaming the product to **uspad.fun**: "us" for "kita" (we) and for US stocks, "pad" for launchpad, `.fun` as memecoin launchpads do. [`brand/uspad/`](../brand/uspad/) holds the identity: the Koin belah mark with a custom-drawn "uspad" and "uspad.fun" wordmark (same geometric system as the concept wordmark, paths only, no font needed). The ".fun" is muted and its dot is a foil coin. `board.png` shows it all, with a tagline suggestion: "Memecoins that pay us. In US stocks."
-
-The owner confirmed the name on 2026-10-26 and the site now uses it: the header lockup (`apps/web/public/brand/uspad-lockup.svg`), the favicon and app icons, the share image (`social.cjs` renders it as `social/og-1200x630.png`) and every user-facing "Divvy" in the copy and the 3D coin. Internal names (`@divvy/*`, env vars, Redis keys) and these docs keep Divvy. Keep the US geofence (xStocks can't be offered to US persons), and include the name in the legal review. Regenerate with `python3 -I brand/uspad/src/uspad.py brand/uspad && node brand/uspad/src/board.cjs brand/uspad`.
-
-## hwai.ai (the owner's name, 2026-10-31)
-
-The owner renamed the product **hwai** and bought `hwai.ai` on 2026-10-31, together with a Chinese-first site (Simplified Chinese by default, English one click away; `apps/web/src/i18n/README.md`). Before deciding they were told three things, and chose hwai anyway: "HW" is a common short form of Huawei (华为) in China and a "HuaweiAI" token exists on Solana, so Chinese readers may read HWAI as Huawei AI; `.ai` suggests an AI product; and "huai" in the fourth tone is 坏 ("bad"). No Han characters have been picked for the name; the site shows the Latin "hwai". Include the name in the legal review (trademark search), with the US geofence as before.
-
-**Design A (owner, 2026-10-31).** After seeing four directions (angpao red-gold, trader terminal, ink and paper, meme stickers), the owner chose A, 红包: a red lacquer page with a faint 回纹 pattern, gold for the brand and numbers, and cream "envelope paper" for anything you read or operate. The hero is an envelope counting down to the next payout; leaders are envelope cards; all coins sit in one dense table (borrowed from the terminal direction). Faces: ZCOOL QingKe HuangYou for Chinese headlines, Barlow Condensed for numbers and English headlines, Noto Sans SC for text. Up/down colours default to red up. The approved prototype is `prototype/hwai-a-prototype.html`; it replaced the dark green design, the 3D coins and the tilt cards (`three` is no longer a dependency).
-
-Design A's identity (retired 2026-11-01, see below): the owner dropped uspad entirely, its Koin belah mark included, so hwai got its own mark: a **square-holed cash coin (方孔钱)**, money and China in one shape, in gold with an engraved dark red rim and frame round the hole (design A; it was mint foil for a day). It reads at favicon size. Three other concepts were drawn on 2026-10-31 (the same coin with a diamond hole, a jade ingot 玉元宝, a seal 印章; `concepts/`, drawn in the earlier green) (`concepts/coin-mark-design-a.py` draws the coin). The wordmark is a drawn "hwai" / "hwai.ai" in a geometric system (x-height 40, stems 8, paths only, no font file); the ".ai" is muted and its dot is a foil coin.
-
-`src/social.cjs` renders the share image (`social/og-1200x630.png`, copied to `apps/web/src/app/opengraph-image.png` and `twitter-image.png`), an X profile photo and header with the Chinese hero line, and the PNG icons (`mark-512.png`, `app-icon-512.png`, `apple-icon-180.png`, `favicon-32.png`). Regenerate with `python3 -I brand/hwai/src/niu.py brand/hwai && node brand/hwai/src/social.cjs brand/hwai` (the second needs Google Fonts for Noto Sans SC), then copy: `mark.svg` at 32 px to `apps/web/src/app/icon.svg`, `apple-icon-180.png` to `apps/web/src/app/apple-icon.png`, `favicon-32.png` to `apps/web/public/favicon.png`, `mark-512.png` to `apps/web/public/brand/hwai-mark-512.png` and `uspad-mark-512.png` (below), `lockup-dark.svg` to `apps/web/public/brand/hwai-lockup.svg`.
-
-**Design 牛 and the brush seal (owner, 2026-11-01).** Live on hwai.ai, design A read as bearish: a page that is all red tells a crypto reader "dump". Three recolours of A (black and gold, black with a red envelope, jade and gold) were "still the same", so the owner was shown a new layout: near black with a faint grid, lime for actions and the brand, green up and red down by default, gold for anything holders are paid, and a live card in the hero (the top coin's sparkline, the last round's payouts landing, the clock to the next round). They liked the layout but found its logo, a lime gradient square with a geometric 牛 and an Unbounded wordmark with a lime "i", "too AI" (gradient app-icon squares and geometric sans wordmarks are what generated brands look like, and the lime "i" read as "hw-AI"). Of three hand-made marks (a brush seal, a cartoon bull with sunglasses, a sticker wordmark) they picked the **brush seal**: 牛 brushed in a hand-stamped lime seal with a rough edge and a few missed specks, tilted 5 degrees, and "hwai" in the same brush, one colour, no letter singled out. 牛 is the bull of 牛市 (bull market) and slang for "great". The approved prototype is `prototype/hwai-niu-prototype.html`; design A's stays for the record. Faces: Noto Sans SC (900 for headlines), JetBrains Mono for numbers. On an empty board the site shows no zeros: the stats appear with the first coin, the live card invites the first launch, and the hero pill reads 每小时美股分红 until a round pays.
-
-`src/niu.py` draws the identity: the brush outlines come from **Ma Shan Zheng** (马善政毛笔楷书, SIL Open Font License 1.1; `src/glyphs.py` extracts 牛 and h, w, a, i from a Google Fonts subset into `src/glyphs.json`, so no font file is in the repo or on the site; logo artwork made from an OFL font's outlines is allowed). The seal's rough edge is a seeded wobble, the same on every run. It writes `mark.svg` (lime seal, dark 牛, for dark backgrounds), `mark-ink.svg` (dark seal, lime 牛, for light backgrounds), `mark-mono.svg` (one colour, 牛 knocked out), `app-icon.svg`, `wordmark-dark.svg` / `wordmark-light.svg`, `lockup-dark.svg` / `lockup-light.svg`, and `apps/web/src/components/markPaths.ts`, which the site's `Mark` and `Wordmark` draw. Design A's coin generator is `concepts/coin-mark-design-a.py`. `src/social.cjs` renders the share image, the X profile photo and header, and the PNG icons. The X pair is the premium version (owner, 2026-11-01): film grain, a vignette, a grid that fades out, the seal casting a stamped shadow inside a gold milled ring like a coin's edge (the photo is cropped to a circle on X, so the seal sits well inside it), and on the header a rising chart drawn like the site's live card with gold dots for the hourly payouts, decorative and not a real price, with the hero line, the brush wordmark and hwai.ai kept right of where X lays the photo. Regenerate with `python3 -I brand/hwai/src/niu.py brand/hwai && node brand/hwai/src/social.cjs brand/hwai`, then copy as below. The PlatformConfig's picture is `https://hwai.ai/brand/hwai-mark-512.png`, so replacing that file changes what Raydium shows without a transaction (Raydium and aggregators may cache the old picture for a while).
-
-**Intro video (owner, 2026-11-01; premium cut the same day).** `src/intro-video.cjs` renders `social/hwai-intro-1920x1080.mp4` (52 s, 60 fps, H.264, for X) like a film rather than slides: a camera that keeps pushing in, zoom-through transitions with blur, 3D (the seal turning in and stamping with a shockwave, ink specks and a flash, cards flipping in, a tilted fee bar, a wallet and devices at an angle with floor reflections), light sweeping across the seal and the bar, god rays, bokeh at three depths, letters rising one by one, numbers that count, a letterbox to close. Scenes: the stamp and the brushed wordmark; "holding a memecoin pays nothing" ($0.00 receding) and "Until now."; every trade buying a real stock token (six stock tokens orbiting the seal on a tilted ring); the 1.25% curve fee and its split; hourly payouts (a dial filling, coins flying into a wallet whose balance adds up, $10 floor); fair from the first block (Jito bundles, dev buys shown, liquidity locked at 85 SOL); the product (the approved prototype in a laptop and a phone, marked "演示数据 · Demo data"); and hwai.ai with the stock-token disclaimer. Chinese headlines with the English under them. `src/intro-music.py` writes its original soundtrack with `src/musiclib.py` (copied from the retired uspad folder; no samples): 120 BPM, A minor pentatonic, a drone and a reversed swell into the stamp, sub booms, gongs, taiko, guzheng-like glissandi, a plucked lead over a modern groove, ratchets under the counting numbers and cues on every scene. Regenerate with `node brand/hwai/src/intro-video.cjs brand/hwai && python3 brand/hwai/src/intro-music.py brand/hwai` (about half a minute of rendering per second of video; `--stills <dir>` renders frames of each scene first, `--bench` times a frame; `--range <from> <to> <out.mp4>` renders only those seconds, to splice a changed scene into the last render with ffmpeg trim and concat, keeping its audio). Launches are paid (0.02 SOL to the operations wallet, owner 2026-11-02), so the product scene says "launch in seconds", as the site does.
-
-**The official token (owner, 2026-11-02).** hwai's own token is **$HWAI on pump.fun** (`9Qh9WLVQ69J2C7oeYx45yKrHiV8Dsn7hVdkRXiBYpump`), set with `go-live.sh token-ca <CA>` (build-time `NEXT_PUBLIC_TOKEN_CA`). The hero shows its CA as a pill to copy, and the board shows an "Official token" card above the leaders: the seal, $HWAI, the CA to copy and a "Buy $HWAI" button that opens its pump.fun page (a mint that doesn't end in "pump" opens DexScreener); the card doesn't name pump.fun (owner, 2026-11-02). It is a pump.fun token, not a hwai coin, so it isn't on hwai's dividend engine: copy about it never says holding it pays stock dividends.
-
-**Each coin's share image (owner, 2026-11-02).** A coin link on X or Telegram shows its own card, `app/og/coin/[mint]/route.tsx` (1200 x 630, next/og): the coin's picture, name and ticker, curve or graduated, market cap, 24h, holders, paid to holders, its sparkline, the stock it pays in with the token's icon, and hwai's seal, wordmark and hwai.ai. The coin page's metadata points to it by mint. Pictures are stored as WebP, which next/og can't read, so sharp (now a dependency of apps/web) makes a PNG; Noto Sans SC comes from Google Fonts, subset to the characters drawn, and without it the labels fall back to English. Crawlers may cache it for 5 minutes.
-
-What the site uses: the header lockup, the favicon and app icons, the share image, and `BRAND` (packages/shared) in every user-facing string, in the API's messages, the wallet sign-in statement, the worker's alerts, and new coins' `createdOn` metadata. X and Telegram handles are build-time env (`NEXT_PUBLIC_X_HANDLE`, `NEXT_PUBLIC_TELEGRAM_HANDLE`, set with `go-live.sh socials <x> <tg>`): while unset, the site shows no X or Telegram links.
-
-[`brand/uspad/`](../brand/uspad/) is retired: the old identity and its posts and videos, kept for the record. Nothing in the site uses it.
-
-**A new launchpad, not a rename of uspad's platform (owner, 2026-10-31).** hwai runs on its own new server with new wallets, an empty database and its own PlatformConfig (name `hwai`, web `https://hwai.ai`), set up with `go-live.sh bootstrap`. Everything below about uspad's server describes what stays there; the `domain` and `platform-info` commands that would move or rename it aren't the plan.
-
-Still named uspad, on uspad's own server:
-
-- **The $USPAD token** and its posts in `brand/uspad/social/`. The hero's CA pill shows whatever `NEXT_PUBLIC_TOKEN_CA` holds (`go-live.sh token-ca off` hides it).
-- **The PlatformConfig on mainnet** keeps name `uspad`, web `https://uspad.fun` and image `https://uspad.fun/brand/uspad-mark-512.png` (VERIFIED item 27) until the owner runs `go-live.sh platform-info` (VERIFIED item 30; the owner asked for it on 2026-10-31). `platform-info name` changes the name now; `platform-info all` also points web and picture at hwai.ai, once hwai.ai serves the site. Meanwhile `apps/web/public/brand/uspad-mark-512.png` holds the hwai mark, so that image URL already shows hwai.
-- **The production domain**: `go-live.sh domain` moves the live site to `hwai.ai` on the same server (certificate, Nginx, `WEB_ORIGIN`) and keeps `uspad.fun` as a redirect that still serves old coins' metadata and pictures (deploy/mainnet/README.md, "The hwai rename"). The owner pointed hwai.ai's DNS on 2026-10-31.
+How the earlier brands came about (Divvy, uspad.fun on 2026-10-26, hwai.ai with design A on 2026-10-31, design 牛 and the brush seal on 2026-11-01) is in this file's history at `57a8482`.
 
 ## A Chinese name again: proposals (2026-11-02, not chosen yet)
 
@@ -249,7 +52,7 @@ A rename also touches: $HWAI (launched on pump.fun the same day; its name stays 
 
 After the proposals above the owner asked what set 发发 and 红利 apart (only the name, mark, meaning and button colour; the look is the same) and confirmed they want a new brand, not hwai. They picked **金牛 jinniu**, and for $HWAI, a new official token later.
 
-- **Name:** 金牛, written jinniu in Latin. 牛 stays from the hwai seal; the mark is 牛 brushed on a gold coin. The prototype sketches it in Ma Shan Zheng from Google Fonts; the final mark and wordmark get drawn as paths (like `brand/hwai/src/niu.py`), with the icons and share images regenerated.
+- **Name:** 金牛, written jinniu in Latin. 牛 stays from the hwai seal; the mark is 牛 brushed on a gold coin. The prototype sketches it in Ma Shan Zheng from Google Fonts; the final mark and wordmark get drawn as paths (starting from the deleted `niu.py`, see above), with the icons and share images regenerated.
 - **Look:** v4 above, as a full prototype: [`prototype/jinniu-prototype.html`](../prototype/jinniu-prototype.html), one file with every page (首页, 代币, 创建代币, 分红记录, 玩法, 我的) behind its links, white only (the owner, after seeing it: "warna putih aja clean"; the dark theme and its button were dropped, the greys made neutral, cards drawn with hairlines instead of shadows and the hero's gold glow removed), the 中 / EN switch and the up/down colour switch. On phones the nav moves to a floating dock with + to launch, the coin page's trade box opens as a bottom sheet from 买入 / 卖出, and coin cards turn into rows. Faces: Inter Tight for Latin and numbers, Noto Sans SC for Chinese. Gold `#FFC21A` for the one button and the brand, green up, red down, dark gold for anything holders are paid. Copy follows the current app: launches cost 0.02 SOL plus the coin's create cost; the fee split is the prototype's demo split.
 - **$HWAI:** hidden from the new site (`go-live.sh token-ca off`) until the owner launches a new official token and sends its CA (`go-live.sh token-ca <CA>`). The hero shows "官方代币：即将公布" meanwhile.
 - **Open:** the domain (not checked from here; WHOIS is blocked), the PlatformConfig's name, web and picture (a mainnet transaction, owner approval), the X and Telegram handles, the intro video, the article and the share images.

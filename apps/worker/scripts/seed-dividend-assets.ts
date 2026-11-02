@@ -17,7 +17,7 @@
 import { readFileSync } from "node:fs";
 import { PrismaClient } from "@divvy/db";
 
-// Prototype chip art (prototype/divvy-prototype.html; same values as apps/api/src/mock/data.ts).
+// Prototype chip art (the original prototype/divvy-prototype.html, deleted 2026-11-02 and in git history; same values as apps/api/src/mock/data.ts).
 const CHIP: Record<string, { name: string; mono: string; bg: string; fg: string; featured?: boolean }> = {
   NVDAx: { name: "Nvidia", mono: "NV", bg: "#76B900", fg: "#0D2200", featured: true },
   SPYx: { name: "S&P 500", mono: "SPY", bg: "#6D88FF", fg: "#0B1440", featured: true },

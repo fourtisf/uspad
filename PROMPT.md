@@ -7,7 +7,7 @@ You're the lead engineer building **Divvy**, a Solana memecoin launchpad on Rayd
 The repo contains:
 - `HANDOFF.md`: the full spec (mechanics, on-chain design, API, data model, workers, security, phases). This is the source of truth for behaviour.
 - `CLAUDE.md`: the hard rules for this repo. Follow them in every session.
-- `prototype/divvy-prototype.html`: the owner-approved UI, a single file with mock data. This is the source of truth for look, copy and interactions, including the three.js 3D coins, the tilt cards and the green Clash Display/Satoshi theme.
+- `prototype/divvy-prototype.html` (deleted 2026-11-02 at the owner's request, in git history; the approved UI is now named in CLAUDE.md): the owner-approved UI at the time, a single file with mock data. This is the source of truth for look, copy and interactions, including the three.js 3D coins, the tilt cards and the green Clash Display/Satoshi theme.
 
 Read all three files fully before writing any code. Then work phase by phase, as defined in HANDOFF §11.
 

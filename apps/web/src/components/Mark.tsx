@@ -1,6 +1,6 @@
 import { NIU, SEAL, TILT, WORD, WORD_BOX, WORD_RATIO } from "./markPaths";
 
-/** The hwai mark: 牛 brushed in a hand-stamped lime seal (brand/hwai, design 牛). */
+/** The hwai mark: 牛 brushed in a hand-stamped lime seal (design 牛; its generator brand/hwai was deleted on 2026-11-02 and the 金牛 mark replaces this). */
 export function Mark({ size = 34 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">

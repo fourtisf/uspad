@@ -2,7 +2,7 @@
 
 Divvy is a Solana memecoin launchpad where **every coin pays its holders a dividend in a real tokenized stock** (NVDAx, SPYx, TSLAx and others). Coins are bought and sold with SOL. A share of every trade's fee is used to buy the coin's chosen stock token, which is then split between holders every hour.
 
-This document is the spec. The approved UI is `prototype/divvy-prototype.html`. Read both before writing code.
+This document is the spec. The approved UI is named in `CLAUDE.md` (it was `prototype/divvy-prototype.html`, deleted on 2026-11-02 and kept in git history). Read both before writing code.
 
 ---
 

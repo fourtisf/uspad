@@ -1,6 +1,6 @@
 /**
  * Deterministic demo dataset, moved here from the prototype's seeded generators so the web app has
- * no hard-coded data left. Same seeds and formulas as `prototype/divvy-prototype.html`, so the board
+ * no hard-coded data left. Same seeds and formulas as the original `prototype/divvy-prototype.html` (deleted 2026-11-02, in git history), so the board
  * shows the same coins and numbers. Everything is relative to the moment the API boots.
  *
  * None of these coins, mints, wallets or signatures exist on chain.
