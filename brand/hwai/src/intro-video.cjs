@@ -517,9 +517,13 @@ async function shots(b) {
     return;
   }
 
-  const ff = spawn("ffmpeg", ["-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(FPS), "-i", "-", "-c:v", "libx264", "-preset", "slow", "-crf", "17", "-pix_fmt", "yuv420p", "-movflags", "+faststart", OUT], { stdio: ["pipe", "inherit", "inherit"] });
-  const frames = Math.round(DURATION * FPS);
-  for (let f = 0; f < frames; f++) {
+  // --range <from> <to> <out.mp4>: only those seconds, to splice a changed scene into the last render
+  // (scene-splice.sh) instead of rendering all of it again (about half a minute per second of video).
+  const range = process.argv[3] === "--range" ? { from: Number(process.argv[4]), to: Number(process.argv[5]), out: process.argv[6] } : null;
+  const ff = spawn("ffmpeg", ["-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(FPS), "-i", "-", "-c:v", "libx264", "-preset", "slow", "-crf", "17", "-pix_fmt", "yuv420p", "-movflags", "+faststart", range ? range.out : OUT], { stdio: ["pipe", "inherit", "inherit"] });
+  const first = range ? Math.round(range.from * FPS) : 0;
+  const frames = range ? Math.round(range.to * FPS) : Math.round(DURATION * FPS);
+  for (let f = first; f < frames; f++) {
     await seek((f / FPS) * 1000);
     const png = await frame();
     if (!ff.stdin.write(png)) await new Promise((r) => ff.stdin.once("drain", r));
