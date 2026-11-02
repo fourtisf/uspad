@@ -15,9 +15,11 @@ import { hero } from "@/i18n/msgs/hero";
 
 const raw = (process.env.NEXT_PUBLIC_TOKEN_CA ?? "").trim();
 const CA = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(raw) ? raw : "";
-/** pump.fun's mints end in "pump"; any other mint opens on DexScreener. */
-const TRADE_URL = !CA ? "" : CA.endsWith("pump") ? `https://pump.fun/coin/${CA}` : `https://dexscreener.com/solana/${CA}`;
-const TRADE_ON = CA.endsWith("pump") ? "pump.fun" : "DexScreener";
+/**
+ * Where the button buys it: pump.fun for its mints (they end in "pump"), DexScreener for any other. The
+ * card doesn't name the venue (owner, 2026-11-02: no pump.fun branding on hwai).
+ */
+const BUY_URL = !CA ? "" : CA.endsWith("pump") ? `https://pump.fun/coin/${CA}` : `https://dexscreener.com/solana/${CA}`;
 
 export function TokenCa() {
   const toast = useToast();
@@ -61,7 +63,7 @@ export function OfficialToken() {
         <b className="num">{CA}</b>
         <Icon name="copy" size={15} />
       </button>
-      <a className="btn btn-lime" href={TRADE_URL} target="_blank" rel="noopener noreferrer">{t.tradeOn(TRADE_ON)} ↗</a>
+      <a className="btn btn-lime" href={BUY_URL} target="_blank" rel="noopener noreferrer">{t.buyToken(BRAND.toUpperCase())} ↗</a>
     </section>
   );
 }
