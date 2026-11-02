@@ -419,7 +419,7 @@ const html = `<div class="stage"><div class="shake">
   ${scene(
     "product",
     `${zh(["填表、选股票、", ["发币", "hl"]], 80, 0.1, 64).replace('class="hl"', 'class="hl" style="--hlo:.7s"')}
-     ${en("Name it, pick the stock its holders earn, launch. Free.", 170, 0.5)}
+     ${en("Name it, pick the stock its holders earn, launch in seconds.", 170, 0.5)}
      <div class="devices">
        <div class="laptop"><div class="chrome"><i></i><i></i><i></i><span>🔒 hwai.ai</span></div>
          <div class="view"><div class="shot s1"></div><div class="shot s2"></div><span class="demo">演示数据 · Demo data</span></div></div>

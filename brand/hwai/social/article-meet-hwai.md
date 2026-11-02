@@ -2,7 +2,8 @@
 
 Header image: `article-meet-hwai-3000x1200.png` (5:2, as X recommends). Renderer: `brand/hwai/src/article.cjs`.
 Every number matches hwai's How it works page and the server's settings (go-live.sh: $10 floor, $0.02 per
-send). "No launch fee" holds while LAUNCH_FEE_LAMPORTS is unset: change that line if the owner sets a fee.
+send, launch fee 0.02 SOL to the operations wallet, as on uspad; owner, 2026-11-02). Change the launch line
+if the fee changes (`go-live.sh launch-fee`).
 Account: @HwaiPad.
 
 ---
@@ -21,7 +22,7 @@ Memecoins are fun to trade, but holding one pays you nothing. On hwai, every tra
 
 Pick a name, a ticker, a picture, and the stock your holders will earn: NVDAx, SPYx, TSLAx, AAPLx, QQQx, GOOGLx and more. The stock is locked once the coin is live.
 
-There's no launch fee. Your wallet signs the create and pays only the network cost of creating the coin, so on chain the coin is yours.
+Launching costs 0.02 SOL plus about 0.009 SOL to create the coin, both in the one transaction your wallet signs: a launch that doesn't land costs nothing. Your wallet signs the create, so on chain the coin is yours.
 
 ## 2. Every trade pays 1.25%
 
@@ -75,7 +76,7 @@ hwai 是 Solana 上的发币平台，只有一点不同：每个代币每小时�
 
 填上名称、代币符号、图片，再选好持有人将获得的股票：NVDAx、SPYx、TSLAx、AAPLx、QQQx、GOOGLx 等。代币上线后，分红资产就锁定了。
 
-不收发币费。由你的钱包签名创建，只付创建代币的网络费用，所以在链上这个代币属于你。
+发币要付 0.02 SOL 手续费，另加约 0.009 SOL 的代币创建费用，两笔都在你的钱包签名的同一笔交易里：发币没有上链就不花钱。由你的钱包签名创建，所以在链上这个代币属于你。
 
 ## 2. 每笔交易 1.25%
 
