@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Usulan tampilan v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800;900&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700;800;900&family=ZCOOL+KuaiLe&family=ZCOOL+QingKe+HuangYou&display=swap">
+<style>
+/* Proposal v3, 2026-11-02: "clean, like the Pons launchpad" (owner, with screenshots of
+   ponsfamily.com/launchpad). Taken from it: white space, a slim icon sidebar, big trending
+   tiles, tabs over one table, one bright button. Ours: the name, mark and colours, Chinese copy,
+   and the dividend kept in view (the round's pool, each coin's stock and 24h paid, my dividends).
+   Demo data; coin pictures are stand-ins for creators' uploads. */
+:root{color-scheme:light;--paper:#E8E7E3;--ink:#121212;--ink-2:#55524C;--ink-3:#8B877F;--rule:#D6D3CC}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:15px/1.6 "Inter Tight","Noto Sans SC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1480px;margin:0 auto;padding:0 16px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.doc-head{padding:36px 0 14px}
+.kicker{font:600 13px/1 "Inter Tight";color:var(--ink-3);margin-bottom:10px}
+h1.doc{font:800 clamp(26px,4.2vw,38px)/1.12 "Inter Tight","Noto Sans SC";letter-spacing:-.02em;margin:0 0 10px}
+.lede{font-size:16px;color:var(--ink-2);max-width:880px;margin:0}
+.ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0 0}
+.ctrl span{font:600 14px "Inter Tight";color:var(--ink-2);margin-right:2px}
+.ctrl span.sp{margin-left:14px}
+.ctrl button{border:1px solid var(--rule);background:#fff;border-radius:999px;padding:7px 15px;font:600 14px "Inter Tight","Noto Sans SC";cursor:pointer;color:var(--ink)}
+.ctrl button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cap{font:600 13px "Inter Tight";color:var(--ink-3);margin:26px 0 10px}
+.frame{border-radius:14px;overflow:hidden;border:1px solid #CFCBC2;box-shadow:0 40px 80px -46px rgba(18,18,18,.5);background:#fff}
+.frame-bar{display:flex;align-items:center;gap:7px;background:#F1F0ED;border-bottom:1px solid #E2E0DB;padding:9px 14px;color:#8B877F;font:500 12px "Inter Tight"}
+.frame-bar i{width:10px;height:10px;border-radius:50%;background:#D6D3CC}
+.frame-bar span{margin-left:8px}
+.desk-scroll{overflow-x:auto}
+.desk-scroll .app.desk{min-width:1240px}
+.phones{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;padding:6px 0 10px}
+.phone{width:390px;max-width:100%;height:844px;border-radius:52px;background:#111;padding:11px;box-shadow:0 40px 80px -40px rgba(18,18,18,.55),inset 0 0 0 2px #2a2a2e;flex:none}
+.phone .screen{position:relative;height:100%;border-radius:42px;overflow:hidden}
+.phone-cap{text-align:center;font:600 13px "Inter Tight";color:var(--ink-3);margin-top:10px}
+.notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:30px 0 60px}
+.notes div{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:16px 18px;font-size:14.5px;color:var(--ink-2)}
+.notes b{display:block;color:var(--ink);font-size:15px;margin-bottom:4px}
+@media (max-width:900px){.notes{grid-template-columns:1fr}}
+
+/* ============================ the app ============================ */
+.app{
+  --bg:#FFFFFF;--s1:#F5F5F3;--s2:#EEEEEB;--line:#ECECE9;--line2:#DEDEDA;
+  --tx:#0E0E0E;--tx2:#6E6E6A;--tx3:#A3A39E;
+  --up:#14A44D;--dn:#E5383B;
+  --div:#9A6A00;--div-bg:#FFF4D6;
+  --acc:#FFC21A;--acc-ink:#111;
+  color:var(--tx);background:var(--bg);font:14px/1.45 "Inter Tight","Noto Sans SC",system-ui,sans-serif;-webkit-font-smoothing:antialiased;position:relative}
+.app[data-theme="dark"]{color-scheme:dark;
+  --bg:#0C0C0D;--s1:#161618;--s2:#1E1E21;--line:#222225;--line2:#2E2E32;
+  --tx:#F4F4F5;--tx2:#9A9AA0;--tx3:#5F5F66;--up:#22C55E;--dn:#F05252;--div:#FFCB45;--div-bg:rgba(255,203,69,.10)}
+.app[data-name="fafa"]{--acc:#FF2E7E;--acc-ink:#fff}
+.app[data-name="hongli"]{--acc:#111;--acc-ink:#fff}
+.app[data-name="hongli"][data-theme="dark"]{--acc:#F4F4F5;--acc-ink:#111}
+.app *{box-sizing:border-box}
+.app .n{font-variant-numeric:tabular-nums}
+.app .up{color:var(--up)}.app .dn{color:var(--dn)}
+.app svg.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* marks (sketches) */
+.mk{display:inline-grid;place-items:center;flex:none}
+.mk-jinniu{border-radius:50%;background:#FFC21A;box-shadow:inset 0 -2px 0 rgba(120,80,0,.25)}
+.mk-jinniu b{font:400 calc(var(--s)*.66)/1 "Ma Shan Zheng",serif;color:#111;transform:translateY(4%)}
+.mk-fafa{border-radius:28%;background:#FF2E7E}
+.mk-fafa b{font:400 calc(var(--s)*.7)/1 "ZCOOL QingKe HuangYou",sans-serif;color:#fff}
+.mk-hongli{border-radius:22%;background:#E8442E;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+.mk-hongli b{font:400 calc(var(--s)*.64)/1 "ZCOOL KuaiLe",sans-serif;color:#fff}
+
+/* coin pictures: stand-ins for creators' uploads */
+.tile{position:relative;display:grid;place-items:center;overflow:hidden;flex:none;background:var(--t-bg);color:var(--t-fg);font-size:var(--z)}
+.tile.dots{background:radial-gradient(circle,var(--t-dot) 1px,transparent 1.4px) 0 0/calc(var(--z)*.06) calc(var(--z)*.06),var(--t-bg)}
+.app[data-theme="dark"] .tile{box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
+.tile .em{font:400 .52em/1 "Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;filter:drop-shadow(0 .03em .05em rgba(0,0,0,.18))}
+.tile .brush{font:400 .62em/1 "Ma Shan Zheng",serif}
+.tile .heavy{font:900 .34em/1 "Noto Sans SC",sans-serif;letter-spacing:-.02em}
+.tile .num{font:900 .4em/1 "Inter Tight",sans-serif;letter-spacing:-.06em}
+.tile .arc{position:absolute;inset:14%;border-radius:50%;border:.035em solid var(--t-acc);border-left-color:transparent;border-bottom-color:transparent;transform:rotate(20deg)}
+.tile .dot{position:absolute;width:.12em;height:.12em;border-radius:50%;background:var(--t-acc);right:22%;top:22%}
+
+/* desktop */
+.desk{display:grid;grid-template-columns:76px minmax(0,1fr);min-height:100%}
+.side{display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 0;border-right:1px solid var(--line)}
+.side .lg{margin-bottom:22px}
+.side a{position:relative;display:grid;place-items:center;width:46px;height:46px;border-radius:14px;color:var(--tx2)}
+.side a.on{background:var(--s1);color:var(--tx)}
+.side a.on::before{content:"";position:absolute;left:-15px;top:12px;bottom:12px;width:3px;border-radius:3px;background:var(--acc)}
+.app[data-name="hongli"] .side a.on::before{background:#E8442E}
+.side .grow{flex:1}
+.main{padding:24px 44px 40px;min-width:0}
+.topr{display:flex;align-items:center;gap:12px}
+.pill{display:inline-flex;align-items:center;gap:10px;height:42px;padding:0 16px;border-radius:999px;background:var(--s1);color:var(--tx2);font-size:14px;white-space:nowrap}
+.pill .live{width:8px;height:8px;border-radius:50%;background:var(--up);box-shadow:0 0 0 4px color-mix(in srgb,var(--up) 18%,transparent)}
+.pill b{color:var(--tx);font-weight:700}
+.pill b.g{color:var(--div)}
+.pill a{color:var(--tx);font-weight:600}
+.brand{display:none;align-items:center;gap:10px;font:800 20px/1 "Noto Sans SC";letter-spacing:.02em}
+.brand small{font:600 12px "Inter Tight";color:var(--tx3);letter-spacing:.04em}
+.lang{display:inline-flex;padding:4px;border-radius:999px;background:var(--s1);font:700 13px "Inter Tight"}
+.lang b,.lang span{padding:6px 11px;border-radius:999px}
+.lang b{background:var(--bg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.app[data-theme="dark"] .lang b{background:var(--s2)}
+.lang span{color:var(--tx3)}
+.mine{display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 16px;border-radius:14px;border:1px solid var(--line2);font-weight:600;white-space:nowrap}
+.mine b{color:var(--div);font-weight:800}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:48px;padding:0 26px;border-radius:14px;background:var(--acc);color:var(--acc-ink);font:800 16px "Noto Sans SC";white-space:nowrap}
+.h2row{display:flex;align-items:center;margin:40px 0 20px}
+.h2row h2{margin:0;font:800 30px/1.1 "Noto Sans SC";letter-spacing:-.01em}
+.h2row .arrows{margin-left:auto;display:flex;gap:10px}
+.h2row .arrows a{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);color:var(--tx)}
+.h2row .arrows svg{width:18px;height:18px}
+.trend{display:flex;gap:24px;overflow:hidden;position:relative;-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent);mask-image:linear-gradient(90deg,#000 94%,transparent)}
+.tc{flex:none;width:228px}
+.tc .tile{width:228px;height:228px;border-radius:22px;--z:228px}
+.tc .nm{display:flex;align-items:baseline;gap:8px;margin-top:14px;font:600 17px/1.2 "Noto Sans SC"}
+.tc .nm i{font-style:normal;color:var(--tx3);font:500 16px "Inter Tight"}
+.tc .nm .tk{font:500 14px "Inter Tight";color:var(--tx3)}
+.tc .mc{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.tc .mc b{font:800 28px/1.1 "Inter Tight";letter-spacing:-.02em}
+.tc .mc span{font:600 14px "Inter Tight"}
+.dvl{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:4px 10px 4px 4px;border-radius:999px;background:var(--div-bg);color:var(--div);font:700 12.5px "Inter Tight","Noto Sans SC";white-space:nowrap}
+.stk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--c);color:#fff;font:800 9px/1 "Inter Tight";flex:none}
+.tabs{display:flex;align-items:center;gap:6px;margin-top:48px;border-bottom:1px solid var(--line)}
+.tabs a{padding:12px 12px 14px;font:600 17px "Noto Sans SC";color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs a.on{color:var(--tx);border-color:var(--tx)}
+.tabs .flt{margin-left:auto;display:flex;align-items:center;gap:10px;padding-bottom:8px}
+.sel{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:999px;background:var(--s1);font:600 15px "Noto Sans SC";color:var(--tx)}
+.sel svg{width:16px;height:16px}
+.vt{display:inline-flex;padding:4px;border-radius:999px;background:var(--s1)}
+.vt a{display:grid;place-items:center;width:40px;height:36px;border-radius:999px;color:var(--tx2)}
+.vt a.on{background:var(--bg);color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.app[data-theme="dark"] .vt a.on{background:var(--s2)}
+.vt svg{width:18px;height:18px}
+table.list{width:100%;border-collapse:collapse;margin-top:6px}
+.list th{text-align:right;font:500 14px "Noto Sans SC";color:var(--tx2);padding:18px 12px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.list th:first-child,.list td:first-child{text-align:left;padding-left:4px}
+.list th.l,.list td.l{text-align:left}
+.list td{padding:14px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.list tr:last-child td{border-bottom:0}
+.list .tok{display:flex;align-items:center;gap:14px}
+.list .tok .tile{width:52px;height:52px;border-radius:14px;--z:52px}
+.list .tok b{font:600 17px "Noto Sans SC"}
+.list .tok .tk{font:500 15px "Inter Tight";color:var(--tx3);margin-left:6px}
+.list .tok .st{display:block;font:500 12.5px "Noto Sans SC";color:var(--tx3);margin-top:2px}
+.list .tok .st.cv{color:var(--tx2)}
+.list .stock{display:inline-flex;align-items:center;gap:8px;font:600 15px "Inter Tight"}
+.list .spk svg{width:120px;height:34px;display:inline-block;vertical-align:middle}
+.list .paid{font:700 15px "Inter Tight";color:var(--div)}
+.list .hold{font:500 15px "Inter Tight";color:var(--tx2)}
+.list .mcap b{display:block;font:700 16px "Inter Tight"}
+.list .mcap span{font:600 13px "Inter Tight"}
+.list tr:hover td{background:var(--s1)}
+
+/* phone */
+.app.ph{height:100%;display:flex;flex-direction:column}
+.ph-status{display:flex;justify-content:space-between;align-items:center;height:44px;padding:0 28px 0 32px;font:600 15px "Inter Tight";flex:none}
+.ph-status i{width:66px;height:12px;border-radius:9px;background:linear-gradient(90deg,var(--tx) 0 22px,transparent 22px 28px,var(--tx) 28px 46px,transparent 46px 52px,var(--tx) 52px);opacity:.85}
+.ph-top{display:flex;align-items:center;gap:10px;padding:6px 18px 12px;flex:none}
+.ph-top .brand{display:flex;font-size:18px}
+.ph-top .cta{margin-left:auto;height:40px;padding:0 16px;border-radius:12px;font-size:14px}
+.ph-scroll{flex:1;overflow:hidden;padding:0 18px}
+.ph .pill{height:38px;font-size:13px;padding:0 14px;width:100%;justify-content:flex-start}
+.ph .pill .tm{margin-left:auto}
+.ph h2{margin:22px 0 12px;font:800 22px/1.1 "Noto Sans SC"}
+.ph .trend{gap:14px;-webkit-mask-image:linear-gradient(90deg,#000 80%,transparent);mask-image:linear-gradient(90deg,#000 80%,transparent)}
+.ph .tc{width:136px}
+.ph .tc .tile{width:136px;height:136px;border-radius:18px;--z:136px}
+.ph .tc .nm{font-size:14px;margin-top:9px}
+.ph .tc .nm i{font-size:13px}
+.ph .tc .mc b{font-size:19px}
+.ph .tc .mc span{font-size:12px}
+.ph .tabs{margin-top:22px;gap:2px;overflow:hidden}
+.ph .tabs a{font-size:14.5px;padding:10px 9px 11px}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.row .tile{width:46px;height:46px;border-radius:13px;--z:46px}
+.row .bd{min-width:0;flex:1}
+.row b{display:block;font:600 15px "Noto Sans SC"}
+.row .meta{display:flex;align-items:center;gap:6px;margin-top:2px;font:600 12px "Inter Tight";color:var(--div)}
+.row .meta .stk{width:16px;height:16px;font-size:7px}
+.row .r{text-align:right}
+.row .r b{font:700 15px "Inter Tight"}
+.row .r span{font:600 12.5px "Inter Tight"}
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);height:82px;padding:10px 6px 24px;border-top:1px solid var(--line);background:var(--bg)}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;font:600 10.5px "Noto Sans SC";color:var(--tx3)}
+.tabbar a.on{color:var(--tx)}
+.tabbar svg{width:23px;height:23px}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></symbol>
+  <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M14 4c3-1 6-1 6-1s0 3-1 6l-6 6-4-4z"/><path d="M9 11l-4 1-2 3 4 1M13 15l-1 4-3 2-1-4M15 9h.01"/><path d="M5 19c0-1 1-3 2-3"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-2-4-6-4-6-1s6 1 6 1zm0 0c2-4 6-4 6-1s-6 1-6 1z"/></symbol>
+  <symbol id="i-bars" viewBox="0 0 24 24"><path d="M6 20V12M12 20V5M18 20v-9"/></symbol>
+  <symbol id="i-theme" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h11v4"/><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M16 14.5h.01"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-me" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.5c1.3-2.2 3.2-3.3 5.5-3.3s4.2 1.1 5.5 3.3"/></symbol>
+</svg>
+
+<header class="wrap doc-head">
+  <div class="kicker">Usulan v3 · 2 November 2026 · belum dipasang di situs</div>
+  <h1 class="doc">Versi 3: bersih, seperti Pons</h1>
+  <p class="lede">Dari Pons saya ambil gayanya: putih, banyak ruang, sidebar ikon, kartu 热门 bergambar besar, tab di atas satu tabel, dan satu tombol terang. Logo, nama, warna, dan teksnya tetap milik kita. Fitur utama kita, dividen saham tiap jam, tetap terlihat tanpa membuat halaman ramai.</p>
+  <div class="ctrl" role="group" aria-label="Pilihan">
+    <span>Nama:</span>
+    <button data-name="jinniu" aria-pressed="true">金牛 jinniu</button>
+    <button data-name="fafa" aria-pressed="false">发发 fafa</button>
+    <button data-name="hongli" aria-pressed="false">红利 hongli</button>
+    <span class="sp">Tema:</span>
+    <button data-theme="light" aria-pressed="true">Terang</button>
+    <button data-theme="dark" aria-pressed="false">Gelap</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="cap">Desktop · beranda · data contoh</div>
+  <div class="frame">
+    <div class="frame-bar"><i></i><i></i><i></i><span class="url">jinniu.fun</span></div>
+    <div class="desk-scroll">
+      <div class="app desk" data-name="jinniu" data-theme="light">
+        <aside class="side">
+          <span class="lg" data-logo="40"></span>
+          <a title="搜索"><svg class="ic"><use href="#i-search"/></svg></a>
+          <a title="创建代币"><svg class="ic"><use href="#i-plus"/></svg></a>
+          <a class="on" title="代币"><svg class="ic"><use href="#i-rocket"/></svg></a>
+          <a title="分红" data-tt><svg class="ic"><use href="#i-gift"/></svg></a>
+          <a title="排行"><svg class="ic"><use href="#i-bars"/></svg></a>
+          <span class="grow"></span>
+          <a title="主题"><svg class="ic"><use href="#i-theme"/></svg></a>
+          <a title="钱包"><svg class="ic"><use href="#i-wallet"/></svg></a>
+        </aside>
+        <div class="main">
+          <div class="topr">
+            <span class="pill"><i class="live"></i><span data-tx>本轮分红池</span> <b class="g n" data-count="482.16" data-prefix="$">$482.16</b> · <b class="n" data-countdown>42:50</b> 后发给持有人</span>
+            <span class="pill"><span data-tx>累计分红</span> <b class="n">$49,751</b></span>
+            <span style="margin-left:auto"></span>
+            <div class="lang"><b>中</b><span>EN</span></div>
+            <span class="mine"><span data-tx>我的分红</span> <b class="n">$12.84</b></span>
+            <a class="cta">创建代币</a>
+          </div>
+          <div class="h2row"><h2>热门</h2><div class="arrows"><a><svg class="ic"><use href="#i-left"/></svg></a><a><svg class="ic"><use href="#i-right"/></svg></a></div></div>
+          <div class="trend" id="trend"></div>
+          <div class="tabs">
+            <a class="on">市值</a><a>新上线</a><a>活跃</a><a>即将毕业</a><a>已毕业</a><a data-tx>分红最多</a>
+            <div class="flt">
+              <span class="sel">全部股票 <svg class="ic"><use href="#i-down"/></svg></span>
+              <span class="vt"><a class="on"><svg class="ic"><use href="#i-list"/></svg></a><a><svg class="ic"><use href="#i-grid"/></svg></a></span>
+            </div>
+          </div>
+          <table class="list">
+            <thead><tr><th>代币</th><th class="l" data-tx>分红股票</th><th>走势</th><th data-tx>24 小时分红</th><th>持有人</th><th>市值</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cap">HP · beranda</div>
+  <div class="phones">
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="app ph" data-name="jinniu" data-theme="light">
+          <div class="ph-status"><span>9:41</span><i></i></div>
+          <div class="ph-top"><span class="brand" data-brand="30"></span><a class="cta">创建代币</a></div>
+          <div class="ph-scroll">
+            <span class="pill"><i class="live"></i><span data-tx>本轮分红池</span> <b class="g n" data-count="482.16" data-prefix="$">$482.16</b><span class="tm"><b class="n" data-countdown>42:50</b></span></span>
+            <h2>热门</h2>
+            <div class="trend" id="m-trend"></div>
+            <div class="tabs"><a class="on">市值</a><a>新上线</a><a>活跃</a><a>即将毕业</a><a>已毕业</a></div>
+            <div id="m-rows"></div>
+          </div>
+          <div class="tabbar">
+            <a class="on"><svg class="ic"><use href="#i-home"/></svg>首页</a>
+            <a><svg class="ic"><use href="#i-search"/></svg>搜索</a>
+            <a><svg class="ic"><use href="#i-plus"/></svg>创建</a>
+            <a><svg class="ic"><use href="#i-gift"/></svg><span data-tx>分红</span></a>
+            <a><svg class="ic"><use href="#i-me"/></svg>我的</a>
+          </div>
+        </div>
+      </div></div>
+      <div class="phone-cap">Terang</div>
+    </div>
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="app ph" data-name="jinniu" data-theme="dark" data-fixed-theme>
+          <div class="ph-status"><span>9:41</span><i></i></div>
+          <div class="ph-top"><span class="brand" data-brand="30"></span><a class="cta">创建代币</a></div>
+          <div class="ph-scroll">
+            <span class="pill"><i class="live"></i><span data-tx>本轮分红池</span> <b class="g n" data-count="482.16" data-prefix="$">$482.16</b><span class="tm"><b class="n" data-countdown>42:50</b></span></span>
+            <h2>热门</h2>
+            <div class="trend" id="m-trend2"></div>
+            <div class="tabs"><a class="on">市值</a><a>新上线</a><a>活跃</a><a>即将毕业</a><a>已毕业</a></div>
+            <div id="m-rows2"></div>
+          </div>
+          <div class="tabbar">
+            <a class="on"><svg class="ic"><use href="#i-home"/></svg>首页</a>
+            <a><svg class="ic"><use href="#i-search"/></svg>搜索</a>
+            <a><svg class="ic"><use href="#i-plus"/></svg>创建</a>
+            <a><svg class="ic"><use href="#i-gift"/></svg><span data-tx>分红</span></a>
+            <a><svg class="ic"><use href="#i-me"/></svg>我的</a>
+          </div>
+        </div>
+      </div></div>
+      <div class="phone-cap">Gelap (tombol tema di sidebar)</div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div><b>Yang diambil dari Pons</b>Ruang kosong yang lega, sidebar ikon tipis, kartu 热门 dengan gambar besar dan angka pasar yang tebal, tab di atas satu tabel, filter berbentuk pil, tampilan daftar atau grid, tombol tema terang dan gelap.</div>
+    <div><b>Yang tetap milik kita</b>Nama dan logo, satu warna tombol per nama, teks Chinese dengan 中 / EN, dan dividen di tempat yang tenang: pil dana ronde ini dengan hitung mundur, saham dan "24 小时分红" di setiap koin, tab 分红最多, filter per saham, dan 我的分红.</div>
+    <div><b>Gambar koin</b>Di sini gambar koin diganti contoh (emoji dan huruf). Di situs, yang tampil adalah gambar unggahan pembuat koin. Gambar yang bagus membuat gaya bersih ini terlihat mahal, jadi halaman 创建代币 nanti menyarankan gambar persegi minimal 512 px.</div>
+    <div><b>Berikutnya</b>Kalau gaya ini sudah pas, pilih nama (dan warna tombolnya). Lalu saya buat prototype lengkap dengan gaya yang sama: halaman koin, 创建代币, 分红记录, 我的, dan HP. Setelah Anda setujui, baru dipasang di situs.</div>
+  </div>
+</div>
+
+<script>
+const NAMES={
+  jinniu:{name:"金牛",latin:"jinniu",mk:"mk-jinniu",ch:"牛",url:"jinniu.fun"},
+  fafa:{name:"发发",latin:"fafa",mk:"mk-fafa",ch:"发",url:"fafa.fun"},
+  hongli:{name:"红利",latin:"hongli",mk:"mk-hongli",ch:"利",url:"hongli.fun"},
+};
+const STK={SPYx:"#1F6FEB",NVDAx:"#76B900",AAPLx:"#6E6E73",TSLAx:"#E31937",GOOGLx:"#EA4335",MSTRx:"#F7931A",METAx:"#0866FF"};
+const stk=s=>`<span class="stk" style="--c:${STK[s]}">${s[0]}</span>`;
+// each coin's stand-in picture
+const T={
+  jiucai:{bg:"#E7F5EA",dot:"rgba(20,120,60,.18)",k:"em",g:"🥬"},
+  tang:{bg:"#0E0E0E",fg:"#fff",acc:"#2BD67B",k:"brush",g:"躺",arc:1},
+  caishen:{bg:"#FFF3D3",dot:"rgba(160,110,0,.2)",k:"em",g:"💰"},
+  liuliu:{bg:"#0E0E0E",fg:"#fff",k:"num",g:"666"},
+  dagong:{bg:"#D9FF3F",fg:"#0E0E0E",k:"heavy",g:"打工"},
+  facai:{bg:"#F1F0EB",dot:"rgba(0,0,0,.12)",k:"em",g:"🌳"},
+  kaimen:{bg:"#FFE4E1",dot:"rgba(200,40,40,.15)",k:"em",g:"🧧"},
+  panda:{bg:"#F4F4F2",dot:"rgba(0,0,0,.1)",k:"em",g:"🐼"},
+  moyu:{bg:"#123A6B",fg:"#fff",acc:"#7CC4FF",k:"em",g:"🐟",dotacc:1},
+  niuma:{bg:"#EFE6DD",dot:"rgba(90,50,20,.15)",k:"em",g:"🐴"},
+};
+const tile=(id,cls="")=>{const t=T[id];
+  const inner=`<span class="${t.k}">${t.g}</span>${t.arc?'<i class="arc"></i>':""}${t.dotacc?'<i class="dot"></i>':""}`;
+  return `<span class="tile ${t.dot?"dots":""} ${cls}" style="--t-bg:${t.bg};--t-fg:${t.fg||"#111"};--t-dot:${t.dot||"transparent"};--t-acc:${t.acc||"#fff"}">${inner}</span>`};
+const COINS=[
+  {id:"jiucai",n:"韭菜之王",t:"JIUCAI",mc:"$1.82M",ch:6.2,s:"SPYx",paid:"$3,412",h:"4,118",st:"已毕业",seed:4,tr:1},
+  {id:"tang",n:"躺赚",t:"TANG",mc:"$964.0K",ch:18.4,s:"NVDAx",paid:"$2,187",h:"2,902",st:"已毕业",seed:9,tr:1.6},
+  {id:"caishen",n:"财神爷",t:"CAISHEN",mc:"$402.3K",ch:-4.1,s:"AAPLx",paid:"$988",h:"1,630",st:"已毕业",seed:6,tr:-.8},
+  {id:"liuliu",n:"六六六",t:"LIULIU",mc:"$311.5K",ch:2.0,s:"GOOGLx",paid:"$640",h:"1,288",st:"已毕业",seed:2,tr:.5},
+  {id:"dagong",n:"打工人",t:"DAGONG",mc:"$249.9K",ch:3.3,s:"GOOGLx",paid:"$571",h:"1,105",st:"已毕业",seed:3,tr:.7},
+  {id:"facai",n:"发财树",t:"FACAI",mc:"$205.1K",ch:9.7,s:"MSTRx",paid:"$512",h:"1,004",st:"已毕业",seed:12,tr:1.2},
+  {id:"kaimen",n:"开门红",t:"KAIMEN",mc:"$188.0K",ch:-1.3,s:"METAx",paid:"$455",h:"977",st:"已毕业",seed:7,tr:-.3},
+  {id:"panda",n:"熊猫",t:"PANDA",mc:"$55.3K",ch:12.6,s:"SPYx",paid:"$141",h:"497",st:"内盘 81%",seed:5,tr:1.4},
+  {id:"moyu",n:"摸鱼",t:"MOYU",mc:"$14.1K",ch:31.0,s:"SPYx",paid:"",h:"102",st:"内盘 18% · 2 分钟前",seed:11,tr:2},
+];
+const pct=v=>`<span class="${v>=0?"up":"dn"}">${v>=0?"+":""}${v.toFixed(1)}%</span>`;
+function rng(seed){let s=seed*9301+49297;return()=>{s=(s*9301+49297)%233280;return s/233280}}
+function spark(seed,tr,up){const r=rng(seed);let v=0;const p=[];for(let i=0;i<40;i++){v+=(r()-.5)*2.2+tr*.35;p.push(v)}
+  const mn=Math.min(...p),mx=Math.max(...p),w=120,h=34,sy=y=>h-3-(y-mn)/(mx-mn||1)*(h-6);
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><path d="${p.map((y,i)=>(i?"L":"M")+(i*w/39).toFixed(1)+" "+sy(y).toFixed(1)).join(" ")}" fill="none" stroke="var(${up?"--up":"--dn"})" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`}
+const trendCard=(c,i)=>`<div class="tc">${tile(c.id)}<div class="nm"><i>${i+1}</i>${c.n}</div><div class="mc"><b class="n">${c.mc}</b>${pct(c.ch)}</div><span class="dvl">${stk(c.s)}<span data-tx>24h 分红</span> ${c.paid}</span></div>`;
+document.getElementById("trend").innerHTML=COINS.slice(0,7).map(trendCard).join("");
+["m-trend","m-trend2"].forEach(id=>document.getElementById(id).innerHTML=COINS.slice(0,4).map((c,i)=>`<div class="tc">${tile(c.id)}<div class="nm"><i>${i+1}</i>${c.n}</div><div class="mc"><b class="n">${c.mc}</b>${pct(c.ch)}</div></div>`).join(""));
+document.getElementById("rows").innerHTML=COINS.map(c=>`<tr>
+  <td><div class="tok">${tile(c.id)}<div><b>${c.n}</b><span class="tk">${c.t}</span><span class="st ${c.st.startsWith("内盘")?"cv":""}">${c.st}</span></div></div></td>
+  <td class="l"><span class="stock">${stk(c.s)}${c.s}</span></td>
+  <td class="spk">${spark(c.seed,c.tr,c.ch>=0)}</td>
+  <td class="paid n">${c.paid||'<span style="color:var(--tx3);font-weight:500">首轮 <span data-countdown>42:50</span></span>'}</td>
+  <td class="hold n">${c.h}</td>
+  <td class="mcap"><b class="n">${c.mc}</b>${pct(c.ch)}</td></tr>`).join("");
+["m-rows","m-rows2"].forEach(id=>document.getElementById(id).innerHTML=COINS.slice(0,5).map(c=>`<div class="row">${tile(c.id)}<div class="bd"><b>${c.n}</b><span class="meta">${stk(c.s)}<span data-tx>24h 分红</span> ${c.paid}</span></div><div class="r"><b class="n">${c.mc}</b>${pct(c.ch)}</div></div>`).join(""));
+
+function apply(name,theme){
+  const s=NAMES[name];
+  document.querySelectorAll(".app").forEach(a=>{a.dataset.name=name;if(!a.hasAttribute("data-fixed-theme"))a.dataset.theme=theme});
+  document.querySelectorAll("[data-logo]").forEach(el=>{const z=+el.dataset.logo;el.innerHTML=`<span class="mk ${s.mk}" style="--s:${z}px;width:${z}px;height:${z}px"><b>${s.ch}</b></span>`});
+  document.querySelectorAll("[data-brand]").forEach(el=>{const z=+el.dataset.brand;el.innerHTML=`<span class="mk ${s.mk}" style="--s:${z}px;width:${z}px;height:${z}px"><b>${s.ch}</b></span>${s.name}<small>${s.latin}</small>`});
+  document.querySelectorAll(".url").forEach(e=>e.textContent=s.url+" · contoh domain");
+  document.querySelectorAll("[data-tx]").forEach(e=>{e.dataset.orig??=e.innerHTML;e.innerHTML=name==="hongli"?e.dataset.orig.replaceAll("分红","红利"):e.dataset.orig});
+  document.querySelectorAll(".ctrl button[data-name]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.name===name));
+  document.querySelectorAll(".ctrl button[data-theme]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.theme===theme));
+}
+const q=new URLSearchParams(location.search);let cur={name:q.get("name")||"jinniu",theme:q.get("theme")||"light"};
+document.querySelectorAll(".ctrl button").forEach(b=>b.onclick=()=>{if(b.dataset.name)cur.name=b.dataset.name;if(b.dataset.theme)cur.theme=b.dataset.theme;apply(cur.name,cur.theme)});
+apply(cur.name,cur.theme);
+
+const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let left=42*60+50;
+setInterval(()=>{left=left>0?left-1:3599;
+  const t=String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");
+  document.querySelectorAll("[data-countdown]").forEach(e=>e.textContent=t);
+  if(still)return;
+  document.querySelectorAll("[data-count]").forEach(e=>{const v=+e.dataset.count+Math.random()*.9;e.dataset.count=v;e.textContent=(e.dataset.prefix||"")+v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})});
+},1000);
+</script>
+</body>
+</html>
