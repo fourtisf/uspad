@@ -52,6 +52,7 @@
 #   go-live.sh socials <x> <tg>   the official X and Telegram handles (without @, or "off"), shown in the hero
 #                                 and footer; rebuilds the site. Unset, the site shows no X or Telegram links.
 #   go-live.sh update             deploys the latest commit (demo or live, whichever is running).
+#   go-live.sh alerts             owner alerts in Telegram: asks the bot token (hidden) and chat ID, sends a test.
 #   go-live.sh status             apps, health, wallet addresses and balances.
 #
 # It follows deploy/setup-vps.md and docs/RUNBOOK.md "Deploy" with uspad's values; the why is in
@@ -1216,6 +1217,26 @@ socials() {
 }
 
 # --------------------------------------------------------------------------------------------------
+# Owner alerts in Telegram (apps/worker/src/alerts.ts: late or failed rounds, low wallet balances, Jito
+# failures, indexer lag). The bot token is typed hidden and never put on a command line (shell history,
+# ps): curl reads it from stdin. A test message checks both before they're saved.
+alerts() {
+  [ -f "$LIVE_MARK" ] || die "jalankan 'go-live.sh switch' dulu"
+  local token chat res
+  note "Bot dari @BotFather di Telegram. Token-nya rahasia: jangan dikirim ke siapa pun, termasuk Claude."
+  read -rsp "   Bot token (tidak terlihat saat diketik): " token; echo
+  [[ $token =~ ^[0-9]{5,}:[A-Za-z0-9_-]{30,}$ ]] || die "itu bukan bot token (bentuknya 123456789:AA...)"
+  read -rp "   Chat ID (angka, grup diawali -100): " chat
+  [[ $chat =~ ^-?[0-9]{5,}$ ]] || die "itu bukan chat ID"
+  res=$(printf 'url = "https://api.telegram.org/bot%s/sendMessage"\n' "$token" |
+    curl -sS -K - -H 'content-type: application/json' -d "{\"chat_id\":\"$chat\",\"text\":\"🔵 $BRAND: alert terpasang. Pesan ini datang dari go-live.sh alerts.\"}" 2>&1 || true)
+  echo "$res" | jq -e '.ok == true' > /dev/null 2>&1 || die "Telegram menolak: $(echo "$res" | jq -r '.description // .' 2>/dev/null | head -c 200). Pastikan bot sudah di-start / dimasukkan ke grup, dan chat ID-nya benar."
+  set_env $ENV_DIR/worker.env TELEGRAM_BOT_TOKEN "$token"
+  set_env $ENV_DIR/worker.env TELEGRAM_ALERT_CHAT_ID "$chat"
+  restart_worker
+  note "Alert aktif: pesan uji sudah terkirim ke chat $chat."
+}
+
 status() {
   load_secrets
   say "Aplikasi"
@@ -1264,6 +1285,7 @@ case "${1:-}" in
   platform-info) platform_info "${2:-}" "${3:-}" ;;
   domain) domain_move ;;
   bootstrap) bootstrap ;;
+  alerts) alerts ;;
   status) status ;;
   *) sed -n '2,/^set -euo/p' "$0" | sed '$d'; exit 1 ;;
 esac
