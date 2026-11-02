@@ -225,6 +225,20 @@ Still named uspad, on uspad's own server:
 - **The PlatformConfig on mainnet** keeps name `uspad`, web `https://uspad.fun` and image `https://uspad.fun/brand/uspad-mark-512.png` (VERIFIED item 27) until the owner runs `go-live.sh platform-info` (VERIFIED item 30; the owner asked for it on 2026-10-31). `platform-info name` changes the name now; `platform-info all` also points web and picture at hwai.ai, once hwai.ai serves the site. Meanwhile `apps/web/public/brand/uspad-mark-512.png` holds the hwai mark, so that image URL already shows hwai.
 - **The production domain**: `go-live.sh domain` moves the live site to `hwai.ai` on the same server (certificate, Nginx, `WEB_ORIGIN`) and keeps `uspad.fun` as a redirect that still serves old coins' metadata and pictures (deploy/mainnet/README.md, "The hwai rename"). The owner pointed hwai.ai's DNS on 2026-10-31.
 
+## A Chinese name again: proposals (2026-11-02, not chosen yet)
+
+The owner asked for a new look and brand with a Chinese name, and for the references behind it. [`brand/proposals/2026-11-02/index.html`](../brand/proposals/2026-11-02/index.html) is the board (in Indonesian, with each concept's home page mocked in Chinese on the prototype's demo data; `mock-*.png` are screenshots). Nothing on the site changes until the owner picks a concept and approves its full prototype (CLAUDE.md rule 1).
+
+| | Name | Look | References |
+|---|---|---|---|
+| A (recommended) | **金牛** jīnniú, "golden bull"; 现金牛 is Chinese for "cash cow". Keeps the 牛 seal, recast as a milled gold coin. | Black and gold broker: Noto Serif SC headlines, the round's pool counting up, past rounds as gold bars, a watchlist table. | 富途牛牛 / moomoo, Robinhood Gold, 中国证券报 and 财新 front pages, hwai's X photo. |
+| B | **发发** fāfā: 发 is "prosper" and "pay out"; 88. | Hong Kong neon at night: neon sign marks, an LED tape, a live payout board, tilted sign cards with stickers. | Hong Kong neon signs (M+), Chungking Express, 中国李宁, pump.fun and GMGN. |
+| C | **红利** hónglì, the standard word for a dividend (红利ETF). | Light, the 余额宝 way: white cards, a pool counting up, a round progress bar, round stock icons. | 支付宝 余额宝, 微信支付, 中证红利, Revolut and Wise. |
+
+Risks the board names: 金牛奖 (the 中国证券报 fund award) may hold the mark in finance; FAFA and 发发发 are already tickers of small Solana tokens; 红利 is a generic word and "hongli" is also Manulife's Hong Kong name (宏利). Dropped names: 躺赚 (reads as promised income), 牛牛 (富途牛牛), 聚宝 (蚂蚁聚宝), 元宝 (腾讯元宝), 分分 (分分彩, an illegal lottery), 股神 (Buffett's nickname), 财神 (crowded), 摇钱树 (too long). Domain availability wasn't checked: WHOIS and RDAP are blocked from the build environment.
+
+A rename also touches: $HWAI (launched on pump.fun the same day; its name stays HWAI, so the owner decides whether it stays the official token), the hwai.ai domain (kept as a redirect), the PlatformConfig's name (a mainnet transaction, owner approval), @HwaiPad and Telegram, the intro video, the article and every share image. The marks on the board are sketches set in OFL Google Fonts; the chosen one gets drawn as paths, like `niu.py` draws the seal.
+
 ## Stock token logos
 
 Every dividend asset shows its own token icon: in the round chips (filters, coupons, payouts, the trade box) and on the face of the 3D stock coins. They are the tokens' official icons from the Trust Wallet assets registry (`github.com/trustwallet/assets`, `blockchains/solana/assets/<mint>/logo.png`), fetched on 2026-10-26 by the mints verified in `docs/verified/jito-jupiter-xstocks.md`; each registry entry's `info.json` symbol matched (NVDAX, TSLAX, ...). They live in `apps/web/public/stocks/<SYMBOL>.png` (256 px); `apps/web/src/lib/logos.ts` lists them, and a symbol without one falls back to the prototype's initials. `scripts/fetch-stock-logos.sh` downloads them again.

@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Usulan nama Chinese</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@700;900&family=ZCOOL+KuaiLe&family=ZCOOL+QingKe+HuangYou&display=swap">
+<style>
+/* Proposal board, 2026-11-02: a Chinese name and a new look for the product now called hwai.
+   Nothing here is live. Each concept's home page is mocked in its own scoped styles (.ma, .mb, .mc)
+   with the approved prototype's demo data. Marks are sketches set in Google Fonts; the chosen one
+   gets drawn as paths, the way brand/hwai/src/niu.py draws the brush seal. */
+:root{
+  color-scheme:light;
+  --paper:#F3F1EC;--card:#FFFFFF;--ink:#17150F;--ink-2:#575247;--ink-3:#8C8576;--rule:#DDD7CB;
+  --warn:#8A5200;--warn-bg:#FFF3D6;--warn-line:#F2D49A;--ok:#0E7A4F;--ok-bg:#E3F5EC;--bad:#B4232F;--bad-bg:#FDE8EA;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:15px/1.65 Inter,"Noto Sans SC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+.num{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* board chrome */
+.doc-head{padding:48px 0 8px}
+.kicker{font:600 13px/1 Inter;letter-spacing:.02em;color:var(--ink-3);margin-bottom:14px}
+h1.doc{font:800 clamp(30px,5vw,46px)/1.08 Inter,"Noto Sans SC";letter-spacing:-.025em;margin:0 0 14px}
+.lede{font-size:17px;color:var(--ink-2);max-width:780px;margin:0}
+h2.sec{font:800 26px/1.2 Inter,"Noto Sans SC";letter-spacing:-.015em;margin:0 0 6px}
+.sec-sub{color:var(--ink-2);margin:0 0 20px}
+section.block{margin:44px 0}
+.callout{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:16px;padding:22px 24px}
+.callout h2{font:800 19px/1.3 Inter;margin:0 0 10px;color:var(--warn)}
+.callout ul{margin:0;padding-left:20px}
+.callout li{margin:6px 0}
+.callout li b{color:var(--ink)}
+.jump{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.jump a{display:inline-flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:8px 16px 8px 8px;color:var(--ink);text-decoration:none;font-weight:600}
+.jump a b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-size:13px}
+.jump a span.zh{font-family:"Noto Sans SC";font-weight:900}
+
+.concept{margin:64px 0;scroll-margin-top:16px}
+.c-top{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:22px}
+.c-letter{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--ink);color:#fff;font:800 20px Inter;flex:none}
+.c-name{font:900 clamp(46px,8vw,72px)/1 "Noto Sans SC";letter-spacing:.02em}
+.c-pin{font:500 18px/1.2 Inter;color:var(--ink-2)}
+.c-pin b{font-weight:700;color:var(--ink)}
+.c-dir{font:600 15px/1.3 Inter;color:var(--ink-3);margin-top:4px}
+.tag{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font:700 13px/1 Inter;margin-left:auto}
+.tag.rec{background:var(--ok-bg);color:var(--ok)}
+.c-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:18px 20px}
+.panel h3{font:700 13px/1 Inter;letter-spacing:.02em;color:var(--ink-3);margin:0 0 12px}
+.panel p{margin:0 0 10px}
+.panel p:last-child{margin:0}
+.panel ul{margin:0;padding-left:18px}
+.panel li{margin:5px 0}
+.panel .bad{color:var(--bad)}
+.swatches{display:flex;gap:6px;margin:4px 0 12px}
+.swatches i{flex:1;height:34px;border-radius:8px;border:1px solid rgba(0,0,0,.08)}
+.fonts{font-size:14px;color:var(--ink-2)}
+.dom{font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#F1EEE7;border-radius:6px;padding:1px 6px}
+.frame{border-radius:18px;overflow:hidden;border:1px solid #1d1b16;box-shadow:0 30px 60px -30px rgba(23,21,15,.45)}
+.frame-bar{display:flex;align-items:center;gap:7px;background:#1F1D18;padding:10px 14px;color:#9B958A;font:500 12.5px Inter}
+.frame-bar i{width:10px;height:10px;border-radius:50%;background:#45413A}
+.frame-bar span{margin-left:8px}
+.frame.light{border-color:#CFC8BA}
+
+table.plain{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--rule);border-radius:16px;overflow:hidden}
+table.plain th,table.plain td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.plain th{font:700 13px Inter;color:var(--ink-3);background:#FAF8F4}
+table.plain tr:last-child td{border-bottom:0}
+table.plain td.zh{font:900 20px/1.2 "Noto Sans SC";white-space:nowrap}
+table.plain td.zh small{display:block;font:500 13px Inter;color:var(--ink-3)}
+
+.ux{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.ux .panel b.t{display:block;font:700 16px/1.35 Inter;margin-bottom:6px}
+.ux .panel .zhs{font-family:"Noto Sans SC";background:#F1EEE7;border-radius:6px;padding:1px 6px;white-space:nowrap}
+ol.steps{margin:0;padding-left:22px}
+ol.steps li{margin:8px 0}
+.rec-box{background:var(--card);border:2px solid var(--ok);border-radius:18px;padding:22px 24px}
+.rec-box h2{margin-top:0}
+footer.doc{padding:30px 0 60px;color:var(--ink-3);font-size:13.5px}
+
+@media (max-width:900px){
+  .c-grid{grid-template-columns:1fr}
+  .ux{grid-template-columns:1fr}
+  .tag{margin-left:0}
+  table.plain th:nth-child(3),table.plain td:nth-child(3){display:none}
+}
+
+/* shared by the three mocks */
+.mock{position:relative;overflow:hidden;font-family:"Noto Sans SC",system-ui,sans-serif;font-size:15px;line-height:1.55}
+:where(.mock a){text-decoration:none;color:inherit;cursor:default}
+.mock svg.sp{display:block;width:100%;height:auto}
+.mock .m-av{display:inline-grid;place-items:center;flex:none;font-weight:900;color:#fff}
+.mock .hide-s{}
+@media (max-width:860px){.mock .hide-s{display:none!important}}
+
+/* ======================= A · 金牛 · black and gold ======================= */
+.ma{--bg:#0B0A08;--bg-2:#100E0B;--card:#16130F;--card-2:#1C1813;--line:#2A241C;--line-2:#3A3226;
+  --tx:#F5EFE3;--tx-2:#B3A894;--tx-3:#7C725F;--gold:#E9B949;--gold-hi:#FFDB8A;--gold-d:#A87B22;--up:#3FD98A;--dn:#FF5C5C;
+  --serif:"Noto Serif SC","Songti SC",serif;
+  color:var(--tx);background:
+    radial-gradient(760px 420px at 82% 0%,rgba(233,185,73,.16),transparent 62%),
+    radial-gradient(520px 360px at 0% 60%,rgba(233,185,73,.05),transparent 60%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 56px),var(--bg)}
+.ma-top{display:flex;align-items:center;gap:16px;height:66px;padding:0 28px;border-bottom:1px solid var(--line);background:rgba(11,10,8,.7)}
+.ma-logo{display:flex;align-items:center;gap:10px}
+.ma-mark{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;
+  background:repeating-conic-gradient(#C99130 0 5deg,#FFE3A0 5deg 10deg);box-shadow:0 6px 18px -6px rgba(233,185,73,.6)}
+.ma-mark i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:400 22px/1 "Ma Shan Zheng",serif;font-style:normal;color:#2A1A02;
+  background:radial-gradient(circle at 35% 30%,#FFF0C2,#F2C35A 45%,#C99130 100%);box-shadow:inset 0 0 0 1.5px rgba(80,50,0,.35)}
+.ma-word{font:900 21px/1 var(--serif);letter-spacing:.04em;display:flex;align-items:baseline;gap:7px}
+.ma-word small{font:500 11.5px/1 Inter;letter-spacing:.08em;color:var(--gold)}
+.ma-nav{display:flex;gap:2px;margin-left:8px}
+.ma-nav a{padding:7px 12px;border-radius:9px;font-weight:700;color:var(--tx-2)}
+.ma-nav a.on{color:var(--tx);background:var(--card-2)}
+.ma-search{flex:1;max-width:340px;margin-left:auto;height:38px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--tx-3);font-size:13.5px;display:flex;align-items:center;padding:0 14px}
+.ma-lang{display:flex;border:1px solid var(--line-2);border-radius:9px;padding:3px;gap:2px;font:700 13px/1 Inter}
+.ma-lang b,.ma-lang span{padding:6px 8px;border-radius:6px}
+.ma-lang b{background:var(--card-2)}
+.ma-lang span{color:var(--tx-3)}
+.ma-btn{display:inline-flex;align-items:center;height:38px;padding:0 16px;border-radius:10px;font-weight:900;color:#1E1404;white-space:nowrap;
+  background:linear-gradient(180deg,#FFE29A,#E9B949 55%,#C99130);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 8px 22px -10px rgba(233,185,73,.8)}
+.ma-btn2{display:inline-flex;align-items:center;height:38px;padding:0 16px;border-radius:10px;font-weight:700;border:1px solid var(--line-2);white-space:nowrap}
+.ma-btn.lg,.ma-btn2.lg{height:50px;padding:0 24px;font-size:16px;border-radius:12px}
+.ma-hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:40px;padding:44px 28px 30px;align-items:center}
+.ma-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(233,185,73,.35);background:rgba(233,185,73,.08);color:var(--gold-hi);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700}
+.ma-pill i{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(233,185,73,.2)}
+.ma-h{font:900 clamp(40px,5.4vw,66px)/1.1 var(--serif);margin:18px 0 14px;letter-spacing:.01em}
+.ma-h em{font-style:normal;background:linear-gradient(180deg,#FFF1C9,#F2C35A 50%,#B98425);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ma-sub{color:var(--tx-2);margin:0 0 24px;max-width:470px}
+.ma-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.ma-stats{display:flex;gap:30px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap}
+.ma-stats b{display:block;font:700 22px/1.2 "JetBrains Mono",monospace}
+.ma-stats b.g{color:var(--gold-hi)}
+.ma-stats span{font-size:12.5px;color:var(--tx-3)}
+.ma-earn{background:linear-gradient(180deg,#1E1A14,#14110D);border:1px solid var(--line-2);border-radius:20px;padding:22px;box-shadow:0 40px 80px -40px #000,inset 0 1px 0 rgba(255,219,138,.08)}
+.ma-earn-h{display:flex;justify-content:space-between;font-size:13.5px;color:var(--tx-2)}
+.ma-earn-h .live{color:var(--gold);font-weight:700}
+.ma-earn-n{font:700 clamp(36px,4.4vw,52px)/1.1 "JetBrains Mono",monospace;color:var(--gold-hi);margin:10px 0 4px;text-shadow:0 0 30px rgba(233,185,73,.25)}
+.ma-earn-d{font-size:13px;color:var(--tx-3)}
+.ma-earn-d .up{color:var(--up);font-weight:700;font-family:"JetBrains Mono",monospace}
+.ma-bars{display:flex;align-items:flex-end;gap:5px;height:96px;margin:20px 0 6px}
+.ma-bars i{flex:1;border-radius:4px 4px 1px 1px;background:linear-gradient(180deg,#F2C35A,#8A6418)}
+.ma-bars i.now{background:repeating-linear-gradient(135deg,rgba(242,195,90,.85) 0 4px,rgba(242,195,90,.35) 4px 8px);box-shadow:0 0 18px rgba(233,185,73,.4)}
+.ma-bars-l{display:flex;justify-content:space-between;font-size:12px;color:var(--tx-3)}
+.ma-next{display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;padding:14px 16px;border-radius:14px;background:rgba(233,185,73,.07);border:1px solid rgba(233,185,73,.25)}
+.ma-next small{display:block;font-size:12px;color:var(--tx-2)}
+.ma-next b{font:700 28px/1.1 "JetBrains Mono",monospace;color:var(--gold-hi)}
+.ma-next .r{text-align:right}
+.ma-next .r b{font-size:18px;color:var(--tx)}
+.ma-list{padding:8px 28px 34px}
+.ma-list-h{display:flex;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.ma-list-h h3{font:900 24px/1.2 var(--serif);margin:0}
+.ma-list-h span{font-size:13px;color:var(--tx-3)}
+.ma-tbl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.ma-tbl th{font-size:12.5px;font-weight:500;color:var(--tx-3);text-align:right;padding:11px 16px;border-bottom:1px solid var(--line)}
+.ma-tbl th:first-child,.ma-tbl td:first-child{text-align:left}
+.ma-tbl td{padding:12px 16px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.ma-tbl tr:last-child td{border-bottom:0}
+.ma-tbl .coin{display:flex;align-items:center;gap:11px}
+.ma-tbl .coin div b{display:block;font-size:15px}
+.ma-tbl .coin div span{font-size:12px;color:var(--tx-3);font-family:"JetBrains Mono",monospace}
+.ma-tbl .m-av{width:36px;height:36px;border-radius:10px;font-size:17px}
+.ma-tbl .up{color:var(--up)}.ma-tbl .dn{color:var(--dn)}
+.ma-tbl .paid{color:var(--gold-hi)}
+.ma-tbl .stk{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-2);border-radius:999px;padding:3px 10px 3px 4px;font:700 12px "JetBrains Mono",monospace}
+.ma-tbl .stk i{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font:800 9px Inter;font-style:normal;color:#fff}
+.ma-tbl td.spk{width:120px}
+.ma-tbl td.spk svg{width:110px;margin-left:auto}
+@media (max-width:860px){
+  .ma-top{padding:0 16px;gap:10px}
+  .ma-hero{grid-template-columns:1fr;padding:30px 16px 20px;gap:26px}
+  .ma-list{padding:8px 16px 24px}
+  .ma-tbl th:nth-child(4),.ma-tbl td:nth-child(4),.ma-tbl th:nth-child(6),.ma-tbl td:nth-child(6){display:none}
+  .ma-tbl td,.ma-tbl th{padding:11px 10px}
+}
+
+/* ======================= B · 发发 · Hong Kong neon ======================= */
+.mb{--bg:#0A0612;--card:#130C1F;--card-2:#1A1129;--line:#2C1F42;--tx:#F7F1FF;--tx-2:#B9AACF;--tx-3:#7E6F95;
+  --pink:#FF3D9A;--cyan:#3BE9FF;--yel:#FFE14D;--up:#3DFF8F;--dn:#FF4D6A;--sign:"ZCOOL QingKe HuangYou","Noto Sans SC",sans-serif;
+  color:var(--tx);background:
+    radial-gradient(620px 420px at 88% 8%,rgba(255,61,154,.22),transparent 60%),
+    radial-gradient(560px 420px at 4% 70%,rgba(59,233,255,.13),transparent 60%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),var(--bg)}
+.mb-top{display:flex;align-items:center;gap:16px;height:66px;padding:0 28px;border-bottom:1px solid var(--line)}
+.mb-logo{display:flex;align-items:center;gap:11px}
+.mb-mark{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;flex:none;border:2px solid var(--pink);
+  font:400 26px/1 var(--sign);color:#FFD6EA;text-shadow:0 0 6px var(--pink),0 0 16px var(--pink);
+  box-shadow:0 0 10px rgba(255,61,154,.8),inset 0 0 10px rgba(255,61,154,.6)}
+.mb-word{font:400 25px/1 var(--sign);color:#E8FCFF;text-shadow:0 0 8px var(--cyan),0 0 22px rgba(59,233,255,.6);display:flex;align-items:baseline;gap:8px;letter-spacing:.04em}
+.mb-word small{font:700 12px/1 Inter;letter-spacing:.1em;color:var(--cyan);text-shadow:none}
+.mb-nav{display:flex;gap:2px;margin-left:8px}
+.mb-nav a{padding:7px 12px;border-radius:9px;font-weight:700;color:var(--tx-2)}
+.mb-nav a.on{color:var(--tx);background:var(--card-2)}
+.mb-search{flex:1;max-width:320px;margin-left:auto;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--tx-3);font-size:13.5px;display:flex;align-items:center;padding:0 14px}
+.mb-btn{display:inline-flex;align-items:center;height:40px;padding:0 18px;border-radius:10px;font-weight:900;color:#1A0B12;background:var(--yel);border:2px solid #1A0B12;box-shadow:3px 3px 0 var(--pink);white-space:nowrap}
+.mb-btn2{display:inline-flex;align-items:center;height:40px;padding:0 18px;border-radius:10px;font-weight:700;border:2px solid var(--line);white-space:nowrap}
+.mb-btn.lg,.mb-btn2.lg{height:52px;padding:0 26px;font-size:17px}
+.mb-tape{display:flex;gap:28px;white-space:nowrap;overflow:hidden;padding:9px 28px;border-bottom:1px solid var(--line);background:#06030B;
+  font:700 13px "JetBrains Mono","Noto Sans SC",monospace;color:#FFB86B;text-shadow:0 0 6px rgba(255,140,40,.7)}
+.mb-tape span b{color:var(--yel)}
+.mb-tape .up{color:var(--up);text-shadow:0 0 6px rgba(61,255,143,.6)}
+.mb-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:36px;padding:42px 28px 26px;align-items:center}
+.mb-h{font:400 clamp(48px,6.6vw,84px)/1.02 var(--sign);margin:0 0 16px;letter-spacing:.02em}
+.mb-h .neon{color:#FFE3F1;text-shadow:0 0 6px var(--pink),0 0 18px var(--pink),0 0 42px rgba(255,61,154,.7)}
+.mb-h .neon span{animation:mb-flick 5s infinite}
+@keyframes mb-flick{0%,91%,95%,100%{opacity:1}92%,94%{opacity:.35}}
+.mb-sub{color:var(--tx-2);margin:0 0 24px;max-width:440px}
+.mb-ctas{display:flex;gap:14px;flex-wrap:wrap}
+.mb-board{position:relative;background:#0D0817;border:2px solid var(--cyan);border-radius:18px;padding:18px 18px 16px;
+  box-shadow:0 0 0 1px rgba(59,233,255,.2),0 0 26px rgba(59,233,255,.35),inset 0 0 24px rgba(59,233,255,.12)}
+.mb-board-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.mb-board-h b{font:400 24px/1 var(--sign);color:#E8FCFF;text-shadow:0 0 8px var(--cyan)}
+.mb-board-h span{font:700 12px Inter;color:var(--dn);letter-spacing:.06em}
+.mb-board-h span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--dn);margin-right:6px;box-shadow:0 0 8px var(--dn);animation:mb-flick 1.6s infinite}
+.mb-feed{list-style:none;margin:0;padding:0;height:206px;overflow:hidden;position:relative}
+.mb-feed ul{list-style:none;margin:0;padding:0;animation:mb-scroll 14s linear infinite}
+@keyframes mb-scroll{to{transform:translateY(-50%)}}
+.mb-feed li{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px dashed rgba(59,233,255,.18);font-size:14px}
+.mb-feed li .m-av{width:28px;height:28px;border-radius:7px;font-size:13px}
+.mb-feed li b{font-family:"JetBrains Mono",monospace;color:var(--yel);margin-left:auto;text-shadow:0 0 6px rgba(255,225,77,.5)}
+.mb-feed li small{color:var(--tx-3);width:52px;text-align:right}
+.mb-clock{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding:12px 14px;border-radius:12px;background:#06030B;border:1px solid var(--line)}
+.mb-clock small{font-size:13px;color:var(--tx-2)}
+.mb-clock b{font:700 34px/1 "JetBrains Mono",monospace;color:var(--yel);text-shadow:0 0 10px rgba(255,225,77,.6)}
+.mb-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;padding:12px 28px 36px}
+.mb-card{position:relative;background:var(--card);border:2px solid var(--c);border-radius:16px;padding:16px;box-shadow:0 0 18px color-mix(in srgb,var(--c) 45%,transparent)}
+.mb-card:nth-child(1){transform:rotate(-1.2deg)}
+.mb-card:nth-child(2){transform:rotate(.8deg)}
+.mb-card:nth-child(3){transform:rotate(-.5deg)}
+.mb-card .hd{display:flex;align-items:center;gap:10px}
+.mb-card .m-av{width:40px;height:40px;border-radius:10px;font-size:19px}
+.mb-card .hd div b{display:block;font:400 21px/1.1 var(--sign)}
+.mb-card .hd div span{font:700 12px "JetBrains Mono",monospace;color:var(--tx-3)}
+.mb-card .chg{margin-left:auto;font:700 15px "JetBrains Mono",monospace}
+.mb-card .up{color:var(--up)}.mb-card .dn{color:var(--dn)}
+.mb-card .sp{margin:10px 0 8px;color:var(--c)}
+.mb-card .ft{display:flex;justify-content:space-between;font-size:13px;color:var(--tx-2)}
+.mb-card .ft b{font-family:"JetBrains Mono",monospace;color:var(--yel)}
+.mb-sticker{position:absolute;top:-12px;right:14px;background:var(--yel);color:#1A0B12;border:2px solid #1A0B12;border-radius:8px;padding:1px 9px;font:900 13px/1.5 "Noto Sans SC";transform:rotate(6deg)}
+@media (max-width:860px){
+  .mb-top{padding:0 16px;gap:10px}
+  .mb-tape{padding:9px 16px}
+  .mb-hero{grid-template-columns:1fr;padding:30px 16px 20px}
+  .mb-cards{grid-template-columns:1fr;padding:16px 16px 28px}
+  .mb-feed li{font-size:13px;white-space:nowrap}
+  .mb-feed li small{display:none}
+}
+
+/* ======================= C · 红利 · light, the 余额宝 way ======================= */
+.mc{--bg:#F7F4EE;--card:#FFFFFF;--line:#ECE5D8;--tx:#1C1814;--tx-2:#6B6256;--tx-3:#A0968A;--gold:#F0A818;--gold-d:#A86B00;--gold-soft:#FFF5DC;
+  --ink:#1C1814;--up:#11995A;--dn:#E5484D;--up-soft:#E2F5EA;--sans:"Noto Sans SC",system-ui,sans-serif;--fig:Inter,"Noto Sans SC",sans-serif;
+  color:var(--tx);background:radial-gradient(700px 380px at 85% 0%,rgba(240,168,24,.16),transparent 62%),var(--bg)}
+.mc-top{display:flex;align-items:center;gap:16px;height:66px;padding:0 28px;background:rgba(255,255,255,.8);border-bottom:1px solid var(--line)}
+.mc-logo{display:flex;align-items:center;gap:10px}
+.mc-mark{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;font:400 22px/1 "ZCOOL KuaiLe",sans-serif;color:#5A3600;
+  background:radial-gradient(circle at 35% 28%,#FFE8A8,#F7BE3A 55%,#E39A0C);box-shadow:inset 0 -3px 0 rgba(160,90,0,.35),0 4px 10px -4px rgba(200,120,0,.6)}
+.mc-word{display:flex;align-items:baseline;gap:7px;font:900 21px/1 var(--sans)}
+.mc-word small{font:600 12.5px/1 var(--fig);color:var(--tx-3)}
+.mc-nav{display:flex;gap:4px;margin-left:8px}
+.mc-nav a{padding:7px 14px;border-radius:999px;font-weight:700;color:var(--tx-2)}
+.mc-nav a.on{color:var(--tx);background:#F0EBE1}
+.mc-search{flex:1;max-width:320px;margin-left:auto;height:38px;border-radius:999px;background:#F0EBE1;color:var(--tx-3);font-size:13.5px;display:flex;align-items:center;padding:0 16px}
+.mc-btn{display:inline-flex;align-items:center;height:40px;padding:0 18px;border-radius:999px;font-weight:700;color:#fff;background:var(--ink);white-space:nowrap}
+.mc-btn2{display:inline-flex;align-items:center;height:40px;padding:0 18px;border-radius:999px;font-weight:700;background:#fff;border:1px solid var(--line);white-space:nowrap}
+.mc-btn.lg,.mc-btn2.lg{height:52px;padding:0 26px;font-size:16px}
+.mc-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:40px;padding:44px 28px 30px;align-items:center}
+.mc-pill{display:inline-flex;align-items:center;gap:7px;background:var(--gold-soft);color:var(--gold-d);border-radius:999px;padding:5px 13px;font-size:13px;font-weight:700}
+.mc-h{font:900 clamp(38px,5vw,60px)/1.15 var(--sans);margin:16px 0 14px;letter-spacing:-.01em}
+.mc-h mark{background:linear-gradient(transparent 58%,#FFD465 58% 92%,transparent 92%);color:inherit;padding:0 2px}
+.mc-sub{color:var(--tx-2);margin:0 0 24px;max-width:460px}
+.mc-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.mc-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:28px}
+.mc-stats div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.mc-stats b{display:block;font:800 20px/1.2 var(--fig);font-variant-numeric:tabular-nums}
+.mc-stats b.g{color:var(--gold-d)}
+.mc-stats span{font-size:12.5px;color:var(--tx-3)}
+.mc-wallet{background:#fff;border-radius:26px;padding:24px;box-shadow:0 1px 0 var(--line),0 30px 60px -30px rgba(120,80,0,.35)}
+.mc-w-h{display:flex;justify-content:space-between;font-size:14px;color:var(--tx-2)}
+.mc-w-h span{color:var(--up);font-weight:700}
+.mc-w-n{font:800 clamp(40px,4.8vw,56px)/1.1 var(--fig);font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin:10px 0 6px}
+.mc-w-d{font-size:13.5px;color:var(--tx-2);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mc-chip{display:inline-flex;border-radius:999px;padding:2px 9px;font:700 12.5px var(--fig)}
+.mc-chip.up{background:var(--up-soft);color:var(--up)}
+.mc-chip.gold{background:var(--gold-soft);color:var(--gold-d)}
+.mc-prog{height:8px;border-radius:99px;background:#F0EBE1;margin:18px 0 6px;overflow:hidden}
+.mc-prog i{display:block;height:100%;width:28.6%;border-radius:99px;background:linear-gradient(90deg,#FFD465,var(--gold))}
+.mc-prog-l{display:flex;justify-content:space-between;font-size:12.5px;color:var(--tx-3)}
+.mc-prog-l b{font:700 13px var(--fig);color:var(--tx);font-variant-numeric:tabular-nums}
+.mc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.mc-grid div{text-align:center;font:600 12.5px var(--fig);color:var(--tx-2)}
+.mc-grid i{display:grid;place-items:center;width:44px;height:44px;margin:0 auto 6px;border-radius:50%;font:800 12px Inter;font-style:normal;color:#fff}
+.mc-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:6px 28px 36px}
+.mc-card{background:#fff;border-radius:22px;padding:16px;box-shadow:0 1px 0 var(--line),0 20px 40px -28px rgba(120,80,0,.4)}
+.mc-card .hd{display:flex;align-items:center;gap:10px}
+.mc-card .m-av{width:42px;height:42px;border-radius:50%;font-size:18px}
+.mc-card .hd div b{display:block;font-size:16px}
+.mc-card .hd div span{font:600 12px var(--fig);color:var(--tx-3)}
+.mc-card .chg{margin-left:auto;font:700 14px var(--fig)}
+.mc-card .up{color:var(--up)}.mc-card .dn{color:var(--dn)}
+.mc-card .sp{margin:10px 0;color:var(--up)}
+.mc-card .sp.dn{color:var(--dn)}
+.mc-card .ft{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--tx-2)}
+@media (max-width:860px){
+  .mc-top{padding:0 16px;gap:10px}
+  .mc-hero{grid-template-columns:1fr;padding:30px 16px 20px}
+  .mc-cards{grid-template-columns:1fr;padding:6px 16px 28px}
+}
+</style>
+</head>
+<body>
+
+<header class="wrap doc-head">
+  <div class="kicker">Usulan · 2 November 2026 · belum dipasang di situs</div>
+  <h1 class="doc">Nama Chinese dan tampilan baru: tiga arah untuk dipilih</h1>
+  <p class="lede">Setiap arah adalah satu paket: nama, logo, warna, huruf, dan beranda yang dirancang ulang. Mockup memakai data contoh dari prototype 牛. Situs hwai.ai tidak berubah sampai Anda memilih, lalu menyetujui prototype lengkapnya.</p>
+  <nav class="jump" aria-label="Lompat ke konsep">
+    <a href="#a"><b>A</b><span class="zh">金牛</span> jinniu · hitam emas</a>
+    <a href="#b"><b>B</b><span class="zh">发发</span> fafa · neon Hong Kong</a>
+    <a href="#c"><b>C</b><span class="zh">红利</span> hongli · terang ala 余额宝</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+<section class="block">
+  <div class="callout">
+    <h2>Sebelum memilih: apa yang ikut berubah kalau namanya diganti</h2>
+    <ul>
+      <li><b>$HWAI baru diluncurkan hari ini di pump.fun.</b> Nama tokennya tetap HWAI, jadi situs dengan nama baru akan menampilkan token resmi bernama lama. Pilihannya: $HWAI tetap jadi token resmi "pertama", atau token resmi baru dengan nama baru. Token baru berarti transaksi mainnet, jadi hanya dengan persetujuan Anda.</li>
+      <li><b>Domain.</b> Nama baru perlu domain baru. hwai.ai bisa tetap hidup sebagai redirect agar link koin lama tidak mati. Saya tidak bisa mengecek ketersediaan domain dari server ini (akses WHOIS diblokir), jadi semua domain di bawah perlu Anda cek di registrar.</li>
+      <li><b>PlatformConfig di mainnet bernama "hwai".</b> Mengganti nama, web, dan gambarnya adalah transaksi (<span class="dom">go-live.sh platform-info</span>), juga perlu persetujuan Anda.</li>
+      <li><b>Yang dibuat ulang:</b> akun X (@HwaiPad) dan Telegram, video intro, artikel "Meet hwai", gambar share, dan gambar share per koin.</li>
+      <li><b>Ini akan jadi nama ketiga dalam 8 hari</b> (uspad 26 Okt, hwai 31 Okt). Saran saya: nama yang dipilih sekarang dikunci untuk seterusnya. Ganti nama lagi setelah ada holder akan terbaca sebagai tanda bahaya.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================ A ============================ -->
+<section class="concept" id="a">
+  <div class="c-top">
+    <div class="c-letter">A</div>
+    <div>
+      <div class="c-name">金牛</div>
+      <div class="c-pin"><b>jīnniú</b> · ditulis <b>jinniu</b></div>
+      <div class="c-dir">Arah desain: hitam dan emas, gaya aplikasi broker premium</div>
+    </div>
+    <span class="tag rec">Rekomendasi saya</span>
+  </div>
+  <div class="c-grid">
+    <div class="panel">
+      <h3>Arti dan kenapa cocok</h3>
+      <p>"Banteng emas." Dalam bahasa bisnis China, <b>现金牛</b> berarti <i>cash cow</i>: aset yang terus menghasilkan uang. Persis produknya: koin yang membayar dividen tiap jam.</p>
+      <p>牛 juga berarti 牛市 (bull market) dan slang untuk "keren". Cap kuas 牛 hwai tetap dipakai, dicetak ulang jadi koin emas, jadi holder melihatnya sebagai naik kelas, bukan ganti total.</p>
+    </div>
+    <div class="panel">
+      <h3>Risiko</h3>
+      <ul>
+        <li><b>金牛奖</b> (Golden Bull Award) adalah penghargaan dana investasi dari 中国证券报. Kemungkinan ada merek terdaftar di kelas keuangan, jadi perlu cek merek.</li>
+        <li>Kata umum (zodiak Taurus 金牛座, distrik 金牛区 di Chengdu), jadi .com hampir pasti sudah dipakai.</li>
+      </ul>
+      <p style="margin-top:10px">Domain untuk dicek: <span class="dom">jinniu.fun</span> <span class="dom">jinniu.ai</span> <span class="dom">jinniu.xyz</span></p>
+    </div>
+    <div class="panel">
+      <h3>Warna, huruf, referensi</h3>
+      <div class="swatches"><i style="background:#0B0A08"></i><i style="background:#16130F"></i><i style="background:#E9B949"></i><i style="background:#FFDB8A"></i><i style="background:#3FD98A"></i><i style="background:#FF5C5C"></i></div>
+      <p class="fonts">Judul: Noto Serif SC 900 (宋体, berwibawa seperti koran keuangan). Teks: Noto Sans SC. Angka: JetBrains Mono.</p>
+      <ul>
+        <li><b>富途牛牛 / moomoo</b>: kepadatan watchlist, cara menampilkan harga dan persen.</li>
+        <li><b>Robinhood Gold</b>: hitam emas yang terasa premium, tidak norak.</li>
+        <li><b>Halaman depan 中国证券报 / 财新</b>: judul serif.</li>
+        <li><b>Foto profil X hwai</b>: cincin emas bergerigi, jadi transisinya mulus.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-bar"><i></i><i></i><i></i><span>Beranda · data contoh</span></div>
+    <div class="mock ma">
+      <div class="ma-top">
+        <div class="ma-logo"><span class="ma-mark"><i>牛</i></span><span class="ma-word">金牛<small>jinniu</small></span></div>
+        <nav class="ma-nav hide-s"><a class="on">行情</a><a>分红</a><a>玩法</a></nav>
+        <div class="ma-search hide-s">搜索代币、股票或合约地址</div>
+        <div class="ma-lang hide-s"><b>中</b><span>EN</span></div>
+        <a class="ma-btn hide-s">创建代币</a>
+        <a class="ma-btn2" style="margin-left:auto">连接钱包</a>
+      </div>
+      <div class="ma-hero">
+        <div>
+          <span class="ma-pill"><i></i>本小时已分红 <span class="num">$1,634</span> 美股</span>
+          <h2 class="ma-h">发一个币，<br>养一头<em>现金牛</em>。</h2>
+          <p class="ma-sub">每一笔交易都会买入你选的股票代币，比如 NVDAx、SPYx，每小时分给所有持有人。</p>
+          <div class="ma-ctas"><a class="ma-btn lg">创建代币</a><a class="ma-btn2 lg">玩法说明</a></div>
+          <div class="ma-stats">
+            <div><b class="g">$49,751</b><span>累计分红</span></div>
+            <div><b>$8.37M</b><span>24 小时交易额</span></div>
+            <div><b>30</b><span>在线代币</span></div>
+          </div>
+        </div>
+        <div class="ma-earn">
+          <div class="ma-earn-h"><span>本轮分红池 · 实时累积</span><span class="live">● 实时</span></div>
+          <div class="ma-earn-n" data-count="482.16" data-prefix="$">$482.16</div>
+          <div class="ma-earn-d"><span class="up">▲ 12.4%</span> 比上一轮同一时刻多</div>
+          <div class="ma-bars" aria-hidden="true">
+            <i style="height:42%"></i><i style="height:55%"></i><i style="height:48%"></i><i style="height:61%"></i><i style="height:58%"></i><i style="height:70%"></i><i style="height:66%"></i><i style="height:74%"></i><i style="height:69%"></i><i style="height:83%"></i><i style="height:92%"></i><i class="now" style="height:30%"></i>
+          </div>
+          <div class="ma-bars-l"><span>过去 12 轮</span><span>每格一小时</span></div>
+          <div class="ma-next"><div><small>下一轮发放</small><b data-countdown>42:50</b></div><div class="r"><small>上一轮</small><b class="num">$1,634</b></div></div>
+        </div>
+      </div>
+      <div class="ma-list">
+        <div class="ma-list-h"><h3>今日分红最多</h3><span>按过去 24 小时持有人所得排名</span></div>
+        <table class="ma-tbl">
+          <thead><tr><th>代币</th><th>市值</th><th>24 小时</th><th>走势</th><th>24 小时分红</th><th>分红股票</th></tr></thead>
+          <tbody>
+            <tr><td><div class="coin"><span class="m-av" style="background:#7C4DFF">韭</span><div><b>韭菜之王</b><span>$JIUCAI</span></div></div></td><td class="num">$1.82M</td><td class="num up">+6.2%</td><td class="spk"><svg class="sp up" data-seed="4" data-trend="1" viewBox="0 0 110 32" style="color:#3FD98A"></svg></td><td class="num paid">$3,412</td><td><span class="stk"><i style="background:#1F6FEB">S</i>SPYx</span></td></tr>
+            <tr><td><div class="coin"><span class="m-av" style="background:#E5484D">躺</span><div><b>躺赚</b><span>$TANG</span></div></div></td><td class="num">$964K</td><td class="num up">+18.4%</td><td class="spk"><svg class="sp" data-seed="9" data-trend="1.6" viewBox="0 0 110 32" style="color:#3FD98A"></svg></td><td class="num paid">$2,187</td><td><span class="stk"><i style="background:#76B900">N</i>NVDAx</span></td></tr>
+            <tr><td><div class="coin"><span class="m-av" style="background:#0EA5A4">打</span><div><b>打工人</b><span>$DAGONG</span></div></div></td><td class="num">$711K</td><td class="num up">+3.3%</td><td class="spk"><svg class="sp" data-seed="2" data-trend=".6" viewBox="0 0 110 32" style="color:#3FD98A"></svg></td><td class="num paid">$1,530</td><td><span class="stk"><i style="background:#EA4335">G</i>GOOGLx</span></td></tr>
+            <tr><td><div class="coin"><span class="m-av" style="background:#D49A0A">财</span><div><b>财神爷</b><span>$CAISHEN</span></div></div></td><td class="num">$402K</td><td class="num dn">-4.1%</td><td class="spk"><svg class="sp" data-seed="6" data-trend="-.8" viewBox="0 0 110 32" style="color:#FF5C5C"></svg></td><td class="num paid">$988</td><td><span class="stk"><i style="background:#6E6E73">A</i>AAPLx</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ B ============================ -->
+<section class="concept" id="b">
+  <div class="c-top">
+    <div class="c-letter">B</div>
+    <div>
+      <div class="c-name">发发</div>
+      <div class="c-pin"><b>fāfā</b> · ditulis <b>fafa</b></div>
+      <div class="c-dir">Arah desain: papan neon Hong Kong malam hari, untuk komunitas dan meme</div>
+    </div>
+  </div>
+  <div class="c-grid">
+    <div class="panel">
+      <h3>Arti dan kenapa cocok</h3>
+      <p>发 berarti "makmur" (发财) dan juga "membagikan" (发分红, 发红包): makmur dan dibayar dalam satu kata. 88 dibaca 发发, angka keberuntungan.</p>
+      <p>Empat huruf, mudah diucapkan siapa pun, dan sangat gampang jadi meme: <b>发币，发分红，发发发。</b></p>
+    </div>
+    <div class="panel">
+      <h3>Risiko</h3>
+      <ul>
+        <li>Banyak token kecil di Solana sudah memakai ticker FAFA dan nama 发发发, jadi nama ini kurang unik dan susah dicari.</li>
+        <li>发财 bisa terbaca seperti janji jadi kaya. Copy harus hati-hati.</li>
+        <li>Domain empat huruf kemungkinan besar sudah diambil.</li>
+      </ul>
+      <p style="margin-top:10px">Domain untuk dicek: <span class="dom">fafa.fun</span> <span class="dom">fafa.ai</span> <span class="dom">fafa.lol</span></p>
+    </div>
+    <div class="panel">
+      <h3>Warna, huruf, referensi</h3>
+      <div class="swatches"><i style="background:#0A0612"></i><i style="background:#FF3D9A"></i><i style="background:#3BE9FF"></i><i style="background:#FFE14D"></i><i style="background:#3DFF8F"></i><i style="background:#FF4D6A"></i></div>
+      <p class="fonts">Papan nama dan judul: ZCOOL QingKe HuangYou dengan cahaya neon. Teks: Noto Sans SC. Angka: JetBrains Mono.</p>
+      <ul>
+        <li><b>Papan neon Hong Kong</b> (Tsim Sha Tsui, arsip neon museum M+): huruf papan dan warna tabung neon.</li>
+        <li><b>Film 王家卫, Chungking Express</b>: warna malam magenta dan sian.</li>
+        <li><b>中国李宁 (国潮)</b>: budaya lokal dibuat keren untuk anak muda.</li>
+        <li><b>pump.fun, GMGN</b>: tempo cepat dan feed live yang sudah dikenal trader memecoin China.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="frame-bar"><i></i><i></i><i></i><span>Beranda · data contoh</span></div>
+    <div class="mock mb">
+      <div class="mb-top">
+        <div class="mb-logo"><span class="mb-mark">发</span><span class="mb-word">发发<small>fafa</small></span></div>
+        <nav class="mb-nav hide-s"><a class="on">发现</a><a>分红榜</a><a>玩法</a></nav>
+        <div class="mb-search hide-s">搜索代币、股票或合约地址</div>
+        <a class="mb-btn" style="margin-left:auto">创建代币</a>
+      </div>
+      <div class="mb-tape" aria-hidden="true">
+        <span>$JIUCAI 持有人领到 <b>+0.0213 SPYx</b></span><span>$TANG <span class="up">+18.4%</span></span><span>$DAGONG 持有人领到 <b>+2.3389 GOOGLx</b></span><span>$MOYU 5 分钟前上线</span><span>$CAISHEN 持有人领到 <b>+0.5194 AAPLx</b></span>
+      </div>
+      <div class="mb-hero">
+        <div>
+          <h2 class="mb-h">发币，<br>发分红，<br><span class="neon"><span>发</span>发发</span></h2>
+          <p class="mb-sub">每一笔交易都会买入你选的股票代币，每小时分给所有持有人。</p>
+          <div class="mb-ctas"><a class="mb-btn lg">创建代币</a><a class="mb-btn2 lg">玩法说明</a></div>
+        </div>
+        <div class="mb-board">
+          <div class="mb-board-h"><b>分红速报</b><span>LIVE</span></div>
+          <div class="mb-feed"><ul>
+            <li><span class="m-av" style="background:#7C4DFF">韭</span>$JIUCAI 持有人<b>+0.0213 SPYx</b><small>刚刚</small></li>
+            <li><span class="m-av" style="background:#0EA5A4">打</span>$DAGONG 持有人<b>+2.3389 GOOGLx</b><small>1 分钟</small></li>
+            <li><span class="m-av" style="background:#E5484D">躺</span>$TANG 持有人<b>+1.1556 NVDAx</b><small>1 分钟</small></li>
+            <li><span class="m-av" style="background:#D49A0A">财</span>$CAISHEN 持有人<b>+0.5194 AAPLx</b><small>2 分钟</small></li>
+            <li><span class="m-av" style="background:#2563EB">摸</span>$MOYU 持有人<b>+0.0870 SPYx</b><small>3 分钟</small></li>
+            <li><span class="m-av" style="background:#7C4DFF">韭</span>$JIUCAI 持有人<b>+0.0213 SPYx</b><small>刚刚</small></li>
+            <li><span class="m-av" style="background:#0EA5A4">打</span>$DAGONG 持有人<b>+2.3389 GOOGLx</b><small>1 分钟</small></li>
+            <li><span class="m-av" style="background:#E5484D">躺</span>$TANG 持有人<b>+1.1556 NVDAx</b><small>1 分钟</small></li>
+            <li><span class="m-av" style="background:#D49A0A">财</span>$CAISHEN 持有人<b>+0.5194 AAPLx</b><small>2 分钟</small></li>
+            <li><span class="m-av" style="background:#2563EB">摸</span>$MOYU 持有人<b>+0.0870 SPYx</b><small>3 分钟</small></li>
+          </ul></div>
+          <div class="mb-clock"><small>下一轮分红</small><b data-countdown>42:50</b></div>
+        </div>
+      </div>
+      <div class="mb-cards">
+        <div class="mb-card" style="--c:#FF3D9A"><span class="mb-sticker">热</span>
+          <div class="hd"><span class="m-av" style="background:#7C4DFF">韭</span><div><b>韭菜之王</b><span>$JIUCAI</span></div><span class="chg up">+6.2%</span></div>
+          <svg class="sp" data-seed="4" data-trend="1" viewBox="0 0 110 32"></svg>
+          <div class="ft"><span>24 小时分红</span><b>$3,412 · SPYx</b></div></div>
+        <div class="mb-card" style="--c:#3BE9FF"><span class="mb-sticker">新</span>
+          <div class="hd"><span class="m-av" style="background:#E5484D">躺</span><div><b>躺赚</b><span>$TANG</span></div><span class="chg up">+18.4%</span></div>
+          <svg class="sp" data-seed="9" data-trend="1.6" viewBox="0 0 110 32"></svg>
+          <div class="ft"><span>24 小时分红</span><b>$2,187 · NVDAx</b></div></div>
+        <div class="mb-card" style="--c:#FFE14D">
+          <div class="hd"><span class="m-av" style="background:#0EA5A4">打</span><div><b>打工人</b><span>$DAGONG</span></div><span class="chg up">+3.3%</span></div>
+          <svg class="sp" data-seed="2" data-trend=".6" viewBox="0 0 110 32"></svg>
+          <div class="ft"><span>24 小时分红</span><b>$1,530 · GOOGLx</b></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ C ============================ -->
+<section class="concept" id="c">
+  <div class="c-top">
+    <div class="c-letter">C</div>
+    <div>
+      <div class="c-name">红利</div>
+      <div class="c-pin"><b>hónglì</b> · ditulis <b>hongli</b></div>
+      <div class="c-dir">Arah desain: terang dan ramah, gaya aplikasi keuangan China (支付宝 余额宝)</div>
+    </div>
+  </div>
+  <div class="c-grid">
+    <div class="panel">
+      <h3>Arti dan kenapa cocok</h3>
+      <p>Kata baku untuk "dividen" atau "bonus" di dunia investasi China (红利ETF, 红利再投资). 红 berarti merah, warna untung dalam budaya China.</p>
+      <p>Paling jelas dari ketiganya: orang China langsung paham produknya dari nama. Desain terang membuatnya beda dari semua launchpad lain yang gelap.</p>
+    </div>
+    <div class="panel">
+      <h3>Risiko</h3>
+      <ul>
+        <li>Kata umum: sulit didaftarkan sebagai merek dan kalah di pencarian (banyak produk 红利ETF).</li>
+        <li>Ejaan latin "hongli" sama dengan 宏利, nama China Manulife di Hong Kong.</li>
+        <li>Nama ini terdengar seperti produk keuangan resmi, jadi disclaimer harus sangat jelas.</li>
+        <li>Trader memecoin terbiasa dengan layar gelap. Mode gelap tetap disediakan.</li>
+      </ul>
+      <p style="margin-top:10px">Domain untuk dicek: <span class="dom">hongli.fun</span> <span class="dom">hongli.ai</span> <span class="dom">hongli.xyz</span></p>
+    </div>
+    <div class="panel">
+      <h3>Warna, huruf, referensi</h3>
+      <div class="swatches"><i style="background:#F7F4EE"></i><i style="background:#FFFFFF"></i><i style="background:#1C1814"></i><i style="background:#F0A818"></i><i style="background:#11995A"></i><i style="background:#E5484D"></i></div>
+      <p class="fonts">Judul: Noto Sans SC 900. Angka: Inter dengan angka tabular. Logo: ZCOOL KuaiLe, bulat dan ramah.</p>
+      <ul>
+        <li><b>余额宝 di 支付宝</b>: angka "收益" yang bertambah. Ratusan juta orang China sudah paham pola ini.</li>
+        <li><b>支付宝 / 微信支付</b>: kartu putih bersih, ikon bulat, tombol hitam.</li>
+        <li><b>红利ETF (中证红利)</b>: kata 红利 sudah dikenal investor China.</li>
+        <li><b>Revolut, Wise</b>: angka yang mudah dibaca di layar terang.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="frame light">
+    <div class="frame-bar"><i></i><i></i><i></i><span>Beranda · data contoh</span></div>
+    <div class="mock mc">
+      <div class="mc-top">
+        <div class="mc-logo"><span class="mc-mark">利</span><span class="mc-word">红利<small>hongli</small></span></div>
+        <nav class="mc-nav hide-s"><a class="on">发现</a><a>红利记录</a><a>玩法</a></nav>
+        <div class="mc-search hide-s">搜索代币、股票或合约地址</div>
+        <a class="mc-btn2 hide-s">创建代币</a>
+        <a class="mc-btn" style="margin-left:auto">连接钱包</a>
+      </div>
+      <div class="mc-hero">
+        <div>
+          <span class="mc-pill">每小时一轮 · 美股红利</span>
+          <h2 class="mc-h">持有就有<mark>红利</mark>，<br>每小时到账。</h2>
+          <p class="mc-sub">每一笔交易都会买入你选的股票代币，比如 NVDAx、SPYx，每小时分给所有持有人。</p>
+          <div class="mc-ctas"><a class="mc-btn lg">创建代币</a><a class="mc-btn2 lg">玩法说明</a></div>
+          <div class="mc-stats">
+            <div><b class="g">$49,751</b><span>累计红利</span></div>
+            <div><b>$8.37M</b><span>24 小时交易额</span></div>
+            <div><b>30</b><span>在线代币</span></div>
+          </div>
+        </div>
+        <div class="mc-wallet">
+          <div class="mc-w-h">本轮红利池（美元）<span>● 实时</span></div>
+          <div class="mc-w-n" data-count="482.16">482.16</div>
+          <div class="mc-w-d"><span class="mc-chip up">+12.4%</span> 比上一轮同一时刻多 · 上一轮 $1,634</div>
+          <div class="mc-prog"><i></i></div>
+          <div class="mc-prog-l"><span>本轮已过 17 分钟</span><span>下一轮发放 <b data-countdown>42:50</b></span></div>
+          <div class="mc-grid">
+            <div><i style="background:#76B900">NV</i>NVDAx</div>
+            <div><i style="background:#1F6FEB">SPY</i>SPYx</div>
+            <div><i style="background:#6E6E73">AAPL</i>AAPLx</div>
+            <div><i style="background:#E31937">TSLA</i>TSLAx</div>
+          </div>
+        </div>
+      </div>
+      <div class="mc-cards">
+        <div class="mc-card"><div class="hd"><span class="m-av" style="background:#7C4DFF">韭</span><div><b>韭菜之王</b><span>$JIUCAI</span></div><span class="chg up">+6.2%</span></div>
+          <svg class="sp" data-seed="4" data-trend="1" viewBox="0 0 110 32"></svg>
+          <div class="ft"><span>24 小时红利</span><span class="mc-chip gold">$3,412 · SPYx</span></div></div>
+        <div class="mc-card"><div class="hd"><span class="m-av" style="background:#E5484D">躺</span><div><b>躺赚</b><span>$TANG</span></div><span class="chg up">+18.4%</span></div>
+          <svg class="sp" data-seed="9" data-trend="1.6" viewBox="0 0 110 32"></svg>
+          <div class="ft"><span>24 小时红利</span><span class="mc-chip gold">$2,187 · NVDAx</span></div></div>
+        <div class="mc-card"><div class="hd"><span class="m-av" style="background:#D49A0A">财</span><div><b>财神爷</b><span>$CAISHEN</span></div><span class="chg dn">-4.1%</span></div>
+          <svg class="sp dn" data-seed="6" data-trend="-.8" viewBox="0 0 110 32"></svg>
+          <div class="ft"><span>24 小时红利</span><span class="mc-chip gold">$988 · AAPLx</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="sec">Nama yang saya pertimbangkan, lalu saya buang</h2>
+  <p class="sec-sub">Supaya tidak ada kejutan setelah logo dan domain dibeli.</p>
+  <table class="plain">
+    <thead><tr><th>Nama</th><th>Kenapa dibuang</th><th>Bagusnya</th></tr></thead>
+    <tbody>
+      <tr><td class="zh">躺赚<small>tǎngzhuàn</small></td><td>Terbaca sebagai janji penghasilan pasif yang pasti ("untung sambil rebahan"). Itu risiko hukum untuk produk yang membayar dividen.</td><td>Sangat viral, sangat pas dengan produk.</td></tr>
+      <tr><td class="zh">牛牛<small>niúniú</small></td><td>Nama aplikasi broker 富途牛牛 (Futu, moomoo).</td><td>Meneruskan 牛.</td></tr>
+      <tr><td class="zh">聚宝<small>jùbǎo</small></td><td>Nama lama aplikasi investasi Ant Group (蚂蚁聚宝, sekarang 蚂蚁财富).</td><td>聚宝盆, mangkuk harta yang terisi sendiri.</td></tr>
+      <tr><td class="zh">元宝<small>yuánbǎo</small></td><td>Nama asisten AI Tencent (腾讯元宝).</td><td>Batangan emas, simbol uang.</td></tr>
+      <tr><td class="zh">分分<small>fēnfēn</small></td><td>Dekat dengan 分分彩, lotere online ilegal di China.</td><td>分 = membagi, akar kata 分红.</td></tr>
+      <tr><td class="zh">股神<small>gǔshén</small></td><td>Julukan Warren Buffett di China. Bisa terbaca seolah ada dukungan darinya.</td><td>Lucu, gampang diingat.</td></tr>
+      <tr><td class="zh">财神<small>cáishén</small></td><td>Sudah dipakai banyak token, terlalu umum.</td><td>Dewa kekayaan, dikenal semua orang China.</td></tr>
+      <tr><td class="zh">摇钱树<small>yáoqiánshù</small></td><td>Sembilan huruf latin, susah untuk audiens global.</td><td>Pohon uang yang menjatuhkan koin.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="block">
+  <h2 class="sec">Perbaikan UX untuk arah mana pun</h2>
+  <p class="sec-sub">Bisa dipilih satu per satu. Server tetap jadi penentu jumlah, fee, dan anti-vamp, seperti sekarang.</p>
+  <div class="ux">
+    <div class="panel"><b class="t">Dividen saya di header</b>Dompet yang terhubung melihat <span class="zhs">你本小时领到 +0.0213 SPYx</span> di bagian atas, seperti 昨日收益 di 余额宝. Dividen terasa nyata setiap kali situs dibuka.</div>
+    <div class="panel"><b class="t">Estimasi di halaman koin</b>"Dengan jumlah koin Anda, ronde terakhir akan membayar sekitar X." Ditandai jelas sebagai estimasi dari ronde terakhir, bukan janji.</div>
+    <div class="panel"><b class="t">Beli cepat dari daftar</b>Tombol 0.1 / 0.5 / 1 SOL langsung di baris koin, pola yang dipakai GMGN dan Axiom. Tetap lewat konfirmasi dompet dan pengecekan server.</div>
+    <div class="panel"><b class="t">Kotak trade jadi bottom sheet di HP</b>Beli dan jual dengan satu ibu jari. Tab bar bawah tetap seperti sekarang.</div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="rec-box">
+    <h2 class="sec">Saran saya: A, 金牛 jinniu</h2>
+    <ul>
+      <li>Paling dekat dengan produk: 现金牛 adalah aset yang terus membayar.</li>
+      <li>Meneruskan 牛 yang sudah ada di logo, video intro, dan foto profil X, jadi holder $HWAI melihatnya sebagai naik kelas.</li>
+      <li>Hitam emas terbaca premium dan bullish, dan tidak mengulang masalah desain A (halaman serba merah terbaca "turun").</li>
+      <li>Yang harus dicek dulu: merek 金牛 di kelas keuangan, dan domain yang tersedia.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="sec">Langkah berikutnya</h2>
+  <ol class="steps">
+    <li><b>Anda pilih</b> nama dan arah desain (boleh campur, misalnya nama A dengan desain C), dan putuskan nasib $HWAI.</li>
+    <li><b>Anda cek dan beli domain.</b> Kalau domain pilihan pertama tidak ada, saya siapkan alternatif.</li>
+    <li><b>Saya buat prototype lengkap</b> semua halaman (beranda, koin, buat koin, dividen, saya, admin, HP), dan logo final digambar sebagai path, seperti cap kuas 牛 sekarang.</li>
+    <li><b>Anda setujui</b> prototype itu. Sebelum itu situs tidak berubah.</li>
+    <li><b>Saya pasang di aplikasi</b>: CSS, logo, nama di <span class="dom">BRAND</span>, teks 中 / EN, gambar share dan gambar per koin, lalu test, typecheck, dan build.</li>
+    <li><b>Go live</b> dengan <span class="dom">go-live.sh</span>: domain baru, hwai.ai jadi redirect, dan ganti nama PlatformConfig setelah Anda setujui di chat.</li>
+  </ol>
+</section>
+
+</main>
+
+<footer class="wrap doc">Logo di halaman ini masih sketsa dengan font Google (Ma Shan Zheng, ZCOOL QingKe HuangYou, ZCOOL KuaiLe, Noto Serif SC, semua SIL OFL). Angka di mockup adalah data contoh dari prototype 牛. Ketersediaan domain dan merek belum dicek.</footer>
+
+<script>
+// Sparklines: a seeded walk with a trend, drawn as a line over a soft area.
+function rng(seed){let s=seed*9301+49297;return()=>{s=(s*9301+49297)%233280;return s/233280}}
+document.querySelectorAll("svg.sp").forEach(svg=>{
+  const r=rng(+svg.dataset.seed||1),tr=+svg.dataset.trend||0,n=34,w=110,h=32;let v=0;const pts=[];
+  for(let i=0;i<n;i++){v+=(r()-.5)*2.2+tr*.35;pts.push(v)}
+  const mn=Math.min(...pts),mx=Math.max(...pts),sy=y=>h-3-(y-mn)/(mx-mn||1)*(h-6);
+  const d=pts.map((y,i)=>(i?"L":"M")+(i*w/(n-1)).toFixed(1)+" "+sy(y).toFixed(1)).join(" ");
+  svg.innerHTML=`<path d="${d} L${w} ${h} L0 ${h}Z" fill="currentColor" opacity=".14"/><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>`;
+});
+const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+// The round's pool grows as trades come in; the clock counts down to the next round.
+const fmt=v=>v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+let left=42*60+50;
+setInterval(()=>{
+  left=left>0?left-1:3599;
+  const t=String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");
+  document.querySelectorAll("[data-countdown]").forEach(e=>e.textContent=t);
+  if(still)return;
+  document.querySelectorAll("[data-count]").forEach(e=>{
+    const v=+e.dataset.count+Math.random()*.9;e.dataset.count=v;e.textContent=(e.dataset.prefix||"")+fmt(v);
+  });
+},1000);
+</script>
+</body>
+</html>
