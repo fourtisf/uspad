@@ -14,7 +14,7 @@ import {
   type PayoutRound,
   type Receipt,
 } from "@divvy/shared";
-import { addr, ASSET, holders, HOUR, minutesOld, RESERVED, rounds, seedCoins, SOL_USD, spark, topOfHour, type MockCoin, type MockRound } from "./data";
+import { addr, ASSET, holders, HOUR, minutesOld, rounds, seedCoins, SOL_USD, spark, topOfHour, type MockCoin, type MockRound } from "./data";
 
 export interface Upload {
   id: string;
@@ -75,9 +75,9 @@ export class MockStore {
 
   identity = (c: MockCoin) => ({ ticker: c.ticker, name: c.name, mint: c.mint });
 
-  // Coins may share a ticker, a name or an X account (owner decision 2026-10-27): only reserved
-  // tickers and the format rules refuse.
-  tickerCtx = { findByTickerNorm: () => undefined, isReserved: (norm: string) => RESERVED_SET.has(norm) };
+  // Coins may share a ticker, a name or an X account, and a ticker may be one already trading elsewhere
+  // (owner decisions 2026-10-27, 2026-11-02): only the format rules refuse, as in the live API.
+  tickerCtx = { findByTickerNorm: () => undefined, isReserved: () => false };
   nameCtx = { candidates: () => [] };
   xCtx = { findByX: () => undefined };
 
@@ -107,7 +107,6 @@ export class MockStore {
   }
 }
 
-const RESERVED_SET = new Set(RESERVED.map((t) => foldTicker(t)));
 
 /* ---------- serialisers (mock data → API shapes) ---------- */
 

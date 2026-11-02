@@ -66,8 +66,6 @@ const SEED: [string, string, string, string][] = [
 ];
 const HANDLES = ["degenkara", "mochitrades", "solsamurai", "pixelpip", "bagboy", "chartwitch", "lowcapluna", "rizzfi", "nightdesk", "onchainoma", "sendooor", "quietape", "ricecake", "nodeghost", "juno_eth", "ripvol", "tealbear", "gmkenji"];
 
-/** Seed list for the "already trading with real volume" check (ReservedTicker in production). */
-export const RESERVED = ["PEPE", "BONK", "WIF", "POPCAT", "TRUMP", "PENGU", "FARTCOIN", "MEW", "GIGA", "MOODENG", "PNUT", "SPX", "USDC", "SOL"];
 
 const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 export function addr(r: () => number, n = 44): string {

@@ -190,12 +190,13 @@ describe.skipIf(!run)("live mode", () => {
     expect(d.progress).toBe(0.25);
   });
 
-  it("checks the format and reserved tickers only: tickers, names and X accounts can repeat (owner decision 2026-10-27)", async () => {
+  it("checks the format only: tickers (even ones trading elsewhere), names and X accounts can repeat (owner decisions 2026-10-27, 2026-11-02)", async () => {
     const r = expectShape(CheckResponseSchema, (await get(`/api/check?ticker=CH1PD0G&name=${encodeURIComponent("The Real Chip Dog")}&x=degenkara`)).json()) as Record<string, { code: string }>;
     expect(r.ticker!.code).toBe("TICKER_OK");
     expect(r.name!.code).toBe("NAME_OK");
     expect(r.x!.code).toBe("X_OK");
-    expect(((await get("/api/check?ticker=P3P3")).json() as Record<string, { code: string }>).ticker!.code).toBe("TICKER_RESERVED");
+    // PEPE is on the reserved list (seeded above), and still allowed.
+    expect(((await get("/api/check?ticker=P3P3")).json() as Record<string, { code: string }>).ticker!.code).toBe("TICKER_OK");
     expect(((await get("/api/check?ticker=CHIP!")).json() as Record<string, { code: string }>).ticker!.code).toBe("TICKER_CHARS");
     // Coin pages open by mint (links) or by ticker (the first coin launched with it).
     const chip = await prisma.coin.findFirstOrThrow({ where: { tickerNorm: "CHIPDOG" } });

@@ -36,15 +36,14 @@ import { CREATE_BALANCE_LAMPORTS, CREATE_COST_LAMPORTS, launchFee } from "../lau
 import { getViewer, refuseBlockedCountry, requireViewer } from "../viewer";
 
 /**
- * Coins may share a ticker, a name, a picture or an X account (owner decision 2026-10-27): only the
- * format rules refuse, and tickers already trading elsewhere with real volume (reserved).
+ * Coins may share a ticker, a name, a picture or an X account (owner decision 2026-10-27), and a ticker
+ * may also be one that already trades elsewhere, $DOGE included (owner decision 2026-11-02): only the
+ * format rules refuse. The contract address is what tells coins apart; every coin page shows it. The
+ * worker's daily ReservedTicker list is no longer read here.
  */
 export async function runChecks(d: LiveDeps, q: { ticker?: string; name?: string; x?: string }): Promise<CheckResponse> {
   const out: CheckResponse = {};
-  if (q.ticker !== undefined) {
-    const reserved = !!(await d.prisma.reservedTicker.findUnique({ where: { tickerNorm: foldTicker(q.ticker) } }));
-    out.ticker = checkTicker(q.ticker, { findByTickerNorm: () => undefined, isReserved: () => reserved });
-  }
+  if (q.ticker !== undefined) out.ticker = checkTicker(q.ticker, { findByTickerNorm: () => undefined, isReserved: () => false });
   if (q.name !== undefined) out.name = checkName(q.name, { candidates: () => [] });
   if (q.x !== undefined) out.x = checkX(q.x, { findByX: () => undefined });
   return out;
