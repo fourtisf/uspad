@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { CoinDetail, CoinList, Meter, PayoutRound } from "@divvy/shared";
+import { BRAND } from "@/lib/brand";
 import { toCard } from "@/lib/cards";
 import { serverApi, serverApiOrNull } from "@/lib/server-api";
 import { CoinCard } from "@/components/CoinCard";
@@ -10,6 +12,31 @@ import { common } from "@/i18n/msgs/common";
 import { coinMsgs } from "@/i18n/msgs/coin";
 
 const MINT = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+
+/**
+ * A coin link's card on X and Telegram: its own share image (app/og/coin/[mint]) instead of the site's,
+ * with its name, ticker and what it pays in (owner, 2026-11-02). A ticker several coins share keeps the
+ * site's card, since it lists them.
+ */
+export async function generateMetadata({ params }: { params: Promise<{ ticker: string }> }): Promise<Metadata> {
+  const ticker = decodeURIComponent((await params).ticker);
+  if (ticker.length > 64) return {};
+  if (!MINT.test(ticker)) {
+    const found = await serverApiOrNull<CoinList>(`/api/coins?ticker=${encodeURIComponent(ticker)}&limit=2`).catch(() => null);
+    if ((found?.items.length ?? 0) > 1) return { title: `$${found!.items[0]!.ticker} · ${BRAND}` };
+  }
+  const coin = await serverApiOrNull<CoinDetail>(`/api/coins/${encodeURIComponent(ticker)}`).catch(() => null);
+  if (!coin) return {};
+  const title = `${coin.name} ($${coin.ticker}) · ${BRAND}`;
+  const description = `$${coin.ticker} pays its holders in ${coin.dividendAsset} every hour. 土狗也分红，分的是美股。`;
+  const image = { url: `/og/coin/${coin.mint}`, width: 1200, height: 630, alt: `${coin.name} ($${coin.ticker}) on ${BRAND}` };
+  return {
+    title,
+    description,
+    openGraph: { title, description, images: [image] },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
+  };
+}
 
 export default async function CoinPage({ params }: { params: Promise<{ ticker: string }> }) {
   const ticker = decodeURIComponent((await params).ticker);
