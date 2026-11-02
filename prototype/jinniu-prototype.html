@@ -10,30 +10,23 @@
 <style>
 /* 金牛 jinniu (owner, 2026-11-02): the brand that replaces hwai, in the clean look of proposal v4
    (brand/proposals/2026-11-02/v4-clean.html). Clean like Pons without its layout: a light page with
-   room (dark one click away), a top bar with the nav as a centred pill, one gold button, the round's
+   room, white only (owner, 2026-11-02: no dark theme), a top bar with the nav as a centred pill, one gold button, the round's
    pool as the hero with the hour as a line, a bento of featured coins, coins browsed by dividend
    stock, coins as cards, a floating dock on phones. Faces: Inter Tight for Latin and numbers, Noto
    Sans SC for Chinese. The mark is 牛 brushed on a gold coin (sketched here in Ma Shan Zheng; the
    final mark is drawn as paths). Every number on the page is demo data. */
 :root{
   color-scheme:light;
-  --bg:#FAFAF8;--card:#FFFFFF;--s1:#F3F3F0;--s2:#EAEAE6;--line:#ECECE8;--line2:#E0E0DB;
-  --tx:#0F0F0E;--tx2:#6B6B66;--tx3:#A2A29C;
+  --bg:#FFFFFF;--card:#FFFFFF;--s1:#F5F5F5;--s2:#EDEDED;--line:#EEEEEE;--line2:#E2E2E2;
+  --tx:#0A0A0A;--tx2:#6B6B6B;--tx3:#A3A3A3;
   --green:#13A04A;--red:#E23B3B;
-  --div:#9C6B00;--div-bg:#FFF3D1;
-  --acc:#FFC21A;--acc-hi:#FFCD3F;--acc-ink:#111;--acc-soft:#FFF6DA;
-  --sh:0 1px 2px rgba(20,20,10,.04),0 12px 32px -18px rgba(20,20,10,.18);
-  --sh-lg:0 30px 70px -30px rgba(20,20,10,.4);
+  --div:#9A6A00;--div-bg:#FFF8E6;
+  --acc:#FFC21A;--acc-hi:#FFCD3F;--acc-ink:#111;
+  --sh:0 0 0 1px var(--line);
+  --lift:0 0 0 1px var(--line2),0 14px 30px -20px rgba(0,0,0,.22);
+  --sh-lg:0 30px 70px -30px rgba(0,0,0,.3);
   --ff:"Inter Tight","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   --up:var(--green);--dn:var(--red);
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --bg:#0B0B0C;--card:#141416;--s1:#1A1A1D;--s2:#232327;--line:#212124;--line2:#2C2C30;
-  --tx:#F4F4F5;--tx2:#9A9AA0;--tx3:#5E5E65;--green:#22C55E;--red:#F05252;
-  --div:#FFCB45;--div-bg:rgba(255,203,69,.10);--acc-soft:rgba(255,194,26,.10);
-  --sh:0 1px 0 rgba(255,255,255,.03),0 16px 40px -20px rgba(0,0,0,.9);
-  --sh-lg:0 30px 70px -30px rgba(0,0,0,.95);
 }
 :root[data-updown="cn"]{--up:var(--red);--dn:var(--green)}
 *{box-sizing:border-box}
@@ -59,7 +52,6 @@ svg.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-wid
 /* coin pictures: stand-ins for creators' uploads */
 .tile{position:relative;display:grid;place-items:center;overflow:hidden;flex:none;background:var(--t-bg);color:var(--t-fg);font-size:var(--z)}
 .tile.dots{background:radial-gradient(circle,var(--t-dot) 1px,transparent 1.4px) 0 0/calc(var(--z)*.06) calc(var(--z)*.06),var(--t-bg)}
-:root[data-theme="dark"] .tile{box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
 .tile .em{font:400 .52em/1 "Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;filter:drop-shadow(0 .03em .05em rgba(0,0,0,.18))}
 .tile .brush{font:400 .62em/1 "Ma Shan Zheng",serif}
 .tile .heavy{font:900 .34em/1 "Noto Sans SC",sans-serif;letter-spacing:-.02em}
@@ -104,7 +96,7 @@ button.pill:hover{color:var(--tx)}
 .bar i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--acc)}
 
 /* header */
-header.top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+header.top{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 .top .wrap{position:relative;display:flex;align-items:center;gap:10px;height:76px}
 .navpill{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:2px;padding:4px;border-radius:999px;background:var(--card);box-shadow:var(--sh)}
 .navpill a{padding:8px 18px;border-radius:999px;font:600 15px var(--ff);color:var(--tx2)}
@@ -118,7 +110,6 @@ header.top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--b
 /* home: hero */
 .hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:24px;margin-top:20px}
 .pool{position:relative;overflow:hidden;padding:32px 36px 30px;border-radius:30px}
-.pool::after{content:"";position:absolute;right:-110px;top:-110px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,var(--acc-soft),transparent 70%);pointer-events:none}
 .eyebrow{position:relative;z-index:1;display:flex;align-items:center;gap:9px;font:600 14px var(--ff);color:var(--tx2);flex-wrap:wrap}
 .eyebrow .pill{margin-left:auto}
 .pool .big{position:relative;z-index:1;font:800 clamp(56px,8vw,96px)/1 var(--ff);letter-spacing:-.045em;margin:16px 0 12px}
@@ -159,7 +150,7 @@ header.top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--b
 .sh p{margin:0;font:500 14.5px var(--ff);color:var(--tx3)}
 .sh .r{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .bento{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:16px}
-.feat{grid-row:span 2;padding:24px;border-radius:28px;display:flex;flex-direction:column;cursor:pointer}
+.feat{grid-row:span 2;padding:24px;border-radius:28px;display:flex;flex-direction:column;cursor:pointer;transition:transform .15s,box-shadow .15s}
 .feat .hd{display:flex;gap:18px;align-items:center}
 .feat .tile{width:112px;height:112px;border-radius:24px;--z:112px}
 .feat h3{margin:8px 0 2px;font:800 26px/1.15 var(--ff)}
@@ -175,8 +166,8 @@ header.top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--b
 .box>span{display:block;font:500 12.5px var(--ff);color:var(--tx2)}
 .box>b{display:inline-flex;align-items:center;gap:7px;font:700 17px var(--ff)}
 .box>b.g{color:var(--div)}
-.mini{padding:18px;border-radius:24px;cursor:pointer;transition:transform .15s}
-.mini:hover,.cc:hover{transform:translateY(-2px)}
+.mini{padding:18px;border-radius:24px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.mini:hover,.cc:hover,.feat:hover{transform:translateY(-2px);box-shadow:var(--lift)}
 .mini .tile{width:100%;aspect-ratio:1.55;border-radius:18px;--z:150px}
 .mini .tile .em{font-size:.62em}.mini .tile .heavy{font-size:.4em}.mini .tile .num{font-size:.46em}.mini .tile .brush{font-size:.66em}
 .mini .nm{display:flex;align-items:baseline;gap:7px;margin-top:12px;font:700 16px var(--ff)}
@@ -188,7 +179,7 @@ header.top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--b
 .search input{border:0;outline:0;background:transparent;flex:1;min-width:0;color:var(--tx);font-size:14.5px}
 .search input::placeholder{color:var(--tx3)}
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:20px}
-.cc{padding:18px;border-radius:24px;cursor:pointer;transition:transform .15s}
+.cc{padding:18px;border-radius:24px;cursor:pointer;transition:transform .15s,box-shadow .15s}
 .cc .hd{display:flex;align-items:center;gap:12px}
 .cc .tile{width:54px;height:54px;border-radius:16px;--z:54px}
 .cc .nm{min-width:0}
@@ -232,7 +223,7 @@ header.top{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--b
 .chartc{padding:18px 18px 12px;border-radius:28px}
 .chart-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .chart-top .seg{box-shadow:none;background:var(--s1)}
-.chart-top .seg button[aria-pressed="true"]{background:var(--card);color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.chart-top .seg button[aria-pressed="true"]{background:var(--card);color:var(--tx);box-shadow:0 0 0 1px var(--line2)}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin:14px 4px 0;font:600 12.5px var(--ff);color:var(--tx3)}
 .legend b{color:var(--tx);font-weight:700}
 svg.kl{display:block;width:100%;height:320px;margin-top:6px}
@@ -356,7 +347,6 @@ table.t{width:100%;border-collapse:collapse}
 .mesum .card{padding:22px 24px;border-radius:26px}
 .mesum .card>span{display:block;font:500 13.5px var(--ff);color:var(--tx2)}
 .mesum .card>b{font:800 30px/1.2 var(--ff);letter-spacing:-.02em}
-.mesum .first{background:linear-gradient(160deg,var(--acc-soft),transparent 60%),var(--card)}
 .mesum .first>b{color:var(--div);font-size:40px}
 .mesum small{display:block;margin-top:2px;color:var(--tx2);font-size:13.5px}
 .mesum small b{font-weight:700;color:var(--up)}
@@ -388,11 +378,11 @@ footer.foot{margin-top:40px;border-top:1px solid var(--line)}
   .steps{grid-template-columns:1fr 1fr}
   .stocks{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
-@media (max-width:1100px) and (min-width:1001px){.top .lang,.top .theme{display:none}}
+@media (max-width:1100px) and (min-width:1001px){.top .lang{display:none}}
 @media (max-width:1000px){
   .navpill{display:none}
   body{padding-bottom:110px}
-  .dock{display:grid;grid-template-columns:repeat(4,1fr) auto;align-items:center;gap:2px;position:fixed;left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 28px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:80;padding:7px;border-radius:26px;background:var(--card);box-shadow:0 18px 40px -14px rgba(0,0,0,.35),0 0 0 1px var(--line)}
+  .dock{display:grid;grid-template-columns:repeat(4,1fr) auto;align-items:center;gap:2px;position:fixed;left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 28px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:80;padding:7px;border-radius:26px;background:var(--card);box-shadow:0 16px 36px -16px rgba(0,0,0,.25),0 0 0 1px var(--line)}
   .dock a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;border-radius:18px;font:600 10.5px var(--ff);color:var(--tx3)}
   .dock a[aria-current="page"]{color:var(--tx);background:var(--s1)}
   .dock svg{width:21px;height:21px}
@@ -468,7 +458,7 @@ footer.foot{margin-top:40px;border-top:1px solid var(--line)}
   svg.kl{height:220px}
   .tabsc{padding:4px 12px 10px}
   .t .hide-s{display:none}
-  .cgrid aside .trade{position:fixed;left:0;right:0;bottom:0;z-index:95;border-radius:26px 26px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .25s ease;box-shadow:0 -20px 50px -20px rgba(0,0,0,.45)}
+  .cgrid aside .trade{position:fixed;left:0;right:0;bottom:0;z-index:95;border-radius:26px 26px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .25s ease;box-shadow:0 -20px 50px -20px rgba(0,0,0,.25),0 0 0 1px var(--line)}
   .cgrid aside .trade::before{content:"";display:block;width:40px;height:4px;border-radius:9px;background:var(--line2);margin:0 auto 12px}
   body.sheet .cgrid aside .trade{transform:none}
   body.sheet .sheet-bg{display:block;position:fixed;inset:0;z-index:94;background:rgba(0,0,0,.35)}
@@ -496,8 +486,6 @@ footer.foot{margin-top:40px;border-top:1px solid var(--line)}
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-gift" viewBox="0 0 24 24"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-2-4-6-4-6-1s6 1 6 1zm0 0c2-4 6-4 6-1s-6 1-6 1z"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></symbol>
-  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
-  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
   <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h11v4"/><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M16 14.5h.01"/></symbol>
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
   <symbol id="i-me" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.5c1.3-2.2 3.2-3.3 5.5-3.3s4.2 1.1 5.5 3.3"/></symbol>
@@ -520,7 +508,6 @@ footer.foot{margin-top:40px;border-top:1px solid var(--line)}
     </nav>
     <div class="tr">
       <button class="icb" type="button" id="findBtn" aria-label="搜索代币"><svg class="ic"><use href="#i-search"/></svg></button>
-      <button class="icb theme" type="button" id="themeBtn" aria-label="切换深色模式"><svg class="ic"><use href="#i-moon"/></svg></button>
       <div class="lang" role="group" aria-label="语言"><button type="button" aria-pressed="true">中</button><i>/</i><button type="button" aria-pressed="false">EN</button></div>
       <a class="btn btn-ghost connectb" href="#me"><svg class="ic" style="width:18px;height:18px"><use href="#i-wallet"/></svg>连接钱包</a>
       <a class="btn btn-acc createb" href="#create">创建代币</a>
@@ -974,10 +961,7 @@ $("#holds").innerHTML=[["JIUCAI","1,204,551","$2,191","+0.0213 SPYx","$118.40"],
 $("#cfTile").innerHTML=tile("dagong");
 $("#claim").onclick=()=>toast("演示原型：这里会请你的钱包签名领取");
 
-/* ---------- theme, up/down, language ---------- */
-function setTheme(t){document.documentElement.dataset.theme=t;$("#themeBtn use").setAttribute("href",t==="dark"?"#i-sun":"#i-moon");store.set("jn-theme",t);if($("[data-view=coin].on"))drawChart()}
-setTheme(store.get("jn-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
-$("#themeBtn").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");
+/* ---------- up/down, language ---------- */
 $$("[data-ud]").forEach(b=>b.onclick=()=>{document.documentElement.dataset.updown=b.dataset.ud==="red"?"cn":"intl";$$("[data-ud]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
 $$(".lang button").forEach(b=>b.onclick=()=>$$(".lang button").forEach(x=>x.setAttribute("aria-pressed",x===b)));
 
