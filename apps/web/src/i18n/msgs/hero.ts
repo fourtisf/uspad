@@ -10,6 +10,9 @@ export const hero = defineMsgs(
     caSoon: "coming soon",
     caCopied: "Contract address copied",
     copyCa: (ca: string) => `Copy contract address ${ca}`,
+    officialTag: "Official token",
+    officialP: (brand: string) => `The token of ${brand}. Only trust this contract address, the one on ${brand}.ai and @HwaiPad.`,
+    tradeOn: (where: string) => `Trade on ${where}`,
   },
   {
     follow: "关注",
@@ -19,5 +22,8 @@ export const hero = defineMsgs(
     caSoon: "即将公布",
     caCopied: "合约地址已复制",
     copyCa: (ca: string) => `复制合约地址 ${ca}`,
+    officialTag: "官方代币",
+    officialP: (brand: string) => `${brand} 的官方代币。只认这个合约地址，以 ${brand}.ai 和 @HwaiPad 公布的为准。`,
+    tradeOn: (where: string) => `去 ${where} 交易`,
   },
 );

@@ -73,6 +73,23 @@ button.ca:hover,button.ca-pill:hover,a.x-pill:hover,.tag.report:hover{border-col
 .lcard img.av{object-fit:cover}
 .spark-empty{display:grid;place-items:center;height:54px;margin:12px 0 8px;border-radius:10px;background:var(--bg-2);color:var(--tx-3);font-size:12px}
 
+/* ---------- the official token (TokenCa.tsx OfficialToken) ---------- */
+.official{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:22px;align-items:center;margin:30px 0 0;padding:22px 24px;border-radius:var(--r);
+  background:radial-gradient(500px 200px at 8% 50%,rgba(195,255,60,.12),transparent 70%),linear-gradient(160deg,var(--card-2),var(--card));border:1px solid rgba(195,255,60,.28);
+  box-shadow:0 30px 60px -40px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.05)}
+.official-mark{display:grid;place-items:center;width:84px;height:84px;border-radius:22px;background:var(--bg-2);border:1px solid var(--line-2)}
+.official-info{min-width:0}
+.official-tag{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;background:rgba(195,255,60,.12);color:var(--lime);font-size:12.5px;font-weight:700}
+.official h2{margin:6px 0 2px;font:700 30px/1.1 var(--num);letter-spacing:-.02em}
+.official p{margin:0;color:var(--tx-2);font-size:14px}
+.official-ca{display:flex;align-items:center;gap:10px;height:46px;padding:0 14px;border-radius:12px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--tx);cursor:pointer;min-width:0;max-width:420px}
+.official-ca span{font-size:12.5px;font-weight:700;color:var(--tx-3)}
+.official-ca b{font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.official-ca:hover{border-color:var(--lime)}
+.official .btn{height:46px}
+@media (max-width:1060px){.official{grid-template-columns:auto minmax(0,1fr)}.official-ca,.official .btn{grid-column:1/-1;max-width:none}}
+@media (max-width:760px){.official{padding:18px;gap:14px}.official-mark{width:64px;height:64px}.official-mark svg{width:48px;height:48px}.official h2{font-size:24px}}
+
 /* ---------- board card (CoinCard: the ticker list page and the create preview) ---------- */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:40px}
 .lcard .dev{font-size:11.5px;color:var(--tx-3)}

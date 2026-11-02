@@ -18,7 +18,7 @@ import { Countdown } from "../Countdown";
 import { CountUp } from "../CountUp";
 import { Mark } from "../Mark";
 import { Spark } from "../Spark";
-import { TokenCa } from "../TokenCa";
+import { OfficialToken, TokenCa } from "../TokenCa";
 import { TelegramJoin, XFollow } from "../XFollow";
 
 const SORTS: CoinSort[] = ["trending", "new", "payers", "graduate"];
@@ -176,6 +176,8 @@ export function Board({ stats, leaders, initialCoins, now: renderedAt }: { stats
         <Link href="/how">{t.noSniper}</Link>
         <Link href="/payouts">{t.payoutsOnChain}</Link>
       </div>
+
+      <OfficialToken />
 
       {leaders.length > 0 && (
         <section className="sec" aria-labelledby="leadH">

@@ -1,17 +1,23 @@
 "use client";
 
 /**
- * The platform token's contract address ($USPAD, launched before the hwai rename), in the hero next to the payout badge, from NEXT_PUBLIC_TOKEN_CA
- * (read at build time). Without one it says "coming soon" (owner request 2026-10-28).
+ * hwai's own token, $HWAI on pump.fun (owner, 2026-11-02): its contract address from NEXT_PUBLIC_TOKEN_CA
+ * (read at build time, set with `go-live.sh token-ca`), as a pill in the hero (TokenCa) and a card on the
+ * board (OfficialToken). Without one the pill says "coming soon" and there is no card.
  */
 import { short } from "@divvy/shared";
 import { Icon } from "./Icon";
+import { Mark } from "./Mark";
 import { useToast } from "./Toasts";
+import { BRAND } from "@/lib/brand";
 import { useMsgs } from "@/i18n/client";
 import { hero } from "@/i18n/msgs/hero";
 
 const raw = (process.env.NEXT_PUBLIC_TOKEN_CA ?? "").trim();
 const CA = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(raw) ? raw : "";
+/** pump.fun's mints end in "pump"; any other mint opens on DexScreener. */
+const TRADE_URL = !CA ? "" : CA.endsWith("pump") ? `https://pump.fun/coin/${CA}` : `https://dexscreener.com/solana/${CA}`;
+const TRADE_ON = CA.endsWith("pump") ? "pump.fun" : "DexScreener";
 
 export function TokenCa() {
   const toast = useToast();
@@ -33,5 +39,29 @@ export function TokenCa() {
       </span>
       <Icon name="copy" size={13} />
     </button>
+  );
+}
+
+/** The official token's card on the board: what it is, its CA to copy, and where it trades. */
+export function OfficialToken() {
+  const toast = useToast();
+  const t = useMsgs(hero);
+  if (!CA) return null;
+  const copy = () => navigator.clipboard?.writeText(CA).then(() => toast(t.caCopied), () => {});
+  return (
+    <section className="official" aria-labelledby="officialH">
+      <span className="official-mark"><Mark size={64} /></span>
+      <div className="official-info">
+        <span className="official-tag">{t.officialTag}</span>
+        <h2 id="officialH">${BRAND.toUpperCase()}</h2>
+        <p>{t.officialP(BRAND)}</p>
+      </div>
+      <button type="button" className="official-ca" onClick={copy} title={CA} aria-label={t.copyCa(CA)}>
+        <span>CA</span>
+        <b className="num">{CA}</b>
+        <Icon name="copy" size={15} />
+      </button>
+      <a className="btn btn-lime" href={TRADE_URL} target="_blank" rel="noopener noreferrer">{t.tradeOn(TRADE_ON)} ↗</a>
+    </section>
   );
 }
