@@ -18,7 +18,7 @@ import {
   type UploadResponse,
 } from "@divvy/shared";
 import { api, ApiRequestError, qs } from "@/lib/api";
-import { useConfig } from "@/lib/config";
+import { useConfig, useRefreshConfig } from "@/lib/config";
 import { useDebounced } from "@/lib/hooks";
 import { useErrorText, useSession } from "@/lib/session";
 import { useMsgs } from "@/i18n/client";
@@ -83,6 +83,15 @@ const heldFee = {
 
 export function CreateForm() {
   const config = useConfig();
+  const refreshConfig = useRefreshConfig();
+  // The cost shown is what the API charges now, even on a page left open while the fee changed
+  // (2026-11-02): read the config again when the page opens and whenever the window comes back.
+  useEffect(() => {
+    void refreshConfig();
+    const onFocus = () => void refreshConfig();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [refreshConfig]);
   const toast = useToast();
   const router = useRouter();
   const { publicKey } = useWallet();

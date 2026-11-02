@@ -85,6 +85,7 @@ export const create = defineMsgs(
     blocked: `${BRAND} isn't available in your country.`,
     adminPaused: (hint: string) => `Paused for everyone else; you can launch as an admin. ${hint}`,
     paused: "Launches are paused.",
+    feeChanged: (sol: string) => `The launch fee changed to ${sol} SOL after this page opened, so your wallet wasn't asked and nothing was charged. Check the cost and launch again.`,
     launchFailed: "The launch failed. Try again.",
     launchFailedNothing: "The launch failed. Nothing was created.",
     // The launch modal
@@ -180,6 +181,7 @@ export const create = defineMsgs(
     blocked: `你所在的国家或地区无法使用 ${BRAND}。`,
     adminPaused: (hint: string) => `其他人暂时不能发币，你是管理员，仍然可以发币。${hint}`,
     paused: "发币已暂停。",
+    feeChanged: (sol: string) => `这个页面打开之后，发币手续费变成了 ${sol} SOL，所以没有请你的钱包签名，也没有扣任何费用。看一下现在的费用，再发一次。`,
     launchFailed: "发币失败，请重试。",
     launchFailedNothing: "发币失败，代币没有创建。",
     steps: ["检查代币符号、名称和 X 账号", "在钱包中批准发币", "通过私有捆绑交易提交创建", "已上链", "已上首页"],

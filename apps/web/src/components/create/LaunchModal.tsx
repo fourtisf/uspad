@@ -11,7 +11,7 @@ import {
   type LaunchStep,
 } from "@divvy/shared";
 import { api } from "@/lib/api";
-import { useConfig } from "@/lib/config";
+import { useConfig, useRefreshConfig } from "@/lib/config";
 import { useErrorText } from "@/lib/session";
 import { checkCreate, UnsafeTransaction } from "@/lib/txcheck";
 import { useMsgs } from "@/i18n/client";
@@ -21,6 +21,13 @@ import { useToast } from "../Toasts";
 
 /** The modal's steps (create.steps): checks, wallet, bundle, on chain, on the board. */
 const STEP_COUNT = create.en.steps.length;
+/** The launch fee changed after the page loaded: the create carries a fee the creator wasn't shown. */
+class FeeChanged extends Error {
+  constructor(readonly sol: number) {
+    super("the launch fee changed");
+  }
+}
+
 /** Whether a wallet error means the person turned the request down (wallet-adapter wraps the wallet's own error). */
 const rejected = (e: unknown) => {
   const x = e as { message?: string; code?: number; error?: { code?: number; message?: string } } | null;
@@ -60,6 +67,7 @@ export function LaunchModal({
   onAnother: () => void;
 }) {
   const config = useConfig();
+  const refreshConfig = useRefreshConfig();
   const toast = useToast();
   const t = useMsgs(create);
   const errText = useErrorText();
@@ -84,6 +92,8 @@ export function LaunchModal({
   const [askedAt, setAskedAt] = useState<number | null>(null);
   const [walletSaid, setWalletSaid] = useState<string | null>(null);
   const [signedB64, setSignedB64] = useState<string | null>(null);
+  // Why the page refused the create, when the wallet was never asked: shown instead of "you turned it down".
+  const whyRefused = useRef<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (k !== 1) return;
@@ -112,6 +122,10 @@ export function LaunchModal({
     try {
       if (!wallet.publicKey || !wallet.signTransaction) throw new UnsafeTransaction("this wallet can't sign the launch");
       const tx = VersionedTransaction.deserialize(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)));
+      // The fee the creator was shown is the page's; if the API's is different now (changed while the
+      // page was open), stop before the wallet sees a fee nobody showed them, and show the new one.
+      const fresh = await refreshConfig();
+      if (fresh && (fresh.launchFee.to !== config.launchFee.to || fresh.launchFee.amount.raw !== config.launchFee.amount.raw)) throw new FeeChanged(fresh.launchFee.amount.ui);
       checkCreate(tx, wallet.publicKey, config.network, { to: config.launchFee.to, lamports: BigInt(config.launchFee.amount.raw) }, devBuy);
       setAskedAt(Date.now());
       console.info("launch: asking the wallet to sign the create", wallet.wallet?.adapter.name);
@@ -135,8 +149,10 @@ export function LaunchModal({
       // Only a refusal ends the launch: the creator turned it down, or the create failed the page's
       // check. Any other wallet error (a dropped connection, a wallet that needs a click) waits for the
       // Approve button or the next create, and says what the wallet answered.
-      if (e instanceof UnsafeTransaction || rejected(e)) {
-        if (e instanceof UnsafeTransaction) toast(errTextNow.current(e, e.message) ?? e.message);
+      if (e instanceof FeeChanged || e instanceof UnsafeTransaction || rejected(e)) {
+        if (e instanceof FeeChanged) whyRefused.current = t.feeChanged(String(e.sol));
+        else if (e instanceof UnsafeTransaction) whyRefused.current = errTextNow.current(e, e.message) ?? e.message;
+        if (whyRefused.current) toast(whyRefused.current);
         await sign({ refused: true }).catch(() => {});
       } else {
         const x = e as { message?: string; error?: { message?: string } } | null;
@@ -159,7 +175,7 @@ export function LaunchModal({
         const s = await api<LaunchStatus>(`/api/launch/${launchId}`);
         if (stop) return;
         const i = STEP_INDEX[s.step];
-        if (i < 0) return onDone(s);
+        if (i < 0) return onDone(whyRefused.current ? { ...s, error: { code: s.error?.code ?? "LAUNCH_CANCELLED", collidesWith: null, ...s.error, message: whyRefused.current } } : s);
         setK(i);
         if (s.step === "signing") setSigningSince((x) => x ?? Date.now());
         if (s.step === "signing" && s.tx && s.tx !== asked.current) {
