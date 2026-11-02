@@ -139,7 +139,7 @@ const rows = PAYOUTS.map((t, i) => {
   const h = ["14:00", "15:00", "16:00"][i];
   return `<div class="row rise" style="${at(t - S.hourly[0] + 0.45)}"><img src="${nvda}"><div><b>NVDAx</b><span>${h} 这一轮 · round</span></div><em>+${AMOUNTS[i]}</em><i class="ok">已到账</i></div>`;
 }).join("");
-const flyers = PAYOUTS.map((t, i) => `<img class="fly" data-t="${t}" src="${nvda}">`).join("");
+const flyers = PAYOUTS.map((t) => `<img class="fly" data-t="${t}" src="${nvda}">`).join("");
 
 // Scene 6: fair from the first block.
 const icon = {
