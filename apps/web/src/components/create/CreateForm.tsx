@@ -145,7 +145,9 @@ export function CreateForm() {
     const fd = new FormData();
     fd.append("file", f);
     try {
-      const r = await api<UploadResponse>("/api/upload", { method: "POST", body: fd });
+      // A dropped connection would leave "Checking the picture" up for good: give up after 2 minutes
+      // (an 8 MB picture on a slow phone connection still fits) and say so.
+      const r = await api<UploadResponse>("/api/upload", { method: "POST", body: fd, signal: AbortSignal.timeout(120_000) });
       setD((p) => ({ ...p, upload: r }));
       setImgCheck({ s: r.check.status, m: r.check.message });
     } catch (e) {
