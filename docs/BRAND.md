@@ -72,12 +72,9 @@ All are sketches with OFL Google Fonts glyphs (Ma Shan Zheng, Noto Serif SC, Cor
 
 ### The white mark (owner, 2026-11-02)
 
-After the four concepts the owner said: "jangan koin emas, yang putih aja logonya" (no gold coin, a white logo). [`brand/proposals/2026-11-02/logos/white.html`](../brand/proposals/2026-11-02/logos/white.html) (`W1.png`, `W2.png`) draws one mark in two forms:
+After the four concepts the owner said: "jangan koin emas, yang putih aja logonya" (no gold coin, a white logo), and then "putih aja": white everywhere. [`brand/proposals/2026-11-02/logos/white.html`](../brand/proposals/2026-11-02/logos/white.html) (`W1.png`) draws it: the brush 牛 in glossy white, like porcelain, on a soft grey tile (`#F3F3F1` to `#DADAD6`), with a specular bevel and a soft shadow. It sits in the prototype's header, footer and 我的 page. From 16 to 48 px (favicons) the same white 牛 sits on a deeper grey tile (`#D9D9D5` to `#B9B9B4`) with a crisper shadow, so it still reads. A white-on-black form was drawn and dropped. The X and Telegram photos and token avatars use the white mark too.
 
-- **W1, the main mark**: the brush 牛 in glossy white, like porcelain, on a soft grey tile (`#F3F3F1` to `#DADAD6`), with a specular bevel and a soft shadow. It sits in the prototype's header, footer and 我的 page. At 16 px it is too pale, so the favicon uses W2.
-- **W2, for small sizes and dark places**: the same 牛 flat white on black (`#0E0E0E`), for the favicon, the X and Telegram photos and token avatars.
-
-Both are sketches in Ma Shan Zheng; the final mark is drawn as paths, from the deleted `niu.py` and `glyphs.json` (see above). The gold stays for the 创建代币 button and for what holders are paid.
+It is a sketch in Ma Shan Zheng; the final mark is drawn as paths, from the deleted `niu.py` and `glyphs.json` (see above). The gold stays for the 创建代币 button and for what holders are paid.
 
 ## Stock token logos
 

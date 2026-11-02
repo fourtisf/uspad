@@ -75,7 +75,14 @@ h1{font:800 34px/1.15 "Inter Tight","Noto Sans SC";margin:0 0 8px;letter-spacing
   <symbol id="W1g" viewBox="0 0 200 200">
     <g filter="url(#lift)"><text x="100" y="108" text-anchor="middle" dominant-baseline="middle" font-family="Ma Shan Zheng" font-size="168" fill="url(#glyphG)" filter="url(#porcelain)">牛</text></g>
   </symbol>
-  <!-- W2: flat white 牛 on black -->
+  <!-- W1 small: the same white 牛 on a deeper grey tile, for 16 to 48 px -->
+  <linearGradient id="tileS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9D9D5"/><stop offset="1" stop-color="#B9B9B4"/></linearGradient>
+  <filter id="liftS" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#1E1E1B" flood-opacity=".45"/></filter>
+  <symbol id="W1s" viewBox="0 0 200 200">
+    <rect x="4" y="4" width="192" height="192" rx="46" fill="url(#tileS)"/>
+    <g filter="url(#liftS)"><text x="100" y="108" text-anchor="middle" dominant-baseline="middle" font-family="Ma Shan Zheng" font-size="160" fill="#fff" stroke="#fff" stroke-width="5">牛</text></g>
+  </symbol>
+  <!-- W2: flat white 牛 on black (not used: the owner wants white only) -->
   <symbol id="W2" viewBox="0 0 200 200">
     <rect x="4" y="4" width="192" height="192" rx="46" fill="#0E0E0E"/>
     <text x="100" y="108" text-anchor="middle" dominant-baseline="middle" font-family="Ma Shan Zheng" font-size="150" fill="#fff">牛</text>
@@ -88,10 +95,10 @@ h1{font:800 34px/1.15 "Inter Tight","Noto Sans SC";margin:0 0 8px;letter-spacing
 
 <div class="wrap">
   <h1>Logo 金牛 putih</h1>
-  <p class="lede">Tanpa koin emas. Satu logo, yaitu 牛 kuas, dalam dua bentuk. W1 putih mengilap seperti porselen di atas ubin abu-abu muda, cocok dengan situs yang putih dan bersih. W2 putih polos di atas hitam, untuk ukuran kecil (favicon) dan tempat gelap (avatar X, Telegram). Ini masih sketsa; versi final digambar sebagai vektor.</p>
+  <p class="lede">Tanpa koin emas, putih di semua tempat (owner, 2026-11-02). 牛 kuas putih mengilap seperti porselen di atas ubin abu-abu muda; di ukuran kecil ubinnya sedikit lebih gelap. Ini masih sketsa; versi final digambar sebagai vektor.</p>
 
   <div class="c">
-    <div class="ch"><span class="no">W1</span><h2>Putih porselen</h2><span class="tag">Logo utama</span></div>
+    <div class="ch"><span class="no">W1</span><h2>Putih porselen</h2><span class="tag">Dipilih: putih di semua tempat</span></div>
     <div class="row">
       <div class="tile w"><svg><use href="#W1"/></svg></div>
       <div class="tile" style="background:linear-gradient(#F3F3F1,#DADAD6)"><svg><use href="#W1g"/></svg></div>
@@ -99,32 +106,15 @@ h1{font:800 34px/1.15 "Inter Tight","Noto Sans SC";margin:0 0 8px;letter-spacing
         <div class="uses">
           <svg class="app"><use href="#W1"/></svg>
           <span class="av" style="background:linear-gradient(#F3F3F1,#DADAD6);box-shadow:0 0 0 1px var(--rule)"><svg width="84" height="84"><use href="#W1g"/></svg></span>
-          <span class="fav"><span><svg width="32" height="32"><use href="#W1"/></svg><small>32</small></span><span><svg width="16" height="16"><use href="#W1"/></svg><small>16</small></span></span>
+          <span class="fav"><span><svg width="48" height="48"><use href="#W1s"/></svg><small>48</small></span><span><svg width="32" height="32"><use href="#W1s"/></svg><small>32</small></span><span><svg width="16" height="16"><use href="#W1s"/></svg><small>16</small></span></span>
         </div>
         <div class="lock"><svg width="40" height="40"><use href="#W1"/></svg><b>金牛</b><small>jinniu</small><span class="btn g">创建代币</span></div>
-        <div class="txt"><p><b>Ide:</b> 牛 kuas yang sama, dicetak putih mengilap seperti porselen atau giok putih, dengan bayangan lembut. Mewah, tenang, dan menyatu dengan halaman putih. Di 16 px terlalu pucat, jadi favicon memakai W2.</p>
+        <div class="txt"><p><b>Ide:</b> 牛 kuas yang sama, dicetak putih mengilap seperti porselen atau giok putih, dengan bayangan lembut. Mewah, tenang, dan menyatu dengan halaman putih. Di ukuran kecil (favicon 16 sampai 48 px) ubinnya sedikit lebih gelap supaya 牛 putih tetap terbaca.</p>
           <div class="ref"><span>Logo P kaca di Pons</span><span>Porselen putih 德化白瓷</span><span>Ikon aplikasi Apple</span></div></div>
       </div>
     </div>
   </div>
 
-  <div class="c">
-    <div class="ch"><span class="no">W2</span><h2>Putih di atas hitam</h2><span class="tag" style="background:#F1F0EC;color:#5E5C57">Ukuran kecil dan latar gelap</span></div>
-    <div class="row">
-      <div class="tile w"><svg><use href="#W2"/></svg></div>
-      <div class="tile k"><svg><use href="#W2"/></svg></div>
-      <div class="side">
-        <div class="uses">
-          <svg class="app"><use href="#W2"/></svg>
-          <span class="av"><svg width="96" height="96"><use href="#W2c"/></svg></span>
-          <span class="fav"><span><svg width="32" height="32"><use href="#W2"/></svg><small>32</small></span><span><svg width="16" height="16"><use href="#W2"/></svg><small>16</small></span></span>
-        </div>
-        <div class="lock"><svg width="40" height="40"><use href="#W2"/></svg><b>金牛</b><small>jinniu</small><span class="btn g">创建代币</span></div>
-        <div class="txt"><p><b>Ide:</b> 牛 putih polos di ubin hitam, satu warna, tanpa efek. Paling tegas dan paling mudah dibaca di ukuran kecil, cocok untuk favicon, foto profil X dan Telegram, dan avatar token.</p>
-          <div class="ref"><span>Ikon monokrom ala Apple, X, Notion</span><span>Cap 印章 satu warna</span></div></div>
-      </div>
-    </div>
-  </div>
 </div>
 </body>
 </html>
