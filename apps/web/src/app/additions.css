@@ -218,7 +218,8 @@ ol.steps p{margin:0;color:var(--tx-2);font-size:14px;line-height:1.75}
 .modal .in{padding:18px 24px 24px}
 .modal h2{font-weight:900;font-size:26px;margin:0 0 6px;line-height:1.15}
 .modal p{color:var(--tx-2);margin:0 0 14px}
-ul.prog{list-style:none;margin:0;padding:0}
+/* The launch modal's steps, one under the other (.prog is also the coin table's curve bar, which lays out in a row). */
+ul.prog{list-style:none;margin:0;padding:0;display:grid;width:auto;justify-content:stretch;gap:0;font-size:15px}
 ul.prog li{display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:center;padding:8px 0;color:var(--tx-3)}
 ul.prog li.done,ul.prog li.now{color:var(--tx)}
 ul.prog .ck{width:26px;height:26px}

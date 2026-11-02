@@ -295,16 +295,18 @@ export function LaunchModal({
                 </li>
               ))}
             </ul>
-            {k === 1 && !toSign && signingSince !== null && now - signingSince > 10_000 && (
+            {k === 1 && !toSign && signingSince !== null && now - signingSince > 4000 && (
               <p className="note" role="status">{t.waitingCreate}</p>
             )}
-            {k === 1 && toSign && toSign !== signedB64 && (walletSaid !== null || askedAt === null || now - askedAt > 8000) && (
+            {/* The button is there as soon as the create is: some wallets only open from a click, and a
+                prompt can open behind the window (owner, 2026-11-02: waiting 8 s for it felt broken). */}
+            {k === 1 && toSign && toSign !== signedB64 && (
               <>
-                <p className="note" role="status">
-                  {walletSaid !== null
-                    ? t.didntSign(walletSaid || t.noAnswer)
-                    : t.cantSee}
-                </p>
+                {(walletSaid !== null || askedAt === null || now - askedAt > 4000) && (
+                  <p className="note" role="status">
+                    {walletSaid !== null ? t.didntSign(walletSaid || t.noAnswer) : t.cantSee}
+                  </p>
+                )}
                 <button type="button" className="btn btn-lime" style={{ width: "100%", marginTop: 10 }} onClick={() => void signCreate(toSign)}>
                   {t.approve}
                 </button>
