@@ -1,4 +1,4 @@
-/** Inline SVG icons from the prototype's ICONS map (24px grid, 2.2 stroke). */
+/** Inline SVG icons from the prototypes' icon sets (24px grid, 2.2 stroke). */
 const PATHS = {
   search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>,
   gift: <path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z" />,
@@ -14,6 +14,12 @@ const PATHS = {
   plus: <path d="M12 5v14M5 12h14" />,
   book: <path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z" />,
   bolt: <path d="M13 2L4 14h7l-1 8 9-12h-7z" />,
+  // From prototype/jinniu-prototype.html's sprite (金牛).
+  wallet: <><path d="M4 7a2 2 0 0 1 2-2h11v4" /><rect x="4" y="9" width="16" height="11" rx="2" /><path d="M16 14.5h.01" /></>,
+  me: <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="10" r="3" /><path d="M6.5 18.5c1.3-2.2 3.2-3.3 5.5-3.3s4.2 1.1 5.5 3.3" /></>,
+  arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
+  ext: <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />,
+  flag: <path d="M5 21V4M5 4h11l-2 4 2 4H5" />,
 } as const;
 
 export type IconName = keyof typeof PATHS;
