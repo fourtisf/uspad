@@ -1,6 +1,6 @@
 # Brand
 
-The brand is **金牛 jinniu** (owner, 2026-11-02; below). It isn't live yet: until its prototype is approved and installed, the site at hwai.ai still says hwai.
+The brand is **金牛 jinniu** (owner, 2026-11-02; below), live on jinniu.fun since 2026-11-03 with its own server and PlatformConfig.
 
 ## The old brands were deleted (owner, 2026-11-02)
 
@@ -14,15 +14,12 @@ The owner asked to delete every uspad and hwai brand. Gone from the repo, all st
 
 The 金牛 mark is the brush 牛, so its generator can start from `brand/hwai/src/niu.py` and `glyphs.json` in that commit (`git show 57a8482:brand/hwai/src/glyphs.json`).
 
-## What still says hwai or uspad, and why
+## Nothing users see says hwai or uspad (owner, 2026-11-03: "hapus uspad dan hwai di brand baru")
 
-These go when 金牛 is installed, not before, so the live site and what's on chain don't break:
+金牛 is live on jinniu.fun, on its own server with its own PlatformConfig. The site, the API's messages, the sign-in statement, the worker's alerts, new coins' `createdOn` and go-live.sh's messages all say 金牛 / jinniu (`BRAND`, `BRAND_LATIN`, `DOMAIN` in `packages/shared/src/brand.ts`; `BRAND` and `$DOMAIN` in go-live.sh). The last two old files went the same day: `apps/web/public/brand/hwai-mark-512.png` and `uspad-mark-512.png`, the pictures of hwai's and uspad's PlatformConfigs (VERIFIED items 27 and 31). Those servers serve them from their own releases, so `main` must never be deployed on them: it would rename them 金牛 and drop their pictures (`go-live.sh rollback` puts a server back on its previous release and script). They are in git history before this change.
 
-- **The live site** (hwai.ai): the name from `BRAND` (`packages/shared/src/brand.ts`) in every user-facing string, the API's messages, the wallet sign-in statement, the worker's alerts and new coins' `createdOn` metadata; the brush seal in `apps/web/src/components/Mark.tsx` and `markPaths.ts`; the favicon, app icons and share image in `apps/web/src/app/`; and each coin's share image (`app/og/coin/[mint]/route.tsx`), which draws the seal, the wordmark and hwai.ai. Its approved design stays `prototype/hwai-niu-prototype.html` (CLAUDE.md rule 1) until then.
-- **`apps/web/public/brand/hwai-mark-512.png`**: the picture of hwai's PlatformConfig on mainnet points to `https://hwai.ai/brand/hwai-mark-512.png` (VERIFIED item 31). Since 2026-11-03 the file holds the 金牛 mark, which Raydium shows after the next deploy without a transaction (it may cache the old one for a while); renaming the PlatformConfig (`go-live.sh platform-info`) is a mainnet transaction and needs the owner's approval.
-- **`apps/web/public/brand/uspad-mark-512.png`**: uspad's PlatformConfig, on uspad's own server, points to `https://uspad.fun/brand/uspad-mark-512.png` (VERIFIED item 27). uspad.fun, $USPAD and its coins stay on that server (owner, 2026-10-31).
-- **$HWAI** (pump.fun, `9Qh9WLVQ69J2C7oeYx45yKrHiV8Dsn7hVdkRXiBYpump`): the site shows it through `go-live.sh token-ca` (build-time `NEXT_PUBLIC_TOKEN_CA`). It will be hidden (`go-live.sh token-ca off`) until the owner launches the new official token.
-- **Internal names**: `@divvy/*` packages, `DIVVY_*` env vars, `divvy:` Redis keys and server paths like `/root/uspad-keys`. Users don't see them.
+- **$HWAI** (pump.fun, `9Qh9WLVQ69J2C7oeYx45yKrHiV8Dsn7hVdkRXiBYpump`) isn't on the 金牛 site; the pill says "CA：即将公布" until the owner's new token (`go-live.sh token-ca <CA> <TICKER>`).
+- **Internal names** stay: `@divvy/*` packages, `DIVVY_*` env vars, `divvy:` Redis keys, server paths like `/root/uspad-keys` and `/root/uspad-secrets.env`, PM2 and Nginx file names, and the repo `fourtisf/uspad`. Users don't see them, and renaming paths on a live server would risk the keys.
 
 X and Telegram handles are build-time env (`NEXT_PUBLIC_X_HANDLE`, `NEXT_PUBLIC_TELEGRAM_HANDLE`, set with `go-live.sh socials <x> <tg>`): while unset, the site shows no X or Telegram links.
 
@@ -89,7 +86,7 @@ The gold stays for the 创建代币 button and for what holders are paid.
 | `brand/jinniu/sheet.png` | The brand sheet |
 | `apps/web/src/components/jinniuMark.ts` | `GLYPH`, the placed outline, and `MARK_FLAT_SVG` |
 | `apps/web/src/app/icon.svg`, `apple-icon.png`, `public/favicon.png` | The site's favicons and Apple touch icon |
-| `apps/web/public/brand/jinniu-mark-512.png`, `hwai-mark-512.png` | The PlatformConfig picture (square, opaque) |
+| `apps/web/public/brand/jinniu-mark-512.png` | The PlatformConfig picture (square, opaque) |
 
 `Mark` (`apps/web/src/components/Mark.tsx`) draws the same mark inline with per-instance filter ids, so the header, the empty live card and the official token card all show it; each coin's share image draws `MARK_FLAT_SVG`. The rest of the live site is unchanged until the rebrand: the name hwai, its brush wordmark, design 牛 and the site share image (`opengraph-image.png`, which still shows the old seal). Regenerate with `node brand/jinniu/src/mark.cjs` from the repo root (Playwright with Chromium renders the PNGs and the sheet).
 

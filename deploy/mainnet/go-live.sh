@@ -74,7 +74,6 @@ set -euo pipefail
 
 # The domain the live site serves: uspad.fun until `go-live.sh domain` moves it (it writes the new one here).
 DOMAIN_FILE=/root/divvy-domain
-DOMAIN=$(cat "$DOMAIN_FILE" 2>/dev/null || echo uspad.fun)
 # The product's name and domain (owner, 2026-11-02: 金牛 jinniu on jinniu.fun; hwai on hwai.ai before): the
 # domain move, and the PlatformConfig's name, web and picture (go-live.sh platform-info), use these. The
 # name stays ASCII for the PlatformConfig and the alerts; the site shows 金牛 (packages/shared/src/brand.ts).
@@ -82,6 +81,8 @@ BRAND=jinniu
 BRAND_DOMAIN=jinniu.fun
 # The PlatformConfig's picture on the site (brand/jinniu/src/mark.cjs writes it).
 BRAND_IMG=/brand/jinniu-mark-512.png
+# The domain this server serves (bootstrap and `domain` write the file); 金牛's when it's missing.
+DOMAIN=$(cat "$DOMAIN_FILE" 2>/dev/null || echo "$BRAND_DOMAIN")
 REPO=https://github.com/fourtisf/uspad.git
 # The branch every build takes (2026-11-03: main, with the 金牛 rename; it was claude/tender-curie-4uer50).
 BRANCH=main
@@ -311,7 +312,7 @@ smoke() { # release: boots it next to the running site on spare ports (RUNBOOK "
 prepare() {
   # The live site moves only through `update`: prepare would switch releases and migrate without a
   # backup, and its apt-get could restart Postgres (audit).
-  [ -f "$LIVE_MARK" ] && die "uspad.fun sudah live: 'prepare' hanya untuk pemasangan pertama. Untuk kode baru pakai 'go-live.sh update'."
+  [ -f "$LIVE_MARK" ] && die "$DOMAIN sudah live: 'prepare' hanya untuk pemasangan pertama. Untuk kode baru pakai 'go-live.sh update'."
   load_secrets
   say "Sistem: zona waktu UTC, swap, paket"
   if has_systemd; then timedatectl set-timezone Etc/UTC; fi
@@ -522,7 +523,7 @@ platform_config() {
 
 # --------------------------------------------------------------------------------------------------
 switch() {
-  [ -f "$LIVE_MARK" ] && die "uspad.fun sudah live sejak $(cat "$LIVE_MARK" 2>/dev/null || echo '?'): 'switch' akan me-restart semua dan menjeda launch. Untuk kode baru pakai 'go-live.sh update'."
+  [ -f "$LIVE_MARK" ] && die "$DOMAIN sudah live sejak $(cat "$LIVE_MARK" 2>/dev/null || echo '?'): 'switch' akan me-restart semua dan menjeda launch. Untuk kode baru pakai 'go-live.sh update'."
   load_secrets
   [ -L "$CUR" ] || die "jalankan 'go-live.sh prepare' dulu"
   local pda
@@ -918,7 +919,7 @@ launch_fee() {
   if [ "$lamports" -gt 0 ]; then
     note "Biaya launch: $1 SOL per koin ke $wallet, di dalam transaksi create yang ditandatangani creator (plus ~0,009 SOL biaya buat koin). Tanpa batas harian per wallet."
   else
-    note "Tanpa fee uspad: creator hanya membayar biaya buat koin (~0,009 SOL), dengan batas harian per wallet."
+    note "Tanpa fee $BRAND: creator hanya membayar biaya buat koin (~0,009 SOL), dengan batas harian per wallet."
   fi
   note "config: $(curl -fsS https://$DOMAIN/api/config 2>/dev/null | jq -c .launchFee 2>/dev/null || echo '?')"
 }
@@ -945,7 +946,7 @@ fee_rate() {
     [ -f "$LIVE_MARK" ] || die "jalankan 'go-live.sh switch' dulu"
     send=(--send)
   fi
-  say "Fee per trade: holder 0.$(printf %02d "$holders")%, creator 0.$(printf %02d "$creator")%, uspad 0.$(printf %02d "$divvy")% → 0.$(printf %02d "$want")%, Raydium 0.$(printf %02d "$protocol")% ${send[*]:-(dry run)}"
+  say "Fee per trade: holder 0.$(printf %02d "$holders")%, creator 0.$(printf %02d "$creator")%, $BRAND 0.$(printf %02d "$divvy")% → 0.$(printf %02d "$want")%, Raydium 0.$(printf %02d "$protocol")% ${send[*]:-(dry run)}"
   log=$(mktemp)
   (cd "$CUR/packages/solana" && env RPC_URL="$RPC" PLATFORM_ADMIN_KEYPAIR="$ADMIN_KEY" FEE_RATE=$FEE_RATE_NEW I_HAVE_OWNER_APPROVAL="${I_HAVE_OWNER_APPROVAL:-}" \
     ./node_modules/.bin/tsx scripts/phase0/set-fee-rate.ts "${send[@]}" 2>&1) | sed 's/api-key=[^&" ]*/api-key=…/g' | tee "$log"
@@ -998,7 +999,7 @@ payouts() {
       dbq -c "SELECT c.ticker, coalesce(h.\"excludedReason\"::text, '') AS excluded, count(*)
               FROM \"HolderBalance\" h JOIN \"Coin\" c ON c.id = h.\"coinId\"
               WHERE h.\"snapshotHour\" = (SELECT max(\"snapshotHour\") FROM \"HolderBalance\") GROUP BY 1, 2 ORDER BY 1, 2"
-      say "Klaim vault live (unattributed: tidak terikat trade koin uspad, disimpan uspad)"
+      say "Klaim vault live (unattributed: tidak terikat trade koin $BRAND, disimpan $BRAND)"
       dbq -c "SELECT to_char(hour, 'MM-DD HH24:MI') AS hour, round(lamports / 1e9, 6) AS sol,
                      round(\"unattributedLamports\" / 1e9, 6) AS unattributed_sol, sig
               FROM \"VaultClaim\" WHERE NOT \"dryRun\" ORDER BY hour DESC LIMIT 3"
@@ -1031,7 +1032,7 @@ payouts() {
           [[ $pool =~ ^[1-9A-HJ-NP-Za-km-z]{32,44}$ ]] || continue
           local t
           t=$(dbq -Atc "SELECT ticker || ' (' || status || ')' FROM \"Coin\" WHERE \"poolState\" = '$pool'")
-          note "pool $pool: $n trade, fee platform $(awk -v l="$fee" 'BEGIN { printf "%.6f", l / 1e9 }') SOL, ${t:-BUKAN koin uspad}$([ "$by" != - ] && echo ", dibuat oleh $by")"
+          note "pool $pool: $n trade, fee platform $(awk -v l="$fee" 'BEGIN { printf "%.6f", l / 1e9 }') SOL, ${t:-BUKAN koin $BRAND}$([ "$by" != - ] && echo ", dibuat oleh $by")"
         done
       ;;
     live)

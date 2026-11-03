@@ -15,7 +15,6 @@
  *   apps/web/src/app/icon.svg, apple-icon.png        the site's favicon and Apple touch icon
  *   apps/web/public/favicon.png                      the PNG favicon
  *   apps/web/public/brand/jinniu-mark-512.png        the mark for the PlatformConfig picture
- *   apps/web/public/brand/hwai-mark-512.png          the same, at the URL hwai's PlatformConfig points to
  *
  * Run: node brand/jinniu/src/mark.cjs   (needs Playwright with Chromium for the PNGs and the sheet)
  */
@@ -126,7 +125,6 @@ async function render() {
   fs.copyFileSync(path.join(OUT, "png/apple-icon-180.png"), path.join(APP, "src/app/apple-icon.png"));
   fs.copyFileSync(path.join(OUT, "png/favicon-32.png"), path.join(APP, "public/favicon.png"));
   await png(premium(true), 512, "apps/web/public/brand/jinniu-mark-512.png", true);
-  fs.copyFileSync(path.join(APP, "public/brand/jinniu-mark-512.png"), path.join(APP, "public/brand/hwai-mark-512.png"));
   console.log("copied the apple icon, the favicon and the PlatformConfig picture into apps/web");
 
   // the brand sheet
