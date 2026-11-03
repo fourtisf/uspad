@@ -60,6 +60,8 @@
 #   go-live.sh socials <x> <tg>   the official X and Telegram handles (without @, or "off"), shown in the hero
 #                                 and footer; rebuilds the site. Unset, the site shows no X or Telegram links.
 #   go-live.sh update             deploys the latest commit (demo or live, whichever is running).
+#   go-live.sh rollback           live site only: back to the release before the current one, with its
+#                                 go-live.sh, so the next `update` builds what this server built before.
 #   go-live.sh alerts             owner alerts in Telegram: asks the bot token (hidden) and chat ID, sends a test.
 #   go-live.sh status             apps, health, wallet addresses and balances.
 #
@@ -685,6 +687,37 @@ update() {
 
 # This script as the release has it, so new commands work right after `update`. A rename, never a write
 # in place: bash is still reading the running copy.
+# Back to the release before the current one, for a live site (2026-11-03: `update` with the 金牛 code
+# was run by mistake on another live server, which should have kept its own). Code only: migrations are
+# additive, so the older release runs on the migrated database (update's note). The older release's
+# go-live.sh goes back to /root with it, so this server's next `update` builds its branch again. Releases
+# are named by their UTC build time, so the one before is the greatest name below the current one.
+rollback() {
+  [ -f "$LIVE_MARK" ] || die "rollback hanya untuk situs live; situs demo cukup jalankan 'update' lagi"
+  local cur prev
+  cur=$(basename "$(readlink -f "$CUR")")
+  prev=$(ls -1 /srv/divvy/releases | sort | awk -v c="$cur" '$0 < c' | tail -n 1)
+  [ -n "$prev" ] || die "tidak ada release sebelum $cur di /srv/divvy/releases"
+  prev=/srv/divvy/releases/$prev
+  [ -f "$prev/REVISION" ] && [ -f "$prev/apps/web/.next/BUILD_ID" ] && [ -f "$prev/apps/api/dist/server.js" ] \
+    || die "$prev tidak lengkap (build-nya gagal dulu?); tidak ada yang diubah"
+  say "Rollback: $cur -> $(basename "$prev")"
+  note "sekarang: commit $(cut -c1-7 "$(readlink -f "$CUR")/REVISION")"
+  note "kembali ke: commit $(cut -c1-7 "$prev/REVISION")"
+  point_current "$prev"
+  pm2as divvy-web reload "$ECO" --only divvy-web --update-env > /dev/null
+  pm2as divvy-api reload "$ECO" --only divvy-api --update-env > /dev/null
+  restart_worker
+  for u in divvy-web divvy-api divvy-worker; do pm2as "$u" save > /dev/null 2>&1 || true; done
+  # Its own script, not this one: self_update compares against the current release's copy.
+  if [ -f "$prev/deploy/mainnet/go-live.sh" ]; then
+    install -m 700 "$prev/deploy/mainnet/go-live.sh" /root/go-live.sh.new && mv -f /root/go-live.sh.new /root/go-live.sh
+    note "/root/go-live.sh kembali ke versi release itu (branch $(grep -m1 '^BRANCH=' /root/go-live.sh | cut -d= -f2))"
+  fi
+  sleep 8
+  status
+}
+
 self_update() {
   local self new=$CUR/deploy/mainnet/go-live.sh
   self=$(readlink -f "$0")
@@ -1424,7 +1457,16 @@ status() {
   say "Aplikasi"
   if [ -f "$LIVE_MARK" ]; then
     for u in divvy-web divvy-api divvy-worker; do pm2as "$u" jlist 2>/dev/null | jq -r '.[] | "   \(.name): \(.pm2_env.status), restarts \(.pm2_env.restart_time)"'; done
-    note "health: $(curl -fsS https://$DOMAIN/api/health 2>/dev/null || echo 'tidak menjawab')"
+    # From the internet first; if that fails, here directly, to tell a down app from a domain that no
+    # longer points at this server.
+    local h
+    if h=$(curl -fsS -m 10 "https://$DOMAIN/api/health" 2>/dev/null); then
+      note "health: $h"
+    elif curl -fsS -m 10 --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/api/health" > /dev/null 2>&1; then
+      note "health: aplikasi di server ini sehat, tapi https://$DOMAIN dari internet tidak sampai ke sini: cek DNS / nameserver $DOMAIN"
+    else
+      note "health: tidak menjawab"
+    fi
     note "worker: $(grep '"msg":"worker started"' /var/log/divvy/worker/worker.out.log 2>/dev/null | tail -n 1 | jq -c '{cluster, mainnetEnabled, payoutsDryRun, delivery}' 2>/dev/null || echo '?')"
     note "launch: $([ -f /etc/nginx/divvy-launches-paused ] && echo "dijeda di Nginx" || echo "Nginx buka"), setelan $(launch_setting || echo '?')"
   else
@@ -1456,6 +1498,7 @@ case "${1:-}" in
   preview) preview "${2:-}" ;;
   switch) switch ;;
   update) update ;;
+  rollback) rollback ;;
   x-login) x_login ;;
   cp-creator) cp_creator "${2:-}" ;;
   open-launches) open_launches ;;
