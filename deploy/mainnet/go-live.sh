@@ -624,8 +624,27 @@ nginx_launch_limit() {
 # --------------------------------------------------------------------------------------------------
 update() {
   if [ ! -f "$LIVE_MARK" ]; then
-    say "Update situs demo"
-    sudo -iu divvy bash -c 'cd /srv/divvy/app && git pull && pnpm install --frozen-lockfile && pnpm --filter @divvy/api --filter @divvy/web build && pm2 reload deploy/preview/preview.config.cjs'
+    [ -d /srv/divvy/app/.git ] || die "situs demo belum ada: jalankan dulu 'go-live.sh preview public'"
+    say "Update situs demo: kode $BRANCH terbaru, build (beberapa menit)"
+    # As preview() builds it: one command per line under set -e, and reset --hard instead of pull, because
+    # the build rewrites apps/web/next-env.d.ts and a pull touching that file would stop. .env is ignored
+    # by git, so the demo settings stay.
+    sudo -u divvy -H bash -c "set -e
+      cd /srv/divvy/app
+      git fetch -q origin $BRANCH
+      git checkout -q $BRANCH
+      git reset -q --hard origin/$BRANCH
+      pnpm install --frozen-lockfile
+      pnpm --filter @divvy/api --filter @divvy/web build
+      pm2 reload deploy/preview/preview.config.cjs > /dev/null"
+    local i
+    for i in $(seq 1 30); do
+      curl -fsS 127.0.0.1:4000/api/health > /dev/null 2>&1 && curl -fsS -o /dev/null 127.0.0.1:3000/ 2>/dev/null && break
+      sleep 2
+    done
+    curl -fsS 127.0.0.1:4000/api/health > /dev/null 2>&1 || die "API demo tidak menjawab (lihat: sudo -iu divvy pm2 logs)"
+    curl -fsS -o /dev/null 127.0.0.1:3000/ 2>/dev/null || die "situs demo tidak menjawab (lihat: sudo -iu divvy pm2 logs)"
+    note "https://$DOMAIN sudah versi terbaru: $(sudo -u divvy git -C /srv/divvy/app log -1 --format='%h %s')"
     return
   fi
   load_secrets
