@@ -44,9 +44,11 @@
 #   go-live.sh bootstrap          a brand-new server for $BRAND_DOMAIN (new launchpad from zero): packages,
 #                                 firewall, Node, pnpm, PM2, DNS check, certificate, API keys typed here,
 #                                 then prepare. Then platform-config and switch as below.
-#   go-live.sh preview            before the PlatformConfig: the site online at https://$DOMAIN behind a
-#                                 password, with demo data (API in mock mode, nothing signed). `switch`
-#                                 replaces it with the live site; `update` rebuilds it meanwhile.
+#   go-live.sh preview [public]   before the PlatformConfig: the site online at https://$DOMAIN with demo
+#                                 data (API in mock mode, nothing signed), behind a password; with
+#                                 "public", without one but read-only (GET and HEAD only: no uploads,
+#                                 launches or sign-in). `switch` replaces it with the live site; `update`
+#                                 rebuilds it meanwhile.
 #   go-live.sh domain             moves the live site to $BRAND_DOMAIN (jinniu.fun) on this server:
 #                                 certificate, Nginx, WEB_ORIGIN; the old domain redirects there (and keeps
 #                                 serving old coins' pictures and metadata). Needs it and its www pointing here.
@@ -569,7 +571,7 @@ EOF
   rm -f /etc/nginx/sites-enabled/uspad.conf /etc/nginx/sites-enabled/default
   ln -sf /etc/nginx/sites-available/uspad-live.conf /etc/nginx/sites-enabled/uspad-live.conf
   if ! nginx -t > /dev/null 2>&1; then
-    if nginx -t 2>&1 | grep -q "Address family not supported"; then
+    if nginx_ipv6_missing; then
       sed -i '/listen \[::\]/d' /etc/nginx/sites-available/uspad-live.conf
     fi
     if ! nginx -t; then
@@ -999,7 +1001,7 @@ start_nginx() {
     systemctl start nginx 2> /dev/null && return 0
   else
     pgrep -x nginx > /dev/null && return 0
-    nginx 2> /dev/null && return 0
+    nginx 9>&- 2> /dev/null && return 0
   fi
   local who
   who=$(ss -ltnpH '( sport = :80 or sport = :443 )' 2> /dev/null | grep -v '"nginx"' | grep -o 'users:(("[^"]*"' | cut -d'"' -f2 | sort -u | tr '\n' ' ')
@@ -1010,6 +1012,9 @@ start_nginx() {
   { nginx -t; has_systemd && journalctl -u nginx -n 20 --no-pager; } >&2 || true
   die "Nginx tidak bisa jalan (alasan di atas)"
 }
+# Whether nginx -t fails only because this machine has no IPv6. Read from the captured output: with
+# pipefail, `nginx -t 2>&1 | grep -q …` returns nginx -t's failure even when grep matches.
+nginx_ipv6_missing() { local out; out=$(nginx -t 2>&1) || true; grep -q "Address family not supported" <<< "$out"; }
 reload_nginx() {
   if has_systemd; then
     if systemctl is-active --quiet nginx; then systemctl reload nginx; else start_nginx; fi
@@ -1165,7 +1170,7 @@ server {
 EOF
   } > "$conf"
   if ! nginx -t > /dev/null 2>&1; then
-    nginx -t 2>&1 | grep -q "Address family not supported" && sed -i '/listen \[::\]/d' "$conf"
+    nginx_ipv6_missing && sed -i '/listen \[::\]/d' "$conf"
     if ! nginx -t; then restore; die "konfigurasi Nginx ditolak (lihat di atas); semuanya dikembalikan ke $old"; fi
   fi
   reload_nginx
@@ -1198,7 +1203,13 @@ EOF
 # payouts on a public domain would read as a live product (deploy/preview/README.md). HTTPS uses the
 # certificate bootstrap got (webroot, so renewals keep working); `switch` later removes this site and
 # turns the preview off, and `update` rebuilds it until then.
+# `preview public` (owner, 2026-11-03: "tidak usah pake password"): no password, and read-only instead.
+# Nginx lets only GET and HEAD through, because mock mode accepts demo launches and picture uploads from
+# anyone, which would let strangers store files on the server under the domain. Browsing works; uploads,
+# launches, trades, reports and sign-in answer 403. The footer says the numbers are demo data.
 preview() {
+  local public=no
+  case "${1:-}" in public) public=yes ;; "") ;; *) die "pakai: go-live.sh preview [public]" ;; esac
   [ -f "$LIVE_MARK" ] && die "situs sudah live; preview hanya untuk sebelum 'switch'"
   [ -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] || die "sertifikat $DOMAIN belum ada: jalankan 'go-live.sh bootstrap' dulu"
   command -v pnpm > /dev/null && command -v pm2 > /dev/null || die "pnpm atau PM2 belum terpasang: jalankan 'go-live.sh bootstrap' dulu"
@@ -1237,8 +1248,10 @@ preview() {
   curl -fsS -o /dev/null 127.0.0.1:3000/ 2>/dev/null || die "situs preview tidak menjawab (lihat: sudo -iu divvy pm2 logs)"
   note "aplikasi preview jalan di 127.0.0.1:3000 dan :4000"
 
-  local pwf=/etc/nginx/uspad-preview.htpasswd
-  if [ ! -s "$pwf" ]; then
+  local pwf=/etc/nginx/uspad-preview.htpasswd access
+  if [ "$public" = yes ]; then
+    access="limit_except GET HEAD { deny all; }"
+  elif [ ! -s "$pwf" ]; then
     say "Password preview (user: $BRAND; diketik di sini, tidak tampil)"
     local pw
     read -rsp "   password: " pw; echo
@@ -1247,12 +1260,13 @@ preview() {
     unset pw
     chown root:www-data "$pwf" && chmod 640 "$pwf"
   fi
+  [ "$public" = yes ] || access="auth_basic \"$BRAND preview\"; auth_basic_user_file $pwf;"
 
-  say "Nginx: https://$DOMAIN dengan password"
+  if [ "$public" = yes ]; then say "Nginx: https://$DOMAIN tanpa password, hanya-baca"; else say "Nginx: https://$DOMAIN dengan password"; fi
   local conf=/etc/nginx/sites-available/uspad.conf
   install -d -m 755 /var/www/certbot
   cat > "$conf" <<EOF
-# Password-protected preview of $DOMAIN with demo data (go-live.sh preview, $(date -u +%F)).
+# Preview of $DOMAIN with demo data (go-live.sh preview${1:+ $1}, $(date -u +%F)): $([ "$public" = yes ] && echo "public, read-only" || echo "behind a password").
 # 'go-live.sh switch' removes it and puts the live site in its place.
 map \$http_upgrade \$uspad_upgrade {
     default upgrade;
@@ -1285,14 +1299,12 @@ server {
     proxy_set_header Connection        \$uspad_upgrade;
 
     location / {
-        auth_basic "$BRAND preview";
-        auth_basic_user_file $pwf;
+        $access
         proxy_buffering off;
         proxy_pass http://127.0.0.1:3000;
     }
     location ^~ /api/ {
-        auth_basic "$BRAND preview";
-        auth_basic_user_file $pwf;
+        $access
         proxy_read_timeout 1h;
         proxy_pass http://127.0.0.1:4000;
     }
@@ -1302,14 +1314,28 @@ EOF
   rm -f /etc/nginx/sites-enabled/default
   ln -sf "$conf" /etc/nginx/sites-enabled/uspad.conf
   if ! nginx -t > /dev/null 2>&1; then
-    nginx -t 2>&1 | grep -q "Address family not supported" && sed -i '/listen \[::\]/d' "$conf"
+    nginx_ipv6_missing && sed -i '/listen \[::\]/d' "$conf"
     if ! nginx -t; then rm -f /etc/nginx/sites-enabled/uspad.conf; reload_nginx; die "konfigurasi Nginx ditolak (lihat di atas); preview tidak dipasang"; fi
   fi
   reload_nginx
-  local code
-  code=$(curl --noproxy '*' -sk -o /dev/null -w '%{http_code}' --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" || true)
-  [ "$code" = 401 ] || die "https://$DOMAIN menjawab $code, bukan 401 (minta password); lihat /var/log/nginx/error.log"
-  note "https://$DOMAIN online dengan data demo. Masuk dengan user '$BRAND' dan password tadi."
+  # A reload returns before the new workers take over, so the check waits for the new site to answer.
+  local code want=401 i
+  [ "$public" = yes ] && want=200
+  for i in $(seq 1 10); do
+    code=$(curl --noproxy '*' -sk -o /dev/null -w '%{http_code}' --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" || true)
+    [ "$code" = "$want" ] && break
+    sleep 1
+  done
+  if [ "$public" = yes ]; then
+    [ "$code" = 200 ] || die "https://$DOMAIN menjawab $code, bukan 200; lihat /var/log/nginx/error.log"
+    local post
+    post=$(curl --noproxy '*' -sk -o /dev/null -w '%{http_code}' -X POST --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/api/upload" || true)
+    [ "$post" = 403 ] || die "POST ke https://$DOMAIN/api/upload menjawab $post, bukan 403; preview tidak boleh menerima unggahan"
+    note "https://$DOMAIN online untuk umum, tanpa password, dengan data demo (hanya-baca: tidak bisa unggah atau launch)."
+  else
+    [ "$code" = 401 ] || die "https://$DOMAIN menjawab $code, bukan 401 (minta password); lihat /var/log/nginx/error.log"
+    note "https://$DOMAIN online dengan data demo. Masuk dengan user '$BRAND' dan password tadi."
+  fi
   note "Berikutnya: go-live.sh platform-config (dry run), lalu --send dengan persetujuan owner, lalu switch."
 }
 
@@ -1408,7 +1434,7 @@ fi
 case "${1:-}" in
   prepare) prepare ;;
   platform-config) platform_config "${2:-}" ;;
-  preview) preview ;;
+  preview) preview "${2:-}" ;;
   switch) switch ;;
   update) update ;;
   x-login) x_login ;;

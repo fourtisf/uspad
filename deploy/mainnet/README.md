@@ -54,7 +54,7 @@ hwai.ai must keep pointing at this server after the move: it redirects visitors 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fourtisf/uspad/main/deploy/mainnet/go-live.sh -o /root/go-live.sh && chmod 700 /root/go-live.sh
 /root/go-live.sh bootstrap               # packages, firewall, Node, DNS check, certificate, API keys (typed there, saved in /root/uspad-secrets.env), then prepare
-/root/go-live.sh preview                 # the site online at https://jinniu.fun behind a password, demo data, nothing signed
+/root/go-live.sh preview public          # the site online at https://jinniu.fun with demo data, no password but read-only (GET only: no uploads, launches or sign-in); `preview` alone puts it behind a password
 /root/go-live.sh platform-config         # dry run; then, with the owner's OK and about 0.03 SOL on the platform admin:
 I_HAVE_OWNER_APPROVAL=yes /root/go-live.sh platform-config --send
 /root/go-live.sh switch                  # the live site replaces the preview: launches paused, payouts in dry-run
