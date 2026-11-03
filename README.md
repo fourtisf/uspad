@@ -2,7 +2,7 @@
 
 A Solana memecoin launchpad on Raydium LaunchLab where every coin pays its holders an hourly dividend in a tokenized stock (NVDAx, SPYx and others), while the coin itself trades against SOL.
 
-- Spec: [`HANDOFF.md`](HANDOFF.md). Repo rules: [`CLAUDE.md`](CLAUDE.md). Approved UI: [`prototype/hwai-niu-prototype.html`](prototype/hwai-niu-prototype.html), to be replaced by [`prototype/jinniu-prototype.html`](prototype/jinniu-prototype.html), the 金牛 rebrand, once the owner approves it.
+- Spec: [`HANDOFF.md`](HANDOFF.md). Repo rules: [`CLAUDE.md`](CLAUDE.md). Approved UI: [`prototype/jinniu-prototype.html`](prototype/jinniu-prototype.html), 金牛's clean white look (owner, 2026-11-03).
 - What's been checked against Raydium/Jito/Jupiter sources: [`docs/VERIFIED.md`](docs/VERIFIED.md).
 
 ## Layout

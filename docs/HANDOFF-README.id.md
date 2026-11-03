@@ -7,7 +7,7 @@ Isi folder:
 | `PROMPT.md` | Prompt yang di-copy ke Claude Code (bagian di bawah garis). |
 | `HANDOFF.md` | Spesifikasi lengkap: mekanisme, desain on-chain, API, database, worker, keamanan, fase kerja. |
 | `CLAUDE.md` | Aturan repo yang otomatis dibaca Claude Code di setiap sesi. |
-| `prototype/hwai-niu-prototype.html` | UI yang sedang live, jadi acuan tampilan. `prototype/jinniu-prototype.html` (金牛) menggantikannya setelah di-approve owner. Prototype lama (`divvy-prototype.html`, `hwai-a-prototype.html`) dihapus 2026-11-02 dan tetap ada di riwayat git. |
+| `prototype/jinniu-prototype.html` | UI 金牛 yang di-approve owner (putih bersih, 2026-11-03), jadi acuan tampilan. Prototype lama (`divvy-prototype.html`, `hwai-a-prototype.html`, lalu `hwai-niu-prototype.html` design 牛) sudah dihapus dan tetap ada di riwayat git. |
 
 ## Cara pakai
 1. Buat repo baru (misalnya `divvy`), lalu taruh keempat item ini di root repo.

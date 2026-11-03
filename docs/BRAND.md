@@ -58,7 +58,7 @@ After the proposals above the owner asked what set 发发 and 红利 apart (only
 - **Domain:** **jinniu.fun**, bought by the owner at Hostinger on 2026-11-02 (one year, to 2027-11-02, with privacy protection). Not pointed at the server yet.
 - **Open:** the PlatformConfig's name, web and picture (a mainnet transaction, owner approval), the X and Telegram handles, the intro video, the article and the share images.
 
-Until the owner approves the prototype, the site and CLAUDE.md rule 1 stay on design 牛 and the name hwai.
+The owner approved it on 2026-11-03 ("ui ux tampilan masih pakai hwai ini, ganti ke yang udah saya pilih"): it is CLAUDE.md rule 1 now and the site is built to it (below, "The white look in the app").
 
 ### Logo concepts for 金牛 (2026-11-02)
 
@@ -95,7 +95,7 @@ The gold stays for the 创建代币 button and for what holders are paid.
 
 ### 金牛 in the code (owner, 2026-11-03: "upload ke domain dan server ini")
 
-The owner pointed jinniu.fun at the hwai server and asked to deploy. The code now says 金牛: `BRAND` "金牛" in Chinese copy (no space next to Han text), `BRAND_LATIN` "jinniu" in English copy, the API's messages, the wallet sign-in statement ("Sign in to jinniu.") and the PlatformConfig's name, `DOMAIN` "jinniu.fun" (`packages/shared/src/brand.ts`). The header's wordmark is text: 金牛 in Noto Sans SC 900 with "jinniu" small beside it (hidden on phones). Each coin's share image writes 金牛 and jinniu.fun. The site's share image is `brand/jinniu/src/social.cjs` (white, the mark, 土狗也分红，分的是美股, the English line and jinniu.fun). The official token's card takes its ticker from `NEXT_PUBLIC_TOKEN_TICKER` and names the domain and the X handle from the build env, not hwai's. go-live.sh builds `main`, moves the site with `domain` to `BRAND_DOMAIN=jinniu.fun`, and gives the PlatformConfig name `jinniu` and the picture `/brand/jinniu-mark-512.png`. The design is still design 牛 until the white look is approved and built.
+The owner pointed jinniu.fun at the hwai server and asked to deploy. The code now says 金牛: `BRAND` "金牛" in Chinese copy (no space next to Han text), `BRAND_LATIN` "jinniu" in English copy, the API's messages, the wallet sign-in statement ("Sign in to jinniu.") and the PlatformConfig's name, `DOMAIN` "jinniu.fun" (`packages/shared/src/brand.ts`). The header's wordmark is text: 金牛 in Noto Sans SC 900 with "jinniu" small beside it (hidden on phones). Each coin's share image writes 金牛 and jinniu.fun. The site's share image is `brand/jinniu/src/social.cjs` (white, the mark, 土狗也分红，分的是美股, the English line and jinniu.fun). The official token's card takes its ticker from `NEXT_PUBLIC_TOKEN_TICKER` and names the domain and the X handle from the build env, not hwai's. go-live.sh builds `main`, moves the site with `domain` to `BRAND_DOMAIN=jinniu.fun`, and gives the PlatformConfig name `jinniu` and the picture `/brand/jinniu-mark-512.png`. The white look followed the same day (below).
 
 ## Stock token logos
 
