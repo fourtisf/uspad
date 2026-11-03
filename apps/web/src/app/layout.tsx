@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense, type ReactNode } from "react";
-import type { Config, Stats } from "@divvy/shared";
+import type { Config } from "@divvy/shared";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import "./globals.css";
 import "./additions.css";
+import "./area-home.css";
+import "./area-coin.css";
+import "./area-pages.css";
 import { sharedApi } from "@/lib/server-api";
 import { BRAND, BRAND_LATIN } from "@/lib/brand";
 import { htmlLang } from "@/i18n/lang";
@@ -12,7 +15,6 @@ import { getLang, getUpDown } from "@/i18n/server";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Providers } from "@/components/Providers";
-import { Strip } from "@/components/Strip";
 import { TabBar } from "@/components/TabBar";
 import { X_HANDLE } from "@/lib/social";
 
@@ -38,27 +40,25 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#060807" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#FFFFFF" };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const [config, stats, lang, upDown] = await Promise.all([sharedApi<Config>("/api/config"), sharedApi<Stats>("/api/stats"), getLang(), getUpDown()]);
+  const [config, lang, upDown] = await Promise.all([sharedApi<Config>("/api/config"), getLang(), getUpDown()]);
   return (
     <html lang={htmlLang(lang)} data-updown={upDown}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* Design 牛's faces (prototype/hwai-niu-prototype.html). Google splits the Han font by unicode-range, so a page only loads the slices it uses. */}
+        {/* 金牛's faces (prototype/jinniu-prototype.html): Inter Tight for Latin and numbers, Noto Sans SC for Chinese. Google splits the Han font by unicode-range, so a page only loads the slices it uses. */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <div className="bgpat" aria-hidden="true" />
         <LangProvider lang={lang} upDown={upDown}>
           <Providers config={config}>
             <Suspense fallback={null}>
               <Header />
             </Suspense>
-            <Strip events={stats.activity} />
             <main id="app" className="wrap">
               {children}
             </main>
