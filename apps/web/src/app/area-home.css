@@ -1,1 +1,80 @@
 /* What the prototype (prototype/jinniu-prototype.html, in globals.css) doesn't draw for the shell (header, footer, dock, toasts) and the home page. */
+
+/* ---------- coin pictures: creators' uploads in the prototype's .tile boxes (size and corners come from globals.css) ---------- */
+.tile.pic{background:var(--s1)}
+.tile.pic img{display:block;width:100%;height:100%;object-fit:cover}
+/* A hairline so white pictures keep their edge on white cards. */
+.tile.pic::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);pointer-events:none}
+/* The featured minis' wide box: the square picture whole, on a blur of itself. */
+.tile.pic.wide img{position:absolute;top:0;left:50%;width:auto;height:100%;aspect-ratio:1;transform:translateX(-50%)}
+.tile.pic.wide img.bg{inset:0;left:0;width:100%;filter:blur(18px) saturate(1.15);transform:scale(1.25);opacity:.55}
+
+/* ---------- stock icons (Chip): the official logos in the prototype's .stk circle ---------- */
+.stk.chip-logo{overflow:hidden;background:#fff;box-shadow:0 0 0 1px var(--line)}
+.stk.chip-logo img{display:block;width:100%;height:100%;object-fit:cover}
+.stk.m3{font-size:7px;letter-spacing:-.03em}
+
+/* ---------- header and dock ---------- */
+.brand svg{flex:none}
+.connectb svg{flex:none}
+/* English labels are wider than the prototype's Chinese: below 1200px the centred nav pill would run into
+   the buttons, so it takes its place in the row instead. */
+@media (max-width:1200px){:lang(en) .navpill{position:static;transform:none;margin:0 auto}}
+/* A coin's page has its buy and sell bar where the dock sits on phones (prototype body.v-coin .dock). */
+@media (max-width:640px){.dock.on-coin{display:none}}
+
+/* ---------- pool card ---------- */
+.eyebrow .ey-pills{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px}
+.eyebrow .ey-pills .pill{margin-left:0}
+.eyebrow .ey-pills:empty{display:none}
+.eyebrow .pill svg{flex:none}
+/* Before the first coin the card carries the headline instead of a $0 pool. */
+.pool-h{position:relative;z-index:1;margin:18px 0 12px;font:800 clamp(34px,4.6vw,56px)/1.12 var(--ff);letter-spacing:-.03em}
+:lang(en) .pool-h{letter-spacing:-.035em}
+@media (max-width:640px){.pool-h{font-size:32px;margin:12px 0 8px}}
+
+/* ---------- payout feed ---------- */
+.fr .t{min-width:0}
+.fr .t b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr .v{flex:none}
+.feed-none{padding:16px 0 14px;font-size:14px;color:var(--tx2)}
+.feed-none b{display:block;margin-bottom:4px;font:700 15.5px var(--ff);color:var(--tx)}
+
+/* ---------- official token (TokenCa.tsx OfficialToken) ---------- */
+.otk{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:22px;align-items:center;margin-top:22px;padding:22px 24px;border-radius:28px}
+.otk>svg{flex:none}
+.otk-info{min-width:0}
+.otk-info .pill{height:26px;font-size:12.5px}
+.otk h2{margin:8px 0 2px;font:800 28px/1.15 var(--ff);letter-spacing:-.02em}
+.otk p{margin:0;font-size:14px;color:var(--tx2)}
+.otk-ca{display:flex;align-items:center;gap:10px;height:44px;min-width:0;max-width:420px;padding:0 16px;border:0;border-radius:999px;background:var(--s1);color:var(--tx);cursor:pointer}
+.otk-ca span{font:700 12.5px var(--ff);color:var(--tx3)}
+.otk-ca b{font:600 13.5px var(--ff);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.otk-ca svg{flex:none;color:var(--tx2)}
+.otk-ca:hover{box-shadow:inset 0 0 0 1px var(--line2)}
+@media (max-width:1100px){.otk{grid-template-columns:auto minmax(0,1fr)}.otk-ca,.otk .btn{grid-column:1/-1;max-width:none}}
+@media (max-width:640px){.otk{gap:14px;padding:18px;border-radius:26px}.otk>svg{width:52px;height:52px}.otk h2{font-size:23px}}
+
+/* ---------- featured ---------- */
+.dvl.solo{padding-left:10px}
+.feat .hd .nmw{min-width:0}
+.feat h3{overflow-wrap:anywhere}
+.chart-none{display:grid;place-items:center;height:100%;min-height:150px;border-radius:18px;background:var(--s1);font:500 13px var(--ff);color:var(--tx3)}
+.mini{min-width:0}
+.mini .nm{min-width:0}
+.mini .nm>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini .nm small{flex:none}
+.mini .dvl{max-width:100%;overflow:hidden}
+
+/* ---------- all coins ---------- */
+/* Under the sticky header when the search button scrolls here. */
+#all{scroll-margin-top:92px}
+.search svg{flex:none}
+.search input::-webkit-search-cancel-button{cursor:pointer}
+.cc .lbl{margin:0}
+.cc .sp-none{display:grid;place-items:center;height:40px;border-radius:12px;background:var(--s1);font:500 12px var(--ff);color:var(--tx3)}
+.cc.preview{cursor:default}
+.cc.preview:hover{transform:none;box-shadow:var(--sh)}
+.empty a:not(.btn){color:var(--tx);text-decoration:underline}
+.empty .btn{margin-top:16px}
+.more .btn svg{flex:none}

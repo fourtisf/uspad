@@ -13,12 +13,12 @@ export function XLogo({ size = 12 }: { size?: number }) {
   );
 }
 
-/** "Follow @<handle>" in the hero, next to the contract address badge. */
+/** "Follow @<handle>" on X as a pill (prototype `.pill`). The footer links the account too. */
 export function XFollow() {
   const t = useMsgs(hero);
   if (!X_HANDLE) return null;
   return (
-    <a className="pill ca-pill x-pill" href={X_URL} target="_blank" rel="noopener noreferrer" aria-label={t.followOnX(X_HANDLE)}>
+    <a className="pill" href={X_URL} target="_blank" rel="noopener noreferrer" aria-label={t.followOnX(X_HANDLE)}>
       <XLogo />
       <span>
         {t.follow} <b>@{X_HANDLE}</b>
@@ -36,12 +36,12 @@ export function TelegramLogo({ size = 13 }: { size?: number }) {
   );
 }
 
-/** "Join @<handle>" on Telegram, next to the X pill. */
+/** "Join @<handle>" on Telegram as a pill, like XFollow. */
 export function TelegramJoin() {
   const t = useMsgs(hero);
   if (!TELEGRAM_HANDLE) return null;
   return (
-    <a className="pill ca-pill x-pill" href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={t.joinOnTelegram(TELEGRAM_HANDLE)}>
+    <a className="pill" href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label={t.joinOnTelegram(TELEGRAM_HANDLE)}>
       <TelegramLogo />
       <span>
         {t.join} <b>@{TELEGRAM_HANDLE}</b>

@@ -5,11 +5,15 @@ import { api } from "@/lib/api";
 import { useErrorText } from "@/lib/session";
 import { useMsgs } from "@/i18n/client";
 import { reportMsgs } from "@/i18n/msgs/coin";
+import { Icon } from "../Icon";
 import { useToast } from "../Toasts";
 
 const REASONS = ["copy", "scam", "nsfw", "illegal", "other"] as const;
 
-/** "Report" on a coin page: sends a reason to the moderation queue (/admin). No sign-in needed. */
+/**
+ * "Report" on a coin page (the prototype's flag `.icb` in the coin header): sends a reason to the
+ * moderation queue (/admin). No sign-in needed.
+ */
 export function ReportButton({ mint, ticker }: { mint: string; ticker: string }) {
   const toast = useToast();
   const t = useMsgs(reportMsgs);
@@ -52,7 +56,9 @@ export function ReportButton({ mint, ticker }: { mint: string; ticker: string })
 
   return (
     <>
-      <button ref={opener} className="tag report" type="button" onClick={() => setOpen(true)}>{t.report}</button>
+      <button ref={opener} className="icb" type="button" id="report" aria-label={t.report} title={t.report} onClick={() => setOpen(true)}>
+        <Icon name="flag" size={17} />
+      </button>
       {open && (
         <div className="modal-bg on" role="dialog" aria-modal="true" aria-labelledby="reportTitle" onClick={(e) => e.target === e.currentTarget && setOpen(false)}>
           <form className="modal report-modal" onSubmit={submit}>
@@ -67,10 +73,10 @@ export function ReportButton({ mint, ticker }: { mint: string; ticker: string })
                   </label>
                 ))}
               </div>
-              <textarea className="tinput" rows={3} maxLength={500} placeholder={t.details} value={details} onChange={(e) => setDetails(e.target.value)} />
+              <textarea rows={3} aria-label={t.details} maxLength={500} placeholder={t.details} value={details} onChange={(e) => setDetails(e.target.value)} />
               <div className="report-acts">
                 <button className="btn btn-ghost" type="button" onClick={() => setOpen(false)}>{t.cancel}</button>
-                <button className="btn btn-lime" type="submit" disabled={busy}>{t.send}</button>
+                <button className="btn btn-acc" type="submit" disabled={busy}>{t.send}</button>
               </div>
             </div>
           </form>

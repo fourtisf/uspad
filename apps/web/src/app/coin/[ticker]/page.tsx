@@ -49,8 +49,8 @@ export default async function CoinPage({ params }: { params: Promise<{ ticker: s
     const same = found?.items ?? [];
     if (same.length > 1)
       return (
-        <>
-          <Link className="back" href="/"><Icon name="back" />{tc.backToBoard}</Link>
+        <div className="page">
+          <Link className="back" href="/"><Icon name="back" size={16} />{tc.backToBoard}</Link>
           <h1 className="page-h">${same[0]!.ticker}</h1>
           <p className="page-lede">{t.sameTicker(same.length)}</p>
           <div className="grid">
@@ -58,21 +58,21 @@ export default async function CoinPage({ params }: { params: Promise<{ ticker: s
               <CoinCard key={c.mint} c={toCard(c)} />
             ))}
           </div>
-        </>
+        </div>
       );
   }
   // Longer than any ticker or mint: the API would refuse it, so it's simply not a coin here.
   const coin = ticker.length > 64 ? null : await serverApiOrNull<CoinDetail>(`/api/coins/${encodeURIComponent(ticker)}`);
   if (!coin)
     return (
-      <>
-        <Link className="back" href="/"><Icon name="back" />{tc.backToBoard}</Link>
-        <div className="empty">
+      <div className="page">
+        <Link className="back" href="/"><Icon name="back" size={16} />{tc.backToBoard}</Link>
+        <div className="card empty coin-none">
           {t.noCoin(ticker, (text) => (
             <Link className="link" href="/create">{text}</Link>
           ))}
         </div>
-      </>
+      </div>
     );
   const [meter, payouts] = await Promise.all([
     serverApi<Meter>(`/api/coins/${coin.mint}/meter`),

@@ -7,7 +7,10 @@ import { useMsgs } from "@/i18n/client";
 import { common } from "@/i18n/msgs/common";
 import { coinMsgs } from "@/i18n/msgs/coin";
 
-/** Shown the moment a coin card is clicked, while the server loads the coin, so the click never looks ignored. */
+/**
+ * Shown the moment a coin card is clicked, while the server loads the coin, so the click never looks
+ * ignored: the coin page's frame (prototype `#coin`) with grey blocks where its numbers will be.
+ */
 export default function CoinLoading() {
   const { ticker } = useParams<{ ticker: string }>();
   const m = useMsgs(coinMsgs);
@@ -17,24 +20,33 @@ export default function CoinLoading() {
   const t = decodeURIComponent(ticker ?? "");
   const label = t && t.length <= 12 ? `$${t}` : m.coinFallback;
   return (
-    <div aria-busy="true">
-      <Link className="back" href="/"><Icon name="back" />{tc.backToBoard}</Link>
-      <div className="chead">
-        <div className="skel skel-coin" />
+    <div className="page" aria-busy="true">
+      <Link className="back" href="/"><Icon name="back" size={16} />{tc.backToBoard}</Link>
+      <div className="card chead">
+        <span className="tile pic skel" />
         <div style={{ minWidth: 0 }}>
           <h1>{label}</h1>
           <div className="meta">{m.loading}</div>
         </div>
       </div>
-      <div className="panel kpis">
+      <div className="card kpis">
         {KPIS.map((k) => (
           <div key={k}>
             <span>{k}</span>
-            <b className="skel skel-line" />
+            <b className="skel skel-num" />
           </div>
         ))}
       </div>
-      <div className="skel skel-panel" />
+      <div className="cgrid">
+        <div className="card chartc">
+          <div className="skel skel-block" />
+        </div>
+        <aside>
+          <div className="card trade">
+            <div className="skel skel-block" />
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

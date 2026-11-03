@@ -40,115 +40,121 @@ export function AdminView() {
 
   if (!isAdmin) {
     return (
-      <>
+      <div className="page">
         <h1 className="page-h">Admin</h1>
         <p className="page-lede">{me?.wallet ? "This wallet isn't an admin." : "Sign in with an admin wallet."}</p>
         {!me?.wallet && (
-          <button className="btn btn-lime btn-lg" type="button" onClick={() => void ensureSignedIn().catch((e) => toast(errorText(e, "Couldn't sign in") ?? ""))}>
+          <button className="btn btn-acc btn-lg" type="button" onClick={() => void ensureSignedIn().catch((e) => toast(errorText(e, "Couldn't sign in") ?? ""))}>
             Sign in
           </button>
         )}
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="page admin">
       <h1 className="page-h">Admin</h1>
       <p className="page-lede">
         {o ? `${o.mainnetEnabled ? "Mainnet sends are on" : "Mainnet sends are off"}. Payouts are ${o.dryRun ? "in dry-run" : "live"}.` : oError ? "Couldn't load the overview. It retries every 30 seconds." : "Loading…"}
       </p>
       {o && (
-        <div className="tiles">
-          <div><b className={o.launchesOpen ? "up" : "down"}>{o.launchesOpen ? "Open" : "Paused"}</b><span>Launches</span></div>
-          <div><b>{o.pendingLaunches}</b><span>Launches in progress</span></div>
-          <div><b className={o.lateRounds ? "down" : ""}>{o.lateRounds}</b><span>Late rounds, last 24h</span></div>
-          <div><b className={(o.indexerLagSec ?? 0) > 60 ? "down" : ""}>{o.indexerLagSec === null ? "–" : `${o.indexerLagSec}s`}</b><span>Indexer lag</span></div>
+        <div className="card tiles">
+          <div><b className={o.launchesOpen ? "ok" : "bad"}>{o.launchesOpen ? "Open" : "Paused"}</b><span>Launches</span></div>
+          <div><b className="n">{o.pendingLaunches}</b><span>Launches in progress</span></div>
+          <div><b className={"n" + (o.lateRounds ? " bad" : "")}>{o.lateRounds}</b><span>Late rounds, last 24h</span></div>
+          <div><b className={"n" + ((o.indexerLagSec ?? 0) > 60 ? " bad" : "")}>{o.indexerLagSec === null ? "–" : `${o.indexerLagSec}s`}</b><span>Indexer lag</span></div>
         </div>
       )}
 
-      <div className="panel" style={{ marginBottom: 18 }}>
-        <div className="panel-h"><h3>Launches</h3></div>
+      <section className="card adm">
+        <h2 className="panel-h">Launches</h2>
         {/* No switch until the real state is known (audit: it showed "paused" while loading). */}
         {!o ? (
           <p className="note">{oError ? "The launch switch shows once the overview loads." : "Loading…"}</p>
         ) : o.launchesOpen ? (
           <form
-            className="admin-row"
+            className="adm-row"
             onSubmit={(e) => {
               e.preventDefault();
               void act(() => post("/api/admin/settings", { launchesOpen: false, reason: reason.trim() || null }), "Launches paused");
             }}
           >
-            <input className="tinput" placeholder="Reason shown on the create page" maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} />
+            <label className="inp">
+              <span className="sr">Reason</span>
+              <input placeholder="Reason shown on the create page" maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} />
+            </label>
             <button className="btn btn-danger" type="submit" disabled={busy}>Pause launches</button>
           </form>
         ) : (
-          <div className="admin-row">
+          <div className="adm-row">
             <p className="note" style={{ margin: 0 }}>Paused: {o.launchesPausedReason ?? "no reason given"}</p>
-            <button className="btn btn-lime" type="button" disabled={busy} onClick={() => void act(() => post("/api/admin/settings", { launchesOpen: true, reason: null }), "Launches open")}>
+            <button className="btn btn-acc" type="button" disabled={busy} onClick={() => void act(() => post("/api/admin/settings", { launchesOpen: true, reason: null }), "Launches open")}>
               Open launches
             </button>
           </div>
         )}
-      </div>
+      </section>
 
-      <div className="panel" style={{ marginBottom: 18 }}>
-        <div className="panel-h"><h3>Hot wallets</h3></div>
+      <section className="card adm">
+        <h2 className="panel-h">Hot wallets</h2>
         {!o?.wallets.length ? (
           <p className="note">No wallet status yet. The worker reports balances every minute.</p>
         ) : (
-          <div className="table-scroll">
+          <div className="rtable">
             <table className="t">
-              <thead><tr><th>Role</th><th>Address</th><th className="r">Balance</th></tr></thead>
+              <thead><tr><th>Role</th><th>Address</th><th>Balance</th></tr></thead>
               <tbody>
                 {o.wallets.map((w) => (
                   <tr key={w.role}>
                     <td>{w.role.replace("_", " ")}</td>
-                    <td><span className="tx">{short(w.address)}</span></td>
-                    <td className={"r " + (w.lowBalance ? "down" : "")}>{w.sol.toFixed(3)} SOL{w.lowBalance ? ", low" : ""}</td>
+                    <td className="w" title={w.address}>{short(w.address)}</td>
+                    <td className={"n" + (w.lowBalance ? " bad" : "")}>{w.sol.toFixed(3)} SOL{w.lowBalance ? ", low" : ""}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-      </div>
+      </section>
 
-      <div className="panel" style={{ marginBottom: 80 }}>
-        <div className="panel-h"><h3>Reports</h3></div>
+      <section className="card adm">
+        <h2 className="panel-h">Reports</h2>
         {!reports?.items.length ? (
           <p className="note">No open reports.</p>
         ) : (
-          <div className="table-scroll">
+          <div className="rtable">
             <table className="t">
-              <thead><tr><th>Coin</th><th>Reason</th><th>When</th><th className="r" /></tr></thead>
+              <thead><tr><th>Coin</th><th>Reason</th><th>When</th><th /></tr></thead>
               <tbody>
                 {reports.items.map((r) => (
                   <tr key={r.id}>
                     <td>
-                      <Link href={coinHref(r.coin)} style={{ display: "flex", gap: 10, alignItems: "center", whiteSpace: "nowrap", fontWeight: 500 }}>
+                      <Link className="coin-cell" href={coinHref(r.coin)}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={r.coin.imageUrl} alt="" width={26} height={26} style={{ borderRadius: 8 }} />${r.coin.ticker}
-                        {r.coin.hidden && <span className="faint">hidden</span>}
+                        <img className="tile" src={r.coin.imageUrl} alt="" width={34} height={34} loading="lazy" />
+                        <b>${r.coin.ticker}</b>
+                        {r.coin.hidden && <small>hidden</small>}
                       </Link>
                     </td>
-                    <td>
+                    <td className="adm-reason">
                       {REASONS[r.reason] ?? r.reason}
-                      {r.details && <div className="faint" style={{ fontSize: 12.5 }}>{r.details}</div>}
+                      {r.details && <small>{r.details}</small>}
                     </td>
-                    <td suppressHydrationWarning>{ago(r.createdAt)}</td>
-                    <td className="r admin-acts">
-                      <button
-                        className="btn btn-ghost"
-                        type="button"
-                        disabled={busy}
-                        onClick={() => void act(() => post(`/api/admin/coins/${r.coin.mint}/hide`, { hidden: !r.coin.hidden, reason: r.coin.hidden ? null : REASONS[r.reason] ?? r.reason }), r.coin.hidden ? "Coin shown again" : "Coin hidden")}
-                      >
-                        {r.coin.hidden ? "Unhide" : "Hide coin"}
-                      </button>
-                      <button className="btn btn-ghost" type="button" disabled={busy} onClick={() => void act(() => post(`/api/admin/reports/${r.id}`, { status: "resolved" }), "Report resolved")}>Resolve</button>
-                      <button className="btn btn-ghost" type="button" disabled={busy} onClick={() => void act(() => post(`/api/admin/reports/${r.id}`, { status: "dismissed" }), "Report dismissed")}>Dismiss</button>
+                    <td className="w" suppressHydrationWarning>{ago(r.createdAt)}</td>
+                    <td>
+                      <div className="adm-acts">
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          type="button"
+                          disabled={busy}
+                          onClick={() => void act(() => post(`/api/admin/coins/${r.coin.mint}/hide`, { hidden: !r.coin.hidden, reason: r.coin.hidden ? null : REASONS[r.reason] ?? r.reason }), r.coin.hidden ? "Coin shown again" : "Coin hidden")}
+                        >
+                          {r.coin.hidden ? "Unhide" : "Hide coin"}
+                        </button>
+                        <button className="btn btn-ghost btn-sm" type="button" disabled={busy} onClick={() => void act(() => post(`/api/admin/reports/${r.id}`, { status: "resolved" }), "Report resolved")}>Resolve</button>
+                        <button className="btn btn-ghost btn-sm" type="button" disabled={busy} onClick={() => void act(() => post(`/api/admin/reports/${r.id}`, { status: "dismissed" }), "Report dismissed")}>Dismiss</button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -156,7 +162,7 @@ export function AdminView() {
             </table>
           </div>
         )}
-      </div>
-    </>
+      </section>
+    </div>
   );
 }

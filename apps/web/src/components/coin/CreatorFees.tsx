@@ -14,7 +14,8 @@ import { creatorFeesMsgs } from "@/i18n/msgs/coin";
 import { useToast } from "../Toasts";
 
 /**
- * On a coin's page, for its creator only (the connected wallet made the coin): the SOL its trades left
+ * On a coin's page, in the aside under the trade box as a card in the prototype's style (`.card` with
+ * `.kv` rows and the gold button), for its creator only (the connected wallet made the coin): the SOL its trades left
  * them and a button to claim it. Same API as /me: LaunchLab keeps one creator vault per wallet, so a
  * claim takes the fees of all their coins at once.
  */
@@ -58,14 +59,12 @@ export function CreatorFees({ coin }: { coin: CoinDetail }) {
   const earned = data?.coins.find((c) => c.mint === coin.mint)?.creatorFees.ui ?? 0;
   const ready = data?.claimable;
   return (
-    <div className="panel" id="creatorFees">
-      <div className="panel-h">
-        <h3>{t.title}</h3>
-      </div>
+    <div className="card cfees" id="creatorFees">
+      <h3 className="panel-h">{t.title}</h3>
       {!signedIn ? (
         <>
           <p className="note">{t.signInNote}</p>
-          <button className="btn btn-lime" type="button" style={{ width: "100%" }} disabled={busy} onClick={() => void run(async () => void (await ensureSignedIn()), t.signInFailed)}>
+          <button className="btn btn-acc btn-block" type="button" disabled={busy} onClick={() => void run(async () => void (await ensureSignedIn()), t.signInFailed)}>
             {t.signInToClaim}
           </button>
         </>
@@ -73,12 +72,14 @@ export function CreatorFees({ coin }: { coin: CoinDetail }) {
         <p className="note">{t.loading}</p>
       ) : (
         <>
-          <div className="kv"><span>{t.earnedOn(coin.ticker)}</span><b>{sol(earned)}</b></div>
-          <div className="kv"><span>{t.ready}</span><b className="up">{sol(ready!.ui)}</b></div>
-          <button className="btn btn-lime" type="button" id="claimCreator" style={{ width: "100%", marginTop: 10 }} disabled={busy || ready!.raw === "0"} onClick={() => void claim()}>
+          <div className="kvs">
+            <div className="kv"><span>{t.earnedOn(coin.ticker)}</span><b className="n">{sol(earned)}</b></div>
+            <div className="kv"><span>{t.ready}</span><b className="n">{sol(ready!.ui)}</b></div>
+          </div>
+          <button className="btn btn-acc btn-block" type="button" id="claimCreator" disabled={busy || ready!.raw === "0"} onClick={() => void claim()}>
             {busy ? t.claiming : ready!.raw === "0" ? t.nothing : t.claim(sol(ready!.ui))}
           </button>
-          <p className="note" style={{ marginTop: 10 }}>
+          <p className="note">
             {t.note(
               (config.fees.creatorBps / 100).toFixed(2),
               claimed

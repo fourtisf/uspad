@@ -13,15 +13,12 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
     console.error(error);
   }, [error]);
   return (
-    <>
-      <Link className="back" href="/"><Icon name="back" />{t.backToBoard}</Link>
-      <div className="empty">
-        {t.errorLoading}{" "}
-        <button className="link" type="button" onClick={reset} style={{ background: "none", border: 0, padding: 0, font: "inherit", cursor: "pointer" }}>
-          {t.tryAgain}
-        </button>
-        {t.period}
+    <div className="page">
+      <Link className="back" href="/"><Icon name="back" size={16} />{t.backToBoard}</Link>
+      <div className="card empty status-card" role="alert">
+        <b>{t.errorLoading}</b>
+        <button className="btn btn-acc" type="button" onClick={reset}>{t.tryAgain}</button>
       </div>
-    </>
+    </div>
   );
 }

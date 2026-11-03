@@ -2,76 +2,195 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
-import { minutesSince, num, pct, usd, usdFull, type CoinList, type CoinSort, type CoinSummary, type Stats } from "@divvy/shared";
+import { intervalFrac, num, pct, usd, usdFull, type CoinList, type CoinSort, type CoinSummary, type LiveEvent, type Stats } from "@divvy/shared";
 import { coinsKey } from "@/lib/keys";
+import { toCard } from "@/lib/cards";
 import { useAssets, useConfig } from "@/lib/config";
 import { deliveryCopy } from "@/lib/copy";
-import { shareLabel } from "@/lib/devbuy";
+import { useNow } from "@/lib/hooks";
 import { coinHref } from "@/lib/links";
-import { useLang, useMsgs } from "@/i18n/client";
+import { useAgo, useLang, useMsgs } from "@/i18n/client";
 import { board } from "@/i18n/msgs/board";
 import { common } from "@/i18n/msgs/common";
 import { Chip } from "../Chip";
-import { Countdown } from "../Countdown";
+import { CoinCard, CoinPic, money } from "../CoinCard";
+import { Countdown, rollForward } from "../Countdown";
 import { CountUp } from "../CountUp";
-import { Mark } from "../Mark";
+import { focusCoinSearch, takeCoinSearchRequest } from "../Header";
+import { Icon } from "../Icon";
 import { Spark } from "../Spark";
 import { OfficialToken, TokenCa } from "../TokenCa";
 import { TelegramJoin, XFollow } from "../XFollow";
 
 const SORTS: CoinSort[] = ["trending", "new", "payers", "graduate"];
+/** Cards shown at first and added by "Show more": whole rows at 4, 3, 2 and 1 columns. */
+const PAGE = 12;
+const HOUR_SEC = 3600;
+const TICKS = [":00", ":15", ":30", ":45", ":00"];
+const NONE: CoinSummary[] = [];
+/** The pool to the cent, as the prototype's big number ("$482.16"). */
+const usd2 = (v: number): string => "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/** A coin's picture as a rounded tile (prototype `av`). */
-function Avatar({ src, size }: { src: string; size: number }) {
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img className="av" src={src} alt="" width={size} height={size} loading="lazy" style={{ width: size, height: size, borderRadius: Math.round(size * 0.27), objectFit: "cover" }} />;
+type PayoutEvent = Extract<LiveEvent, { type: "payout_round" }>;
+
+/** The hour as a line (prototype `.hour` and `.ticks`): how much of the hour before the next round has gone. */
+function HourLine({ nextAt }: { nextAt: string }) {
+  const now = useNow();
+  const done = intervalFrac(rollForward(nextAt, now), HOUR_SEC, now);
+  return (
+    <>
+      <div className="hour" aria-hidden="true">
+        <i style={{ width: (done * 100).toFixed(2) + "%" }} suppressHydrationWarning />
+      </div>
+      <div className="ticks" aria-hidden="true">
+        {TICKS.map((k, i) => <span key={i}>{k}</span>)}
+      </div>
+    </>
+  );
 }
 
-/** One row of the coin table (prototype `.trow`); on phones it folds into a compact card. */
-function CoinRow({ c, now }: { c: CoinSummary; now: number }) {
+/** " · 15:00 发放": when the next round goes out, in the visitor's own time (so only once in the browser). */
+function RoundAt({ nextAt, claim }: { nextAt: string; claim: boolean }) {
   const t = useMsgs(board);
-  const ago = useMsgs(common).ago;
-  const age = minutesSince(c.createdAt, now);
-  const graduated = c.status === "graduated";
+  const [lang] = useLang();
+  const now = useNow(15_000);
+  const [inBrowser, setInBrowser] = useState(false);
+  useEffect(() => setInBrowser(true), []);
+  if (!inBrowser) return null;
+  const at = new Date(rollForward(nextAt, now)).toLocaleTimeString(lang === "zh" ? "zh-CN" : "en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  return <> · {t.poolAt(at, claim)}</>;
+}
+
+/** "刚刚到账" (prototype `.feed`): the latest payout rounds the API sent with the stats. */
+function Feed({ events, names, hasCoins, now }: { events: LiveEvent[]; names: Map<string, string>; hasCoins: boolean; now: number }) {
+  const t = useMsgs(board);
+  const ago = useAgo();
+  const rows = events.filter((e): e is PayoutEvent => e.type === "payout_round").slice(0, 5);
   return (
-    <Link className="trow" href={coinHref(c)}>
-      <div className="coin">
-        <Avatar src={c.imageUrl} size={38} />
-        <div style={{ minWidth: 0 }}>
-          <b>
-            {c.name}
-            {age < 20 && <span className="badge new">{t.badgeNew}</span>}
-            {graduated && <span className="badge grad">{t.badgeGraduated}</span>}
-            {c.devBuyPct ? <span className="badge dev" title={t.devBadgeTitle(shareLabel(c.devBuyPct))}>{t.devBadge(shareLabel(c.devBuyPct))}</span> : null}
-          </b>
-          <small suppressHydrationWarning>${c.ticker} · {ago(age)}</small>
+    <div className="card feed">
+      <h3>
+        {t.feedH} <Link href="/payouts">{t.feedAll}</Link>
+      </h3>
+      <div>
+        {rows.length ? (
+          rows.map((e) => {
+            const name = names.get(e.mint);
+            return (
+              <Link className="fr" href={coinHref(e)} key={e.mint + e.at}>
+                <CoinPic src={e.imageUrl} />
+                <div className="t">
+                  <b>{name ?? t.feedHolders(e.ticker)}</b>
+                  <small>{name ? t.feedHolders(e.ticker) : t.feedWallets(e.wallets)}</small>
+                </div>
+                <div className="v">
+                  <b className="n">+{num(e.amount.ui)} {e.assetSymbol}</b>
+                  <small suppressHydrationWarning>{ago(e.at, now)}</small>
+                </div>
+              </Link>
+            );
+          })
+        ) : (
+          <div className="feed-none">
+            <b>{hasCoins ? t.feedEmptyH : t.liveEmptyH}</b>
+            {hasCoins ? t.feedEmptyP : t.liveEmptyP}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** The paying-the-most coin, big (prototype `.feat`): its chart and what it pays. */
+function Feat({ c }: { c: CoinSummary }) {
+  const t = useMsgs(board);
+  return (
+    <Link className="card feat" href={coinHref(c)}>
+      <div className="hd">
+        <CoinPic src={c.imageUrl} />
+        <div className="nmw">
+          {c.paid24hUsd > 0 && <span className="dvl solo">{t.topPayer}</span>}
+          <h3>{c.name}</h3>
+          <span className="tk">${c.ticker}</span>
         </div>
       </div>
-      <span className="c-mcap num" style={{ fontSize: 17, fontWeight: 700 }}>{usd(c.marketCapUsd)}</span>
-      <span className="c-chg"><span className={"chg " + (c.change24hPct >= 0 ? "up" : "down")}>{pct(c.change24hPct)}</span></span>
-      <span className="c-prog prog">
-        {graduated ? (
-          <span className="badge grad">{t.badgeGraduated}</span>
-        ) : (
-          <>
-            <span className="bar"><i style={{ width: (c.progress * 100).toFixed(1) + "%" }} /></span>
-            <span className="num">{Math.round(c.progress * 100)}%</span>
-          </>
-        )}
-      </span>
-      <span className="c-pays paychip"><Chip sym={c.dividendAsset} />{c.dividendAsset}</span>
-      <span className="c-paid num up">{usd(c.paidUsd)}</span>
-      <span className="c-h num">{c.holders.toLocaleString("en-US")}</span>
-      <span className="c-age" suppressHydrationWarning>{t.ageShort(ago(age))}</span>
+      <div className="row">
+        <b className="n">{usd(c.marketCapUsd)}</b>
+        <span className={"chg n " + (c.change24hPct >= 0 ? "up" : "dn")}>{pct(c.change24hPct)}</span>
+        <small>{t.mcap24h}</small>
+      </div>
+      <div className="chart">{c.spark.length > 1 ? <Spark values={c.spark} area w={600} h={150} /> : <span className="chart-none">{t.noChart}</span>}</div>
+      <div className="ft">
+        <div className="box">
+          <span>{t.boxPays}</span>
+          <b>
+            <Chip sym={c.dividendAsset} />
+            {c.dividendAsset}
+          </b>
+        </div>
+        <div className="box">
+          <span>{t.boxPaid24h}</span>
+          <b className="g n">{money(c.paid24hUsd)}</b>
+        </div>
+        <div className="box">
+          <span>{t.boxHolders}</span>
+          <b className="n">{c.holders.toLocaleString("en-US")}</b>
+        </div>
+      </div>
     </Link>
   );
 }
 
-export function Board({ stats, leaders, initialCoins, now: renderedAt }: { stats: Stats; leaders: CoinSummary[]; initialCoins: CoinList; now: number }) {
+/** A featured coin, small (prototype `.mini`): its picture wide, on a blur of itself so none of it is cut. */
+function Mini({ c, nextAt }: { c: CoinSummary; nextAt: string }) {
+  const t = useMsgs(board);
+  return (
+    <Link className="card mini" href={coinHref(c)}>
+      <span className="tile pic wide">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="bg" src={c.imageUrl} alt="" loading="lazy" decoding="async" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={c.imageUrl} alt="" loading="lazy" decoding="async" />
+      </span>
+      <div className="nm">
+        <span>{c.name}</span>
+        <small>${c.ticker}</small>
+      </div>
+      <div className="mr">
+        <b className="n">{usd(c.marketCapUsd)}</b>
+        <span className={"n " + (c.change24hPct >= 0 ? "up" : "dn")}>{pct(c.change24hPct)}</span>
+      </div>
+      <span className="dvl">
+        <Chip sym={c.dividendAsset} />
+        {c.paidUsd > 0 ? t.paid24h(money(c.paid24hUsd)) : t.firstRound(<span className="n"><Countdown nextAt={nextAt} /></span>)}
+      </span>
+    </Link>
+  );
+}
+
+/**
+ * The home page (prototype `#home`): the round's pool and the payout feed, the stats, the promises, the
+ * official token, the featured coins and every coin. Before the first coin it shows no zeros: the pool card
+ * carries the headline instead of a $0 pool, and the stats wait for the first coin.
+ */
+export function Board({
+  stats,
+  leaders,
+  initialCoins,
+  pendingUsd,
+  now: renderedAt,
+}: {
+  stats: Stats;
+  leaders: CoinSummary[];
+  initialCoins: CoinList;
+  /** Waiting for the next round across every coin (/api/payouts summary); null when that didn't load. */
+  pendingUsd: number | null;
+  now: number;
+}) {
   const config = useConfig();
   const t = useMsgs(board);
+  const tc = useMsgs(common);
   const [lang] = useLang();
   // Ages start from the server's clock, so hydration matches the HTML, then follow the browser's
   // (audit: a coin crossing 10 or 20 minutes in between broke hydration).
@@ -82,94 +201,108 @@ export function Board({ stats, leaders, initialCoins, now: renderedAt }: { stats
     return () => clearInterval(timer);
   }, []);
   const assets = useAssets();
+
+  // The search: ?q= in the URL is the query (links and reloads keep it); typing updates it in place.
   const q = useSearchParams().get("q") ?? "";
+  const [input, setInput] = useState(q);
+  useEffect(() => setInput(q), [q]);
+  const onSearch = (v: string) => {
+    setInput(v);
+    window.history.replaceState(null, "", v ? `/?q=${encodeURIComponent(v)}` : "/");
+  };
+  // The header's search button or "/" from another page.
+  useEffect(() => {
+    if (!takeCoinSearchRequest()) return;
+    const raf = requestAnimationFrame(() => focusCoinSearch(false));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   const [sort, setSort] = useState<CoinSort>("trending");
   const [pays, setPays] = useState("all");
   const key = coinsKey({ sort, pays, q });
   const first = coinsKey({ sort: "trending", pays: "all", q });
   const { data } = useSWR<CoinList>(key, { fallbackData: key === first ? initialCoins : undefined });
-  const list = data?.items ?? [];
+  const list = data?.items ?? NONE;
+  const [more, setMore] = useState({ key, n: PAGE });
+  const shownN = more.key === key ? more.n : PAGE;
 
-  const round = stats.lastRound;
-  const roundUsd = round?.paidUsd ?? 0;
-  const stocksToEarn = config.dividendAssets.filter((a) => a.kind === "stock" && a.enabled).length;
-  const paidLaunch = !!config.launchFee.to;
-
-  // The live card shows the coin paying the most today, else the hottest one; before any coin, an invitation.
-  const top = leaders[0] ?? initialCoins.items[0];
-  const drips = (round?.items ?? []).slice(0, 2);
+  const hasCoins = stats.coinsLive > 0;
+  // The pool waits for the first coin, like the stats: before it, the card carries the headline.
+  const pool = hasCoins ? pendingUsd : null;
   const claim = config.payouts.delivery === "claim";
+  const paidLaunch = !!config.launchFee.to;
+  const stocksToEarn = config.dividendAssets.filter((a) => a.kind === "stock" && a.enabled).length;
+  // The feed's rounds carry tickers; names come from the coins on the page.
+  const names = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of [...leaders, ...initialCoins.items, ...list]) m.set(c.mint, c.name);
+    return m;
+  }, [leaders, initialCoins.items, list]);
 
   return (
     <>
-      <section className="hero">
-        <div>
-          <div className="hero-chips">
-            <span className="kick">
-              <i className="pulse" />
-              {roundUsd > 0 ? t.paidThisHour(usd(roundUsd)) : t.kickIdle}
+      <div className="hero">
+        <div className="card pool">
+          <div className="eyebrow">
+            <i className="live" />
+            {pool !== null ? (
+              <span>
+                {t.poolLabel}
+                <RoundAt nextAt={stats.nextRoundAt} claim={claim} />
+              </span>
+            ) : (
+              <span>{t.kickIdle}</span>
+            )}
+            <span className="ey-pills">
+              <TokenCa />
+              <XFollow />
+              <TelegramJoin />
             </span>
-            <TokenCa />
-            <XFollow />
-            <TelegramJoin />
           </div>
-          <h1>{t.h1}</h1>
-          <p className="lede">{t.lede(paidLaunch, deliveryCopy(config, lang).heroTail)}</p>
-          <div className="ctas">
-            <Link className="btn btn-lime btn-lg" href="/create">{t.createCoin}</Link>
-            <Link className="btn btn-ghost btn-lg" href="/how">{t.howItWorks}</Link>
-          </div>
-          {/* Zeros on an empty board read as a dead site: the numbers appear with the first coin. */}
-          {stats.coinsLive > 0 && (
-            <div className="stats">
-              <div><b><CountUp value={stats.paidToHoldersUsd} format={usdFull} /></b><span>{t.paidToHolders}</span></div>
-              <div><b><CountUp value={stats.volume24hUsd} format={usdFull} /></b><span>{t.traded24h}</span></div>
-              <div><b>{stats.coinsLive}</b><span>{t.coinsLive}</span></div>
-              <div><b>{stocksToEarn}</b><span>{t.stocksToEarn}</span></div>
-            </div>
+          {pool !== null ? (
+            <>
+              <h1 className="sr">{t.h1}</h1>
+              <div className="big n">
+                <CountUp value={pool} format={usd2} />
+              </div>
+              <p>{t.poolP(<Countdown nextAt={stats.nextRoundAt} />, claim)}</p>
+              <HourLine nextAt={stats.nextRoundAt} />
+            </>
+          ) : (
+            <>
+              <h1 className="pool-h">{t.h1}</h1>
+              <p>{t.lede(paidLaunch, deliveryCopy(config, lang).heroTail)}</p>
+            </>
           )}
-        </div>
-        <div className="stage">
-          <div className="live" aria-label={t.nextPayout}>
-            {top ? (
-              <Link className="live-h" href={coinHref(top)}>
-                <Avatar src={top.imageUrl} size={46} />
-                <div className="nm">
-                  <b>{top.name}</b>
-                  <span>{t.liveTick(top.ticker, top.dividendAsset)}</span>
-                </div>
-                <div className="lchg">
-                  <b className={top.change24hPct >= 0 ? "up" : "down"}>{pct(top.change24hPct)}</b>
-                  <span>{t.h24}</span>
-                </div>
-              </Link>
-            ) : null}
-            <div className="live-chart">
-              {top && top.spark.length > 1 ? (
-                <Spark values={top.spark} className="area" w={520} h={220} />
-              ) : (
-                <div className="live-empty">
-                  <Mark size={64} />
-                  <b>{top ? t.noChart : t.liveEmptyH}</b>
-                  {top ? null : <span>{t.liveEmptyP}</span>}
-                </div>
-              )}
-              {drips.map((p, i) => (
-                <div className={"drip d" + (i + 1)} key={p.mint}>
-                  {t.dripLabel(p.ticker)} <b>+{num(p.amount.ui)} {p.assetSymbol}</b>
-                </div>
-              ))}
-            </div>
-            <div className="cd">
-              <b className="tab"><Countdown nextAt={stats.nextRoundAt} /></b>
-              <div className="l"><b>{t.nextPayout}</b>{t.untilNext(claim)}</div>
-              {roundUsd > 0 && (
-                <div className="r">{t.lastRound}<b><CountUp value={roundUsd} format={usdFull} /></b></div>
-              )}
-            </div>
+          <div className="ctas">
+            <Link className="btn btn-acc btn-lg" href="/create">{t.createCoin}</Link>
+            <Link className="btn btn-line btn-lg" href="/how">{t.howItWorks}</Link>
           </div>
         </div>
-      </section>
+        <Feed events={stats.activity} names={names} hasCoins={hasCoins} now={now} />
+      </div>
+
+      {/* Zeros on an empty board read as a dead site: the numbers appear with the first coin. */}
+      {hasCoins && (
+        <div className="stats">
+          <div>
+            <b className="g n"><CountUp value={stats.paidToHoldersUsd} format={usdFull} /></b>
+            <span>{t.paidToHolders}</span>
+          </div>
+          <div>
+            <b className="n"><CountUp value={stats.volume24hUsd} format={usd} /></b>
+            <span>{t.traded24h}</span>
+          </div>
+          <div>
+            <b className="n">{stats.coinsLive.toLocaleString("en-US")}</b>
+            <span>{t.coinsLive}</span>
+          </div>
+          <div>
+            <b className="n">{stocksToEarn}</b>
+            <span>{t.stocksToEarn}</span>
+          </div>
+        </div>
+      )}
       <div className="promises">
         <Link href="/how">{t.devBuysShown(paidLaunch)}</Link>
         <Link href="/how">{t.liquidityLocked}</Link>
@@ -179,84 +312,81 @@ export function Board({ stats, leaders, initialCoins, now: renderedAt }: { stats
 
       <OfficialToken />
 
-      {leaders.length > 0 && (
+      {leaders[0] && (
         <section className="sec" aria-labelledby="leadH">
-          <div className="sec-h">
-            <div>
-              <h2 id="leadH">{t.leadersH}</h2>
-              <p>{t.leadersP}</p>
-            </div>
+          <div className="sh">
+            <h2 id="leadH">{t.leadersH}</h2>
+            <p>{t.leadersP}</p>
           </div>
-          <div className="leaders">
-            {leaders.map((c) => (
-              <Link className="lcard" href={coinHref(c)} key={c.mint}>
-                <div className="top">
-                  <Avatar src={c.imageUrl} size={42} />
-                  <div>
-                    <div className="nm">{c.name}</div>
-                    <div className="tk">${c.ticker}</div>
-                  </div>
-                  <span className={"chg " + (c.change24hPct >= 0 ? "up" : "down")}>{pct(c.change24hPct)}</span>
-                </div>
-                {c.spark.length > 1 ? <Spark values={c.spark} /> : <div className="spark-empty">{t.noChart}</div>}
-                <div className="mc">
-                  <b>{usd(c.marketCapUsd)}</b>
-                  <span>{c.status === "graduated" ? t.badgeGraduated : t.curveShort(Math.round(c.progress * 100) + "%")}</span>
-                </div>
-                <div className="bar"><i style={{ width: (c.progress * 100).toFixed(1) + "%" }} /></div>
-                <div className="pays">
-                  <strong><Chip sym={c.dividendAsset} />{c.dividendAsset}</strong>
-                  <span>{t.paidToday} <b>{usd(c.paid24hUsd)}</b></span>
-                </div>
-              </Link>
+          <div className="bento">
+            <Feat c={leaders[0]} />
+            {leaders.slice(1, 5).map((c) => (
+              <Mini key={c.mint} c={c} nextAt={stats.nextRoundAt} />
             ))}
           </div>
         </section>
       )}
 
-      <section className="sec" style={leaders.length ? { paddingTop: 6 } : undefined} aria-labelledby="allH">
-        <div className="sec-h"><div><h2 id="allH">{t.allCoins}</h2></div></div>
-        <div className="panel board">
-          <div className="toolbar">
+      <section className="sec" id="all" aria-labelledby="allH">
+        <div className="sh">
+          <h2 id="allH">{t.allCoins}</h2>
+          <div className="r">
+            <label className="search">
+              <Icon name="search" size={17} />
+              <span className="sr">{tc.searchLabel}</span>
+              <input id="search" type="search" placeholder={tc.searchPlaceholder} autoComplete="off" aria-keyshortcuts="/" value={input} onChange={(e) => onSearch(e.target.value)} />
+            </label>
             <div className="seg" role="group" aria-label={t.sort}>
               {SORTS.map((k) => (
                 <button type="button" key={k} aria-pressed={sort === k} onClick={() => setSort(k)}>{t.sorts[k]}</button>
               ))}
             </div>
-            <div className="fwrap">
-              <span>{t.paysIn}</span>
-              <div className="fchips" role="group" aria-label={t.filterByStock}>
-                <button type="button" className="fchip all" aria-pressed={pays === "all"} onClick={() => setPays("all")}>{t.all}</button>
-                {stats.assetsInUse.filter((s) => assets[s]).map((s) => (
-                  <button type="button" className="fchip" key={s} aria-pressed={pays === s} onClick={() => setPays(s)}>
-                    <Chip sym={s} />
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="trow th" aria-hidden="true">
-            <span>{t.colCoin}</span><span>{t.colMcap}</span><span>{t.col24h}</span><span>{t.colCurve}</span><span>{t.colPays}</span><span>{t.colPaid}</span><span>{t.colHolders}</span><span>{t.colAge}</span>
-          </div>
-          <div id="grid">
-            {list.length ? (
-              list.map((c) => <CoinRow key={c.mint} c={c} now={now} />)
-            ) : data ? (
-              <div className="empty">
-                {q || pays !== "all" ? (
-                  t.noMatch(q)
-                ) : (
-                  <>
-                    {t.noCoins}
-                    <br />
-                    <Link className="btn btn-lime" href="/create">{t.createCoin}</Link>
-                  </>
-                )}
-              </div>
-            ) : null}
           </div>
         </div>
+        {stats.assetsInUse.length > 0 && (
+          <div className="chips" role="group" aria-label={t.filterByStock}>
+            <button type="button" className="chip all" aria-pressed={pays === "all"} onClick={() => setPays("all")}>
+              {t.all} <em className="n">{stats.coinsLive.toLocaleString("en-US")}</em>
+            </button>
+            {stats.assetsInUse.filter((s) => assets[s]).map((s) => (
+              <button type="button" className="chip" key={s} aria-pressed={pays === s} onClick={() => setPays(s)}>
+                <Chip sym={s} />
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="grid" id="grid">
+          {list.length ? (
+            list.slice(0, shownN).map((c) => (
+              <CoinCard key={c.mint} c={toCard(c, now)} creator={false} nextRoundAt={stats.nextRoundAt} />
+            ))
+          ) : data ? (
+            <div className="empty">
+              {q || pays !== "all" ? (
+                <>
+                  <b>{t.noMatchH(q)}</b>
+                  {t.noMatchP}
+                </>
+              ) : (
+                <>
+                  <b>{t.noCoinsH}</b>
+                  {t.noCoinsP}
+                  <br />
+                  <Link className="btn btn-acc" href="/create">{t.createCoin}</Link>
+                </>
+              )}
+            </div>
+          ) : null}
+        </div>
+        {list.length > shownN && (
+          <div className="more">
+            <button className="btn btn-ghost" type="button" onClick={() => setMore({ key, n: shownN + PAGE })}>
+              {t.more}
+              <Icon name="arrow" size={16} />
+            </button>
+          </div>
+        )}
       </section>
     </>
   );

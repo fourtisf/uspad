@@ -148,7 +148,7 @@ test.describe("creator-signed launch", () => {
     // /me puts the creator's fees first.
     await panel.getByRole("link", { name: "All your coins" }).click();
     await expect(page.locator("#creatorFees")).toContainText(`$${ticker}`, { timeout: 30_000 });
-    await expect(page.locator(".panel").first()).toHaveAttribute("id", "creatorFees");
+    await expect(page.locator("main .card").first()).toHaveAttribute("id", "creatorFees");
   });
 
   test("nobody else sees a coin's creator fees", async ({ page }) => {

@@ -51,12 +51,15 @@ export function Mark({ size = 34 }: { size?: number }) {
   );
 }
 
-/** The 金牛 wordmark: 金牛 in the site's Han face at 900 and "jinniu" small beside it (owner, 2026-11-02). */
+/**
+ * The 金牛 wordmark (owner, 2026-11-02): 金牛 with "jinniu" small beside it. It goes inside a `.brand`
+ * lockup next to the Mark (prototype/jinniu-prototype.html), which sets the faces and the gap.
+ */
 export function Wordmark() {
   return (
-    <span className="word" aria-hidden="true">
+    <>
       {BRAND}
       <small>{BRAND_LATIN}</small>
-    </span>
+    </>
   );
 }

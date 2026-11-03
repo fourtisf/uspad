@@ -1,1 +1,41 @@
-/* What the prototype (prototype/jinniu-prototype.html, in globals.css) doesn't draw for the coin page. */
+/* What the prototype (prototype/jinniu-prototype.html, in globals.css) doesn't draw for the coin page.
+   Shared extras (links, stock icons, .skel, the report modal) are in additions.css. */
+
+/* The coin's own picture, in the box of the prototype's stand-in `.tile` (88px, 64px on phones). */
+.chead .tile.pic{background:var(--s1)}
+.chead .tile.pic img{display:block;width:100%;height:100%;object-fit:cover}
+/* The report flag is 17px in the prototype; `.icb` sizes its icons 19px. */
+.chead .acts .icb svg{width:17px;height:17px}
+
+/* The candle chart (lightweight-charts draws a canvas) in the box of the prototype's `svg.kl`. */
+.chartc .kl{display:block;width:100%;height:320px;margin-top:6px}
+
+/* Dividends in the tabs' tables, gold as in the prototype; the tabs' empty states sit tighter. */
+.tabsc .t td.g{color:var(--div);font-weight:700}
+.tabsc .empty.tab-empty{padding:34px 10px}
+
+/* The trade box: the slippage picker reads as its row's value; the box takes focus when it opens as a sheet. */
+.trade .slip{border:0;padding:0;background:transparent;color:inherit;font:inherit;font-weight:inherit;text-align:right;cursor:pointer}
+.trade .slip option{background:var(--card);color:var(--tx)}
+.trade:focus{outline:none}
+
+/* The dividend card: a round that's late, in red; one carried to the next round, in gold. */
+.divc .status-late{color:var(--red)}
+.divc .status-carried{color:var(--div)}
+
+/* The creator's fees (their own coin only): a card like the dividend card under the trade box. */
+.cfees{margin-top:16px;padding:20px;border-radius:28px}
+.cfees .kvs{margin-top:8px}
+.cfees .btn{margin-top:12px}
+
+/* No coin by that name. */
+.coin-none{margin-top:6px}
+
+/* Loading (app/coin/[ticker]/loading.tsx): .skel blocks where the numbers and the chart will be. */
+.kpis b.skel-num{width:70%;height:24px;margin-top:4px}
+.skel-block{height:340px}
+
+@media (max-width:640px){
+  .chartc .kl{height:220px}
+  .skel-block{height:240px}
+}

@@ -216,7 +216,7 @@ export function LaunchModal({
       aria-modal="true"
       aria-labelledby="modalTitle"
     >
-      <div className="modal" id="modalBody">
+      <div className="modal launch-modal" id="modalBody">
         <div className="mcoin">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={img} alt={"$" + ticker} />
@@ -257,7 +257,7 @@ export function LaunchModal({
             <div className="modal-actions">
               <button
                 type="button"
-                className="btn btn-lime btn-lg"
+                className="btn btn-acc btn-lg btn-block"
                 onClick={() => onDone(live.status)}
               >
                 {t.openCoin}
@@ -291,16 +291,16 @@ export function LaunchModal({
           <div className="in">
             <h2 id="modalTitle">{t.minting(ticker)}</h2>
             <p>{k === 1 ? t.signingNote : t.keepOpen}</p>
-            <ul className="prog" id="prog">
+            <ul className="lsteps" id="prog">
               {t.steps.map((s, i) => (
-                <li key={s} className={i < k ? "done" : i === k ? "now" : ""}>
-                  <span className={"ck " + (i < k ? "ok" : "")}>
+                <li key={s} className={"chk" + (i < k ? " ok" : i === k ? " now" : "")} aria-current={i === k ? "step" : undefined}>
+                  <i aria-hidden="true">
                     {i < k ? (
-                      <Icon name="check" size={13} />
+                      <Icon name="check" size={12} />
                     ) : i === k ? (
                       <span className="spin" />
                     ) : null}
-                  </span>
+                  </i>
                   {s}
                 </li>
               ))}
@@ -317,7 +317,7 @@ export function LaunchModal({
                     {walletSaid !== null ? t.didntSign(walletSaid || t.noAnswer) : t.cantSee}
                   </p>
                 )}
-                <button type="button" className="btn btn-lime" style={{ width: "100%", marginTop: 10 }} onClick={() => void signCreate(toSign)}>
+                <button type="button" className="btn btn-acc btn-block" style={{ marginTop: 10 }} onClick={() => void signCreate(toSign)}>
                   {t.approve}
                 </button>
               </>

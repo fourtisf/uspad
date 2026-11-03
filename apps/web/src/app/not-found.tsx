@@ -6,9 +6,11 @@ import { common } from "@/i18n/msgs/common";
 export default async function NotFound() {
   const t = await getMsgs(common);
   return (
-    <>
-      <Link className="back" href="/"><Icon name="back" />{t.backToBoard}</Link>
-      <div className="empty">{t.notFound}</div>
-    </>
+    <div className="page">
+      <Link className="back" href="/"><Icon name="back" size={16} />{t.backToBoard}</Link>
+      <div className="card empty status-card">
+        <b>{t.notFound}</b>
+      </div>
+    </div>
   );
 }

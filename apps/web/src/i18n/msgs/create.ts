@@ -1,6 +1,9 @@
 import { BRAND, BRAND_LATIN } from "@/lib/brand";
 import { defineMsgs } from "../lang";
 
+/** The prototype's Chinese stock names (prototype/jinniu-prototype.html); a stock not listed keeps its own. */
+const ZH_STOCK_NAMES: Record<string, string | undefined> = { SPYx: "标普 500", TSLAx: "特斯拉", AAPLx: "苹果", QQQx: "纳斯达克 100", GOOGLx: "谷歌", AMZNx: "亚马逊" };
+
 /**
  * The create form (components/create/CreateForm.tsx) and its launch modal (LaunchModal.tsx).
  * The server's check messages and errors come back in English and are shown as they are.
@@ -9,13 +12,14 @@ export const create = defineMsgs(
   {
     title: "Create a coin",
     headPaid: (feeSol: number, createSol: number) =>
-      `Your wallet signs the create and pays ${feeSol ? `${feeSol} SOL to launch plus ` : ""}about ${createSol} SOL for the coin itself. It goes out in a private bundle, so nobody buys before you, and your holders get the dividend.`,
-    headFree: `It's free. ${BRAND_LATIN}'s launcher creates your coin in a private bundle and pays the rent, so nobody buys before it lands, and your holders get the dividend.`,
+      `Your wallet signs the create and pays ${feeSol ? `${feeSol} SOL to launch plus ` : ""}about ${createSol} SOL for the coin itself. It goes out in a private bundle, so nobody buys before you, and your holders get the dividend every hour.`,
+    headFree: `It's free. ${BRAND_LATIN}'s launcher creates your coin in a private bundle and pays the rent, so nobody buys before it lands, and your holders get the dividend every hour.`,
     optional: "optional",
     // 1. The coin
     coinTitle: "The coin",
     coinNote: "Name, ticker and picture can't be changed later.",
     namePlaceholder: "Chip Dog",
+    tickerPlaceholder: "CHIPDOG",
     name: "Name",
     ticker: "Ticker",
     description: "Description",
@@ -23,12 +27,14 @@ export const create = defineMsgs(
     picture: "Picture",
     pictureAlt: "Your coin picture",
     drop: "Drop an image or click to choose",
-    dropLimit: (mb: number) => `PNG, JPG, WEBP or GIF up to ${mb} MB.`,
+    // The API crops pictures to a 512 px square (apps/api/src/media.ts).
+    dropLimit: (mb: number) => `Square looks best, at least 512 px. PNG, JPG, WEBP or GIF up to ${mb} MB.`,
     // 2. The dividend
     dividendTitle: "The dividend",
     dividendNote: "What your holders earn every hour. Locked once the coin is live.",
     dividendStock: "Dividend stock",
-    stable: "stable",
+    /** The stock's name under its symbol: the config's name in English. */
+    stockName: (_symbol: string, name: string) => name,
     paysNote: "Buyers always pay in SOL. The stock is only what holders earn.",
     // 3. Links
     linksTitle: "Links",
@@ -38,7 +44,7 @@ export const create = defineMsgs(
     // 4. Dev buy
     devBuy: "Dev buy",
     devNote: "Optional. Your buy goes inside the create, so it's the coin's first trade, before anyone else can buy.",
-    devAmount: "Amount in SOL",
+    devAmount: "Dev buy in SOL",
     maxTitle: "Your balance, less what the launch itself costs",
     max: "Max",
     devRange: "Use an amount from 0.01 to 80 SOL.",
@@ -63,7 +69,10 @@ export const create = defineMsgs(
     previewTitle: "Your coin on the board",
     previewName: "Your coin",
     previewCreator: "you",
-    costToLaunch: "Cost to launch",
+    launchFee: "Launch fee",
+    createCost: "Coin create cost",
+    solAmount: (sol: number) => `${sol} SOL`,
+    aboutSol: (sol: number) => `About ${sol} SOL`,
     free: "Free",
     yourShare: "Your share of every trade",
     holdersShare: "Holders' share",
@@ -113,13 +122,14 @@ export const create = defineMsgs(
   {
     title: "创建代币",
     headPaid: (feeSol: number, createSol: number) =>
-      `你的钱包签名创建交易，并支付${feeSol ? ` ${feeSol} SOL 发币费，另加` : ""}约 ${createSol} SOL 的代币创建费。它通过私有捆绑交易发出，没人能抢在你之前买入，你的持有人可以拿到分红。`,
-    headFree: `完全免费。${BRAND}的发币程序用私有捆绑交易创建你的代币并支付租金，代币上链前没人能买入，你的持有人可以拿到分红。`,
+      `你的钱包签名创建交易，并支付${feeSol ? ` ${feeSol} SOL 发币费，另加` : ""}约 ${createSol} SOL 的代币创建费用。它通过私有捆绑交易发出，没人能抢在你之前买入，你的持有人每小时拿到分红。`,
+    headFree: `完全免费。${BRAND}的发币程序用私有捆绑交易创建你的代币并支付租金，代币上链前没人能买入，你的持有人每小时拿到分红。`,
     optional: "选填",
     coinTitle: "代币",
     coinNote: "名称、代币符号和图片创建后不能修改。",
     // Names may be written in Chinese (antivamp foldName keeps Han characters).
-    namePlaceholder: "芯片狗",
+    namePlaceholder: "招财猫",
+    tickerPlaceholder: "ZHAOCAI",
     name: "名称",
     ticker: "代币符号",
     description: "简介",
@@ -127,19 +137,20 @@ export const create = defineMsgs(
     picture: "图片",
     pictureAlt: "你的代币图片",
     drop: "拖入图片，或点击选择",
-    dropLimit: (mb: number) => `PNG、JPG、WEBP 或 GIF，最大 ${mb} MB。`,
+    dropLimit: (mb: number) => `正方形最好看，至少 512 px。PNG、JPG、WEBP 或 GIF，最大 ${mb} MB。`,
     dividendTitle: "分红",
-    dividendNote: "持有人每小时拿到的分红资产。代币上线后锁定。",
-    dividendStock: "分红资产",
-    stable: "稳定",
+    dividendNote: "持有人每小时拿到的股票。代币上线后锁定。",
+    dividendStock: "分红股票",
+    // The prototype's Chinese names; any other stock keeps the config's name.
+    stockName: (symbol: string, name: string) => ZH_STOCK_NAMES[symbol] ?? name,
     paysNote: "买家始终用 SOL 买入。股票只是持有人拿到的分红。",
     linksTitle: "链接",
     linksNote: "全部选填。",
     xAccount: "X 账号",
     website: "网站",
     devBuy: "开发者首买",
-    devNote: "选填。你的买入包含在创建交易里，是代币的第一笔交易，比任何人都早。",
-    devAmount: "金额（SOL）",
+    devNote: "选填。你的买入包含在创建交易里，比任何人都早，代币页面会公开显示。",
+    devAmount: "开发者首买金额（SOL）",
     maxTitle: "你的余额，减去发币本身的费用",
     max: "最大",
     devRange: "金额需在 0.01 到 80 SOL 之间。",
@@ -159,10 +170,13 @@ export const create = defineMsgs(
     signInToUpload: "登录后才能上传",
     checkingPicture: "正在检查图片",
     uploadFailed: "上传失败，请重试。",
-    previewTitle: "你的代币在首页的样子",
+    previewTitle: "首页预览",
     previewName: "你的代币",
     previewCreator: "你",
-    costToLaunch: "发币费用",
+    launchFee: "发币费",
+    createCost: "代币创建费用",
+    solAmount: (sol: number) => `${sol} SOL`,
+    aboutSol: (sol: number) => `约 ${sol} SOL`,
     free: "免费",
     yourShare: "你在每笔交易中的分成",
     holdersShare: "持有人分成",

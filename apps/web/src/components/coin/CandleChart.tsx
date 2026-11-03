@@ -24,13 +24,24 @@ const pageLang = () => (typeof document === "undefined" ? undefined : document.d
 const clock = (t: number) => new Date(t * 1000).toLocaleTimeString(pageLang(), { hour: "2-digit", minute: "2-digit" });
 const stamp = (t: number) => new Date(t * 1000).toLocaleString(pageLang(), { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 const css = (name: string, fallback: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+/** The prototype's tokens (globals.css): up/down follow the footer's switch, the dots are the gold accent. */
+const colors = () => ({
+  up: css("--up", "#13A04A"),
+  down: css("--dn", "#E23B3B"),
+  faint: css("--tx3", "#A3A3A3"),
+  line: css("--line", "#EEEEEE"),
+  ink: css("--tx", "#0A0A0A"),
+  dot: css("--acc", "#FFC21A"),
+  font: css("--ff", "system-ui, sans-serif"),
+});
 
 /** A candle as the legend shows it, volume in USD. */
 type Shown = { o: number; h: number; l: number; c: number; volUsd: number };
 
 /**
- * Candlesticks with volume underneath (TradingView's lightweight-charts), in local time. Gold dots under
- * the bars mark the hours the coin paid its holders. The legend shows the hovered candle, else the last.
+ * Candlesticks with volume underneath (TradingView's lightweight-charts), in local time, drawn in the
+ * prototype's look (its `svg.kl`: light grid lines, up/down candles). Gold dots under the bars mark the
+ * hours the coin paid its holders. The legend (`.legend`) shows the hovered candle, else the last.
  */
 export function CandleChart({ candles, solUsd, payoutHours, label }: { candles: CandleList | undefined; solUsd: number; payoutHours: number[]; label: string }) {
   const box = useRef<HTMLDivElement>(null);
@@ -48,14 +59,12 @@ export function CandleChart({ candles, solUsd, payoutHours, label }: { candles: 
     let chart: IChartApi | undefined;
     void import("lightweight-charts").then((lw) => {
       if (off || !box.current) return;
-      const up = css("--up", "#2EF08A");
-      const down = css("--down", "#FF4D61");
-      const faint = css("--tx-3", "#64776D");
+      const c = colors();
       chart = lw.createChart(box.current, {
         autoSize: true,
-        layout: { background: { type: lw.ColorType.Solid, color: "transparent" }, textColor: faint, fontFamily: "inherit", fontSize: 11 },
-        grid: { vertLines: { color: "rgba(255,255,255,.03)" }, horzLines: { color: "rgba(255,255,255,.05)" } },
-        crosshair: { mode: lw.CrosshairMode.Normal },
+        layout: { background: { type: lw.ColorType.Solid, color: "transparent" }, textColor: c.faint, fontFamily: c.font, fontSize: 11 },
+        grid: { vertLines: { visible: false }, horzLines: { color: c.line } },
+        crosshair: { mode: lw.CrosshairMode.Normal, vertLine: { labelBackgroundColor: c.ink }, horzLine: { labelBackgroundColor: c.ink } },
         rightPriceScale: { borderVisible: false },
         timeScale: {
           borderVisible: false,
@@ -67,10 +76,10 @@ export function CandleChart({ candles, solUsd, payoutHours, label }: { candles: 
         localization: { timeFormatter: (t: Time) => stamp(t as number), priceFormatter: axisUsd },
       });
       const bars = chart.addSeries(lw.CandlestickSeries, {
-        upColor: up,
-        downColor: down,
-        wickUpColor: up,
-        wickDownColor: down,
+        upColor: c.up,
+        downColor: c.down,
+        wickUpColor: c.up,
+        wickDownColor: c.down,
         borderVisible: false,
         priceFormat: { type: "custom", formatter: axisUsd, minMove: 1e-12 },
       });
@@ -96,11 +105,10 @@ export function CandleChart({ candles, solUsd, payoutHours, label }: { candles: 
     const a = api.current;
     if (!ready || !a || !candles) return;
     // Read on every update so the footer's up/down switch recolours the chart in place.
-    const up = css("--up", "#2EF08A");
-    const down = css("--down", "#FF4D61");
+    const { up, down, dot } = colors();
     a.bars.applyOptions({ upColor: up, downColor: down, wickUpColor: up, wickDownColor: down });
     a.bars.setData(candles.items.map((b) => ({ time: b.t as Time, open: b.o, high: b.h, low: b.l, close: b.c })));
-    a.vol.setData(candles.items.map((b) => ({ time: b.t as Time, value: b.vol.ui * solUsd, color: (b.c >= b.o ? up : down) + "55" })));
+    a.vol.setData(candles.items.map((b) => ({ time: b.t as Time, value: b.vol.ui * solUsd, color: (b.c >= b.o ? up : down) + "40" })));
     // A payout hour sits on the candle that contains it; hours before the first candle are left out.
     const times = candles.items.map((b) => b.t);
     const marks = payoutHours
@@ -108,7 +116,7 @@ export function CandleChart({ candles, solUsd, payoutHours, label }: { candles: 
       .filter((t): t is number => t !== undefined)
       .filter((t, i, all) => all.indexOf(t) === i)
       .sort((x, y) => x - y)
-      .map((t) => ({ time: t as Time, position: "belowBar" as const, shape: "circle" as const, color: css("--gold", "#FFC84A"), size: 0.6 }));
+      .map((t) => ({ time: t as Time, position: "belowBar" as const, shape: "circle" as const, color: dot, size: 1 }));
     a.marks.setMarkers(marks);
     // Fit once per time frame and unit; later refreshes keep where the viewer scrolled to.
     const key = `${candles.tf}:${candles.unit}`;
@@ -123,22 +131,22 @@ export function CandleChart({ candles, solUsd, payoutHours, label }: { candles: 
   const shown: Shown | undefined = hover ?? (last && { ...last, volUsd: last.vol.ui * solUsd });
   const change = shown && shown.o ? ((shown.c - shown.o) / shown.o) * 100 : 0;
   return (
-    <div className="cchart" role="img" aria-label={label}>
-      <div className="cchart-legend">
+    <>
+      <div className="legend">
         {shown ? (
           <>
-            <span>{t.o} <b>{fmtUsd(shown.o)}</b></span>
-            <span>{t.h} <b>{fmtUsd(shown.h)}</b></span>
-            <span>{t.l} <b>{fmtUsd(shown.l)}</b></span>
-            <span>{t.c} <b>{fmtUsd(shown.c)}</b></span>
-            <span className={change >= 0 ? "up" : "down"}>{(change >= 0 ? "+" : "") + change.toFixed(2)}%</span>
-            <span>{t.vol} <b>{fmtUsd(shown.volUsd)}</b></span>
+            <span>{t.o} <b className="n">{fmtUsd(shown.o)}</b></span>
+            <span>{t.h} <b className="n">{fmtUsd(shown.h)}</b></span>
+            <span>{t.l} <b className="n">{fmtUsd(shown.l)}</b></span>
+            <span>{t.c} <b className="n">{fmtUsd(shown.c)}</b></span>
+            <span className={"n " + (change >= 0 ? "up" : "dn")}>{(change >= 0 ? "+" : "") + change.toFixed(2)}%</span>
+            <span>{t.vol} <b className="n">{fmtUsd(shown.volUsd)}</b></span>
           </>
         ) : (
           <span>{t.empty}</span>
         )}
       </div>
-      <div ref={box} className="cchart-plot" />
-    </div>
+      <div ref={box} className="kl" role="img" aria-label={label} />
+    </>
   );
 }

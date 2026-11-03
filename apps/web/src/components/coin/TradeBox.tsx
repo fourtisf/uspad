@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSWRConfig } from "swr";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
@@ -13,12 +13,19 @@ import { poolFees } from "@/lib/poolfees";
 import { explorerTx, FailedOnChain, SentUnconfirmed, signAndSend, TxExpired } from "@/lib/tx";
 import { useMsgs } from "@/i18n/client";
 import { tradeMsgs } from "@/i18n/msgs/coin";
-import { Chip } from "../Chip";
 import { useToast } from "../Toasts";
 
 let lastSide: "buy" | "sell" = "buy";
 
-/** Buy/sell box (prototype trade panel). Quotes are local estimates; the API builds the transaction. */
+/** The quick amounts: SOL for a buy, a share of the balance for a sell. */
+const BUY_PICKS = ["0.1", "0.5", "1", "5"] as const;
+const SELL_PICKS = ["25%", "50%", "75%", "100%"] as const;
+
+/**
+ * Buy/sell box (prototype `.card.trade`). Quotes are local estimates; the API builds the transaction.
+ * On phones the prototype's CSS makes it a bottom sheet: the `.tradebar` below opens it by putting
+ * `sheet` on <body>, and `.sheet-bg` closes it.
+ */
 export function TradeBox({ coin }: { coin: CoinDetail }) {
   const config = useConfig();
   const toast = useToast();
@@ -33,6 +40,8 @@ export function TradeBox({ coin }: { coin: CoinDetail }) {
   // Demo keeps the prototype's preset; live starts a sell empty so nobody sells a default by accident.
   const sellPreset = live ? "" : "1000000";
   const [amt, setAmt] = useState(side === "buy" ? "0.5" : sellPreset);
+  // The sell share last picked, shown pressed until the amount is typed over.
+  const [sellPick, setSellPick] = useState<string | null>(null);
   const [bal, setBal] = useState<{ sol: number | null; tokens: number | null; tokensRaw: bigint | null }>({ sol: null, tokens: null, tokensRaw: null });
   const [busy, setBusy] = useState(false);
   // Bumped after a trade, so the balances are read again.
@@ -45,6 +54,9 @@ export function TradeBox({ coin }: { coin: CoinDetail }) {
   const [unconfirmed, setUnconfirmed] = useState<string | null>(null);
   // The last trade that failed on chain or expired: Solscan says why.
   const [failed, setFailed] = useState<{ sig: string; expired: boolean } | null>(null);
+  // Phones: the box is a bottom sheet, open while this is true.
+  const [sheet, setSheet] = useState(false);
+  const card = useRef<HTMLDivElement>(null);
   const wallet = publicKey?.toBase58() ?? null;
   // In SOL, as the coin is priced: the layout's SOL price is only as fresh as the first page load (audit).
   const price = coin.priceSol;
@@ -80,6 +92,20 @@ export function TradeBox({ coin }: { coin: CoinDetail }) {
     return () => clearInterval(timer);
   }, [unconfirmed, connection, toast, t]);
 
+  // The open sheet: `sheet` on <body> (the prototype's CSS slides the box up), Escape closes it, and it
+  // never outlives the page.
+  useEffect(() => {
+    if (!sheet) return;
+    document.body.classList.add("sheet");
+    card.current?.focus({ preventScroll: true });
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSheet(false);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.classList.remove("sheet");
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [sheet]);
+
   const v = parseAmount(amt);
   const f = config.fees;
   // A graduated coin trades in its Raydium pool, which has its own fee (lib/poolfees.ts).
@@ -97,6 +123,12 @@ export function TradeBox({ coin }: { coin: CoinDetail }) {
     setSide(s);
     lastSide = s;
     setAmt(s === "buy" ? "0.5" : sellPreset);
+    setSellPick(null);
+  };
+  // The phone bar's buttons: the side they name, in the open sheet.
+  const openSheet = (s: "buy" | "sell") => {
+    if (s !== side) pick(s);
+    setSheet(true);
   };
 
   const trade = async () => {
@@ -139,105 +171,115 @@ export function TradeBox({ coin }: { coin: CoinDetail }) {
   };
 
   return (
-    <div className="panel">
-      <div className="toggle" role="group" aria-label={t.buyOrSell}>
-        <button type="button" className="b" aria-pressed={side === "buy"} onClick={() => pick("buy")}>{t.buy}</button>
-        <button type="button" className="s" aria-pressed={side === "sell"} onClick={() => pick("sell")}>{t.sell}</button>
-      </div>
-      <label className="field">
-        <span>
+    <>
+      <div className="card trade" id="trade" ref={card} tabIndex={-1}>
+        <div className="bs" role="group" aria-label={t.buyOrSell}>
+          <button type="button" className="b" aria-pressed={side === "buy"} onClick={() => pick("buy")}>{t.buy}</button>
+          <button type="button" className="s" aria-pressed={side === "sell"} onClick={() => pick("sell")}>{t.sell}</button>
+        </div>
+        <div className="flab">
           <span id="payLbl">{side === "buy" ? t.youPay : t.youSell}</span>
-          <span className="faint" id="bal">{balLabel}</span>
-        </span>
-        <div className="input">
-          <input id="amt" inputMode="decimal" value={amt} onChange={(e) => setAmt(e.target.value)} aria-label={t.amount} />
+          <span id="bal">{balLabel || t.balanceUnknown}</span>
+        </div>
+        <label className="amount">
+          <input
+            id="amt"
+            inputMode="decimal"
+            autoComplete="off"
+            value={amt}
+            onChange={(e) => {
+              setAmt(e.target.value);
+              setSellPick(null);
+            }}
+            aria-label={t.amount}
+          />
           <span className="unit" id="unit">
             {side === "buy" ? (
               <>
-                <Chip sym="SOL" />SOL
+                <i className="sol" aria-hidden="true" />SOL
               </>
             ) : (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={coin.imageUrl} alt="" style={{ width: 26, height: 26, borderRadius: "50%" }} />${coin.ticker}
-              </>
+              <>${coin.ticker}</>
             )}
           </span>
-        </div>
+        </label>
         <div className="quick" id="quick">
           {side === "buy"
-            ? ["0.1", "0.5", "1", "5"].map((q) => (
-                <button type="button" key={q} onClick={() => setAmt(q)}>{q} SOL</button>
+            ? BUY_PICKS.map((q) => (
+                <button type="button" key={q} aria-pressed={amt === q} onClick={() => setAmt(q)}>{q}</button>
               ))
-            : ["25%", "50%", "100%"].map((q) => (
-                <button type="button" key={q} onClick={() => bal.tokensRaw != null && setAmt(fromBaseUnits((bal.tokensRaw * BigInt(parseInt(q, 10))) / 100n, 6))}>
+            : SELL_PICKS.map((q) => (
+                <button
+                  type="button"
+                  key={q}
+                  aria-pressed={sellPick === q}
+                  onClick={() => {
+                    if (bal.tokensRaw == null) return;
+                    setAmt(fromBaseUnits((bal.tokensRaw * BigInt(parseInt(q, 10))) / 100n, 6));
+                    setSellPick(q);
+                  }}
+                >
                   {q}
                 </button>
               ))}
         </div>
-      </label>
-      <div className="kv"><span>{t.youReceive}</span><b id="recv">{recv}</b></div>
-      <div className="kv"><span>{t.route}</span><b id="route">{side === "buy" ? (graduated ? t.routeBuyPool : t.routeBuyCurve) : graduated ? t.routeSellPool : t.routeSellCurve}</b></div>
-      <div className="kv"><span>{t.tradingFee}</span><b>{feeLabel}</b></div>
-      {live && (
-        <div className="kv">
-          <span>{t.maxSlippage}</span>
-          <b>
-            <select className="slip" aria-label={t.maxSlippage} value={slippageBps} onChange={(e) => setSlippageBps(Number(e.target.value))}>
-              {[50, 100, 200, 500].map((b) => (
-                <option key={b} value={b}>{b / 100}%</option>
-              ))}
-            </select>
-          </b>
+        <div className="kvs">
+          <div className="kv"><span>{t.youReceive}</span><b className="n" id="recv">{recv}</b></div>
+          <div className="kv"><span>{t.route}</span><b id="route">{side === "buy" ? (graduated ? t.routeBuyPool : t.routeBuyCurve) : graduated ? t.routeSellPool : t.routeSellCurve}</b></div>
+          <div className="kv"><span>{t.tradingFee}</span><b>{feeLabel}</b></div>
+          {live && (
+            <div className="kv">
+              <span>{t.maxSlippage}</span>
+              <b>
+                <select className="slip" aria-label={t.maxSlippage} value={slippageBps} onChange={(e) => setSlippageBps(Number(e.target.value))}>
+                  {[50, 100, 200, 500].map((b) => (
+                    <option key={b} value={b}>{b / 100}%</option>
+                  ))}
+                </select>
+              </b>
+            </div>
+          )}
         </div>
-      )}
-      <button
-        className={"btn btn-lg " + (!wallet ? "btn-lime" : side === "buy" ? "btn-buy" : "btn-sell")}
-        style={{ width: "100%", marginTop: 14 }}
-        id="tradeBtn"
-        type="button"
-        disabled={(!!wallet && (!(v > 0) || !!unconfirmed)) || busy}
-        onClick={trade}
-      >
-        {!wallet
-          ? t.connectToTrade
-          : busy
-            ? stage === "confirming"
-              ? t.confirming
-              : t.approve
-            : side === "buy"
-              ? t.buyTicker(coin.ticker)
-              : t.sellTicker(coin.ticker)}
-      </button>
-      {failed && (
-        <p className="note" role="status" id="tradeFailed">
-          {t.failedNote(failed.expired, (text) => (
-            <a className="link" href={explorerTx(failed.sig, config.network)} target="_blank" rel="noreferrer">{text}</a>
-          ))}
-        </p>
-      )}
-      {unconfirmed && (
-        <p className="note" role="status">
-          {t.unconfirmedNote((text) => (
-            <a className="link" href={explorerTx(unconfirmed, config.network)} target="_blank" rel="noreferrer">{text}</a>
-          ))}{" "}
-          <button type="button" className="link" onClick={() => setUnconfirmed(null)}>{t.iChecked}</button>
-        </p>
-      )}
-      {graduated ? (
-        <p className="note">{t.graduated}</p>
-      ) : (
-        <div style={{ marginTop: 16 }}>
-          <div className="bar-row">
-            <span>{t.curve(usdShort(config.graduation.targetUsd))}</span>
-            <span>{Math.round(coin.progress * 100)}%</span>
-          </div>
-          <div className="bar">
-            <i style={{ width: (coin.progress * 100).toFixed(1) + "%" }} />
-          </div>
-        </div>
-      )}
-    </div>
+        <button
+          className="btn btn-acc btn-lg btn-block go"
+          id="tradeBtn"
+          type="button"
+          disabled={(!!wallet && (!(v > 0) || !!unconfirmed)) || busy}
+          onClick={trade}
+        >
+          {!wallet
+            ? t.connectToTrade
+            : busy
+              ? stage === "confirming"
+                ? t.confirming
+                : t.approve
+              : side === "buy"
+                ? t.buyTicker(coin.ticker)
+                : t.sellTicker(coin.ticker)}
+        </button>
+        {failed && (
+          <p className="note" role="status" id="tradeFailed">
+            {t.failedNote(failed.expired, (text) => (
+              <a className="link" href={explorerTx(failed.sig, config.network)} target="_blank" rel="noreferrer">{text}</a>
+            ))}
+          </p>
+        )}
+        {unconfirmed && (
+          <p className="note" role="status">
+            {t.unconfirmedNote((text) => (
+              <a className="link" href={explorerTx(unconfirmed, config.network)} target="_blank" rel="noreferrer">{text}</a>
+            ))}{" "}
+            <button type="button" className="link" onClick={() => setUnconfirmed(null)}>{t.iChecked}</button>
+          </p>
+        )}
+      </div>
+      {/* Phones only (globals.css): the bar that opens the box as a sheet, and the shade that closes it. */}
+      <div className="tradebar">
+        <button className="btn b" type="button" aria-controls="trade" aria-expanded={sheet} onClick={() => openSheet("buy")}>{t.buy}</button>
+        <button className="btn s" type="button" aria-controls="trade" aria-expanded={sheet} onClick={() => openSheet("sell")}>{t.sell}</button>
+      </div>
+      <div className="sheet-bg" aria-hidden="true" onClick={() => setSheet(false)} />
+    </>
   );
 }
 
@@ -261,6 +303,3 @@ function fromBaseUnits(raw: bigint, decimals: number): string {
   const frac = s.slice(-decimals).replace(/0+$/, "");
   return s.slice(0, -decimals) + (frac ? "." + frac : "");
 }
-
-/** "$48k" style, as in the prototype copy. */
-const usdShort = (v: number) => (v >= 1e6 ? `$${+(v / 1e6).toFixed(1)}M` : v >= 1e3 ? `$${Math.round(v / 1e3)}k` : `$${Math.round(v)}`);

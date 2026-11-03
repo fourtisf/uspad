@@ -21,11 +21,11 @@ test("board lists coins and opens one", async ({ page }) => {
   await first.click();
   // Coin pages open by mint: coins can share a ticker.
   await expect(page).toHaveURL(/\/coin\/[1-9A-HJ-NP-Za-km-z]{32,44}$/);
-  await expect(page.getByRole("heading", { name: "Check the address" })).toBeVisible();
+  await expect(page.getByText("Different coins can use the same ticker and name.")).toBeVisible();
 });
 
-test("search filters the board", async ({ page, isMobile }) => {
-  test.skip(isMobile, "the search box is in the desktop header");
+test("search filters the board", async ({ page }) => {
+  // The search box is in the home page's all-coins section, on phones too.
   await page.goto("/");
   await page.locator("#search").fill("zzzz-no-such-coin");
   await expect(page.locator("#grid .empty")).toBeVisible();

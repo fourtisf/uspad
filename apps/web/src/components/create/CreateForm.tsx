@@ -12,7 +12,6 @@ import {
   DEV_BUY_ACCOUNTS_LAMPORTS,
   devBuyEstimate,
   displayTicker,
-  pct,
   type CheckResponse,
   type LaunchStatus,
   type UploadResponse,
@@ -251,51 +250,52 @@ export function CreateForm() {
     }
   };
 
+  // The prototype's `.chk` rows: the check's name, and what the server (or the page) says about it.
   const checkRow = (k: string, v: Check) => (
-    <li key={k}>
-      <span className={"ck " + (v.s === "ok" ? "ok" : v.s === "fail" ? "fail" : "")}>{v.s === "ok" ? <Icon name="check" size={13} /> : v.s === "fail" ? <Icon name="x" size={13} /> : null}</span>
-      <div>
+    <li key={k} className={"chk" + (v.s === "ok" ? " ok" : v.s === "fail" ? " fail" : "")}>
+      <i aria-hidden="true">{v.s === "ok" ? <Icon name="check" size={12} /> : v.s === "fail" ? <Icon name="x" size={12} /> : null}</i>
+      <span>
         {k}
         <small>{v.m}</small>
-      </div>
+      </span>
     </li>
   );
 
+  const mb = Math.round(config.limits.imageMaxBytes / 1024 / 1024);
+
   return (
-    <>
-      <Link className="back" href="/"><Icon name="back" />{tc.backToBoard}</Link>
-      <div className="create-head">
-        <h1>{t.title}</h1>
-        <p>{feeSol || createSol ? t.headPaid(feeSol, createSol) : t.headFree}</p>
-      </div>
-      <div className="create-grid">
+    <div className="page">
+      <Link className="back" href="/"><Icon name="back" size={16} />{tc.backToBoard}</Link>
+      <h1 className="page-h">{t.title}</h1>
+      <p className="page-lede">{feeSol || createSol ? t.headPaid(feeSol, createSol) : t.headFree}</p>
+      <div className="cgrid2">
         <form id="frm" noValidate onSubmit={submit}>
-          <section className="fsec">
+          <section className="card fsec">
             <div className="fsec-h">
-              <span className="n">1</span>
+              <span className="step">1</span>
               <div>
-                <h2>{t.coinTitle}</h2>
+                <h3>{t.coinTitle}</h3>
                 <p>{t.coinNote}</p>
               </div>
             </div>
-            <div className="form-row fld">
-              <div>
-                <label className="lbl" htmlFor="fName">{t.name}</label>
-                <input className={"tinput" + (cn.s === "fail" ? " bad" : "")} id="fName" maxLength={config.limits.nameMaxLen} placeholder={t.namePlaceholder} value={d.name} onChange={set("name")} />
-              </div>
-              <div>
-                <label className="lbl" htmlFor="fTick">{t.ticker}</label>
-                <input className={"tinput" + (ct.s === "fail" ? " bad" : "")} id="fTick" maxLength={12} placeholder="CHIPDOG" value={d.ticker} onChange={set("ticker")} style={{ textTransform: "uppercase" }} />
-              </div>
+            <div className="frow">
+              <label className="inp">
+                <span>{t.name}</span>
+                <input className={cn.s === "fail" ? "bad" : undefined} aria-invalid={cn.s === "fail" || undefined} id="fName" maxLength={config.limits.nameMaxLen} placeholder={t.namePlaceholder} value={d.name} onChange={set("name")} />
+              </label>
+              <label className="inp">
+                <span>{t.ticker}</span>
+                <input className={ct.s === "fail" ? "bad" : undefined} aria-invalid={ct.s === "fail" || undefined} id="fTick" maxLength={12} placeholder={t.tickerPlaceholder} value={d.ticker} onChange={set("ticker")} style={{ textTransform: "uppercase" }} />
+              </label>
             </div>
-            <div className="fld">
-              <label className="lbl" htmlFor="fDesc">{t.description} <em>{t.optional}</em></label>
-              <textarea className="tinput" id="fDesc" maxLength={config.limits.descriptionMaxLen} placeholder={t.descPlaceholder} value={d.desc} onChange={set("desc")} />
-            </div>
-            <div className="fld">
-              <span className="lbl">{t.picture}</span>
+            <label className="inp">
+              <span>{t.description} <small>{t.optional}</small></span>
+              <textarea id="fDesc" maxLength={config.limits.descriptionMaxLen} placeholder={t.descPlaceholder} value={d.desc} onChange={set("desc")} />
+            </label>
+            <div className="inp">
+              <span>{t.picture}</span>
               <label
-                className={"drop" + (over ? " over" : "")}
+                className={"drop" + (over ? " over" : "") + (ci.s === "fail" ? " bad" : "")}
                 id="drop"
                 htmlFor="fImg"
                 onDragEnter={(e) => (e.preventDefault(), setOver(true))}
@@ -309,24 +309,24 @@ export function CreateForm() {
               >
                 {d.imgPreview || d.upload ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={d.imgPreview ?? d.upload!.url} alt={t.pictureAlt} />
+                  <img className="ico" src={d.imgPreview ?? d.upload!.url} alt={t.pictureAlt} />
                 ) : (
-                  <span className="ph"><Icon name="img" size={22} /></span>
+                  <span className="ico"><Icon name="img" size={24} /></span>
                 )}
-                <p>
-                  {t.drop}
-                  <small>{t.dropLimit(Math.round(config.limits.imageMaxBytes / 1024 / 1024))}</small>
-                </p>
+                <div>
+                  <b>{t.drop}</b>
+                  <small>{t.dropLimit(mb)}</small>
+                </div>
               </label>
               <input ref={fileInput} type="file" id="fImg" accept={config.limits.imageTypes.join(",")} className="sr" onChange={(e) => void handleFile(e.target.files?.[0])} />
             </div>
           </section>
 
-          <section className="fsec">
+          <section className="card fsec">
             <div className="fsec-h">
-              <span className="n">2</span>
+              <span className="step">2</span>
               <div>
-                <h2>{t.dividendTitle}</h2>
+                <h3>{t.dividendTitle}</h3>
                 <p>{t.dividendNote}</p>
               </div>
             </div>
@@ -334,68 +334,65 @@ export function CreateForm() {
               {config.dividendAssets
                 .filter((a) => a.enabled)
                 .map((s) => (
-                  <button type="button" role="radio" className="stock-opt" key={s.symbol} aria-checked={d.pays === s.symbol} onClick={() => setD((p) => ({ ...p, pays: s.symbol }))}>
+                  <button type="button" role="radio" key={s.symbol} aria-checked={d.pays === s.symbol} onClick={() => setD((p) => ({ ...p, pays: s.symbol }))}>
                     <Chip sym={s.symbol} />
-                    <div style={{ minWidth: 0 }}>
+                    <span>
                       <b>{s.symbol}</b>
-                      <span>
-                        <span>{s.name}</span>
-                        <span className={s.change24hPct > 0 ? "up" : s.change24hPct < 0 ? "down" : ""}>{s.change24hPct ? pct(s.change24hPct) : t.stable}</span>
-                      </span>
-                    </div>
+                      <small>{t.stockName(s.symbol, s.name)}</small>
+                    </span>
                   </button>
                 ))}
             </div>
             <p className="note">{t.paysNote}</p>
           </section>
 
-          <section className="fsec">
+          <section className="card fsec">
             <div className="fsec-h">
-              <span className="n">3</span>
+              <span className="step">3</span>
               <div>
-                <h2>{t.linksTitle}</h2>
+                <h3>{t.linksTitle}</h3>
                 <p>{t.linksNote}</p>
               </div>
             </div>
-            <div className="form-row fld">
-              <div>
-                <label className="lbl" htmlFor="fX">{t.xAccount} <em>{t.optional}</em></label>
-                <input className={"tinput" + (cx.s === "fail" ? " bad" : "")} id="fX" placeholder="x.com/yourproject" value={d.x} onChange={set("x")} />
-              </div>
-              <div>
-                <label className="lbl" htmlFor="fTg">Telegram <em>{t.optional}</em></label>
-                <input className="tinput" id="fTg" placeholder="t.me/yourgroup" value={d.tg} onChange={set("tg")} />
-              </div>
+            <div className="frow">
+              <label className="inp">
+                <span>{t.xAccount}</span>
+                <input className={cx.s === "fail" ? "bad" : undefined} aria-invalid={cx.s === "fail" || undefined} id="fX" placeholder="x.com/yourproject" value={d.x} onChange={set("x")} />
+              </label>
+              <label className="inp">
+                <span>Telegram</span>
+                <input id="fTg" placeholder="t.me/yourgroup" value={d.tg} onChange={set("tg")} />
+              </label>
             </div>
-            <div className="fld">
-              <label className="lbl" htmlFor="fWeb">{t.website} <em>{t.optional}</em></label>
-              <input className="tinput" id="fWeb" placeholder="https://" value={d.web} onChange={set("web")} />
-            </div>
+            <label className="inp">
+              <span>{t.website}</span>
+              <input id="fWeb" placeholder="https://" value={d.web} onChange={set("web")} />
+            </label>
           </section>
 
-          <section className="fsec">
+          <section className="card fsec">
             <div className="fsec-h">
-              <span className="n">4</span>
+              <span className="step">4</span>
               <div>
-                <h2>{t.devBuy}</h2>
+                <h3>{t.devBuy}</h3>
                 <p>{t.devNote}</p>
               </div>
             </div>
-            <div className="fld">
-              <label className="lbl" htmlFor="fDev">{t.devAmount} <em>{t.optional}</em></label>
-              <input className={"tinput" + (devBuy === null ? " bad" : "")} id="fDev" inputMode="decimal" autoComplete="off" placeholder="0" value={d.dev} onChange={set("dev")} />
-              <div className="quick" id="devQuick">
-                {DEV_BUY_PICKS.map((q) => (
-                  <button type="button" key={q} aria-pressed={d.dev === q} onClick={() => (setLaunchError(null), setD((p) => ({ ...p, dev: q })))}>
-                    {q} SOL
-                  </button>
-                ))}
-                <button type="button" id="devMax" disabled={maxBusy} title={t.maxTitle} onClick={() => void pickMax()}>
-                  {maxBusy ? "…" : t.max}
+            <label className={"amount" + (devBuy === null ? " bad" : "")} style={{ marginTop: 0 }}>
+              <input id="fDev" inputMode="decimal" autoComplete="off" placeholder="0" aria-label={t.devAmount} aria-invalid={devBuy === null || undefined} aria-describedby="devNote" value={d.dev} onChange={set("dev")} />
+              <span className="unit"><i className="sol" aria-hidden="true" />SOL</span>
+            </label>
+            <div className="quick" id="devQuick" style={{ gridTemplateColumns: `repeat(${DEV_BUY_PICKS.length + 1},minmax(0,1fr))` }}>
+              {DEV_BUY_PICKS.map((q) => (
+                <button type="button" key={q} aria-label={`${q} SOL`} aria-pressed={d.dev === q} onClick={() => (setLaunchError(null), setD((p) => ({ ...p, dev: q })))}>
+                  {q}
                 </button>
-              </div>
+              ))}
+              <button type="button" id="devMax" disabled={maxBusy} title={t.maxTitle} onClick={() => void pickMax()}>
+                {maxBusy ? "…" : t.max}
+              </button>
             </div>
-            <p className="note" id="devNote">
+            <p className={"note" + (devBuy === null ? " bad" : "")} id="devNote">
               {devBuy === null
                 ? t.devRange
                 : devBuy
@@ -405,34 +402,33 @@ export function CreateForm() {
           </section>
         </form>
 
-        <aside className="sticky stack">
-          <div className="panel">
-            <h3>{t.previewTitle}</h3>
-            <div id="preview">
-              <CoinCard
-                asDiv
-                c={{ name: d.name || t.previewName, ticker: tick, imageUrl: previewImg, pays: d.pays, mcap: 2900, ch: 0, ageMin: 0, creatorLabel: t.previewCreator, progress: 0, graduated: false, paidUsd: 0, holders: 1, spark: [] }}
-              />
-            </div>
+        <aside className="sticky">
+          <h2 className="prev-h">{t.previewTitle}</h2>
+          <div id="preview">
+            <CoinCard
+              asDiv
+              c={{ name: d.name || t.previewName, ticker: tick, imageUrl: previewImg, pays: d.pays, mcap: 2900, ch: 0, ageMin: 0, creatorLabel: t.previewCreator, progress: 0, graduated: false, paidUsd: 0, holders: 1, spark: [] }}
+            />
           </div>
-          <div className="panel">
+          <div className="card checks">
             <h3>{t.checksTitle}</h3>
-            <ul className="checks" id="checks">
+            <ul className="chks" id="checks">
               {checkRow(t.ticker, ct)}
               {checkRow(t.name, cn)}
               {checkRow(t.picture, ci)}
               {checkRow(t.xAccount, cx)}
             </ul>
           </div>
-          <div className="panel">
-            <div className="sumline"><span>{t.costToLaunch}</span><b>{feeSol || createSol ? `${feeSol ? `${feeSol} + ` : ""}~${createSol} SOL` : t.free}</b></div>
-            <div className="sumline"><span>{t.yourShare}</span><b>{bpsLabel(config.fees.creatorBps)}</b></div>
-            <div className="sumline"><span>{t.holdersShare}</span><b id="holdShare">{t.holdersShareValue(bpsLabel(config.fees.holdersBps), d.pays)}</b></div>
-            <div className="sumline"><span>{t.devBuy}</span><b id="devSum">{devSol ? t.devSum(devSol, shareLabel(devShare)) : t.none}</b></div>
-            <button className="btn btn-lime btn-lg" id="launchBtn" type="submit" form="frm" style={{ width: "100%", marginTop: 14 }} disabled={!ready || (!config.launchesOpen && !me?.isAdmin) || !!me?.blocked}>
+          <div className="card checks">
+            <div className="kv"><span>{t.launchFee}</span><b>{feeSol ? t.solAmount(feeSol) : t.none}</b></div>
+            <div className="kv"><span>{t.createCost}</span><b>{createSol ? t.aboutSol(createSol) : t.free}</b></div>
+            <div className="kv"><span>{t.yourShare}</span><b>{bpsLabel(config.fees.creatorBps)}</b></div>
+            <div className="kv"><span>{t.holdersShare}</span><b id="holdShare">{t.holdersShareValue(bpsLabel(config.fees.holdersBps), d.pays)}</b></div>
+            <div className="kv"><span>{t.devBuy}</span><b id="devSum">{devSol ? t.devSum(devSol, shareLabel(devShare)) : t.none}</b></div>
+            <button className="btn btn-acc btn-lg btn-block" id="launchBtn" type="submit" form="frm" style={{ marginTop: 12 }} disabled={!ready || (!config.launchesOpen && !me?.isAdmin) || !!me?.blocked}>
               {t.launchCoin}
             </button>
-            <p className="note" id="launchHint" style={{ textAlign: "center", color: launchError ? "#FF4D61" : undefined }}>
+            <p className={"note" + (launchError ? " bad" : "")} id="launchHint">
               {me?.blocked
                 ? t.blocked
                 : launchError
@@ -447,6 +443,6 @@ export function CreateForm() {
         </aside>
       </div>
       {launch && <LaunchModal launchId={launch.id} ticker={launch.ticker} img={launch.img} pays={launch.pays} devBuy={launch.devBuy} onDone={done} onAnother={another} />}
-    </>
+    </div>
   );
 }

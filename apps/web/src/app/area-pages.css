@@ -1,1 +1,80 @@
 /* What the prototype (prototype/jinniu-prototype.html, in globals.css) doesn't draw for create, payouts, me, how, terms, admin, the wallet picker and modals. */
+/* Shared bits (modals, toasts, the wallet picker, admin, coin pictures, stock icons) are in additions.css. */
+
+/* ---------- create (components/create/CreateForm.tsx) ---------- */
+/* What the server refused, on the field itself. */
+.inp input::placeholder,.inp textarea::placeholder{color:var(--tx3)}
+.inp input.bad,.inp textarea.bad{box-shadow:inset 0 0 0 2px var(--red)}
+/* The picture's hidden file input: `.inp input` would size it to the full width and push the page sideways. */
+.inp .sr{width:1px;height:1px;padding:0}
+.drop{cursor:pointer;transition:border-color .15s}
+.drop:hover,.drop.over{border-color:var(--tx)}
+.drop.bad{border-color:var(--red)}
+.drop .ico{flex:none}
+.drop img.ico{object-fit:cover}
+/* The stock picker is a radio group: the prototype's pressed look on the checked stock, with the real icons. */
+.stocks button[aria-checked="true"]{background:var(--card);box-shadow:inset 0 0 0 2px var(--tx)}
+.stocks button :is(.chip-stock,.stk){width:34px;height:34px;font-size:12px}
+.stocks button .chip-stock.m3{font-size:10px}
+.amount:focus-within{box-shadow:inset 0 0 0 2px var(--tx)}
+.amount.bad{box-shadow:inset 0 0 0 2px var(--red)}
+.quick button[disabled]{opacity:.45;cursor:not-allowed}
+.note.bad{color:var(--red)}
+/* The aside: the preview isn't a link, the checks say what the server said, the summary starts without a rule. */
+#preview>*{cursor:default}
+#preview>*:hover{transform:none;box-shadow:var(--sh)}
+.checks h3{margin:0 0 4px;font:800 16px var(--ff)}
+.checks>.kv:first-child{border-top:0}
+ul.chks{list-style:none;margin:0;padding:0}
+.chk small{display:block;margin-top:1px;color:var(--tx3);font-size:12.5px}
+.chk.ok small{color:var(--tx2)}
+.chk.fail{color:var(--tx)}
+.chk.fail i{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)}
+.chk.fail small{color:var(--red)}
+
+/* ---------- tables on these pages ---------- */
+.t td.paid{color:var(--div);font-weight:700}
+.t td.empty-row{text-align:center;padding:30px 8px;white-space:normal}
+.coin-cell .chip-stock{width:28px;height:28px;font-size:10px}
+
+/* ---------- payouts (components/payouts/PayoutsView.tsx) ---------- */
+/* On time is green; a late round turns the badge and the hour line red. */
+.ontime .live{background:currentColor;box-shadow:none}
+.ontime.late{color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent)}
+.meter.late .hour i{background:var(--red)}
+.meter.late .hour i::after{border-color:var(--red)}
+
+/* ---------- how (app/how/page.tsx) ---------- */
+ol.steps{list-style:none;margin:0;padding:0}
+.fees .t td:first-child{white-space:normal}
+.fine{max-width:760px;margin:22px 0 24px;font-size:13.5px;color:var(--tx3)}
+.fine p{margin:0 0 8px}
+
+/* ---------- me (components/me/MeView.tsx) ---------- */
+.connect .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.me-actions{display:flex;gap:8px;flex-wrap:wrap;margin:-12px 0 22px}
+.me-warn{margin:0 0 16px}
+/* Creator fees first: the prototype's row, then each coin's fees under it. */
+.cfee{flex-wrap:wrap;margin:0 0 16px}
+.cfee-ico{display:grid;place-items:center;background:var(--s1);color:var(--tx2)}
+.cfee .cfee-coins{flex:1 0 100%}
+/* globals.css sizes the row's own picture and title (.cfee .tile, .cfee b); the coins table keeps the table's. */
+.cfee .coin-cell .tile{width:34px;height:34px;border-radius:10px}
+.cfee .coin-cell b{display:inline;font:700 14px var(--ff)}
+.hold .note{margin:4px 0 10px}
+
+/* ---------- terms (app/terms/page.tsx) ---------- */
+.terms-draft{max-width:800px;margin:0 0 16px;color:var(--div);background:var(--div-bg)}
+.page>.note{margin:0 0 16px}
+.terms{max-width:800px;padding:6px 28px 26px;border-radius:26px}
+.terms h2{margin:22px 0 8px;font:800 18px var(--ff)}
+.terms p{margin:0;color:var(--tx2);line-height:1.75}
+
+/* ---------- not found and errors ---------- */
+.status-card{padding:56px 24px;border-radius:28px}
+.status-card .btn{margin-top:16px}
+
+@media (max-width:640px){
+  .terms{padding:2px 20px 22px}
+  .me-actions{margin-top:-8px}
+}
