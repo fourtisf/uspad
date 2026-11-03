@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BRAND } from "@/lib/brand";
+import { BRAND, BRAND_LATIN } from "@/lib/brand";
 import { defineMsgs } from "../lang";
 
 /** Renders a link around its text; the component keeps the link's markup, the message its words. */
@@ -86,7 +86,7 @@ export const coinMsgs = defineMsgs(
     checkAddress: "Check the address",
     checkNote: (ticker: string, mint: ReactNode) => (
       <>
-        Coins on {BRAND} can share a ticker, a name, a picture and an X account. This ${ticker} is {mint}: compare it with the address the project posts before you buy.
+        Coins on {BRAND_LATIN} can share a ticker, a name, a picture and an X account. This ${ticker} is {mint}: compare it with the address the project posts before you buy.
       </>
     ),
   },
@@ -169,7 +169,7 @@ export const coinMsgs = defineMsgs(
     checkAddress: "核对合约地址",
     checkNote: (ticker: string, mint: ReactNode) => (
       <>
-        {BRAND} 上的代币可以使用相同的代币符号、名称、图片和 X 账号。这个 ${ticker} 的地址是 {mint}，买入前请和项目方公布的地址核对。
+        {BRAND}上的代币可以使用相同的代币符号、名称、图片和 X 账号。这个 ${ticker} 的地址是 {mint}，买入前请和项目方公布的地址核对。
       </>
     ),
   },
@@ -338,7 +338,7 @@ export const reportMsgs = defineMsgs(
     failed: "The report didn't go through. Try again.",
     report: "Report",
     title: (ticker: string) => `Report $${ticker}`,
-    intro: `Tell us what's wrong. Reports go to ${BRAND}'s moderators.`,
+    intro: `Tell us what's wrong. Reports go to ${BRAND_LATIN}'s moderators.`,
     reason: "Reason",
     reasons: { copy: "It copies another coin", scam: "It's a scam", nsfw: "Not safe for work", illegal: "Illegal content", other: "Something else" },
     details: "Details, links (optional)",
@@ -350,7 +350,7 @@ export const reportMsgs = defineMsgs(
     failed: "举报没有发送成功，请重试。",
     report: "举报",
     title: (ticker: string) => `举报 $${ticker}`,
-    intro: `告诉我们哪里有问题。举报会发给 ${BRAND} 的管理员。`,
+    intro: `告诉我们哪里有问题。举报会发给${BRAND}的管理员。`,
     reason: "原因",
     reasons: { copy: "仿盘，抄了别的代币", scam: "这是骗局", nsfw: "不适合公开浏览", illegal: "违法内容", other: "其他问题" },
     details: "详情、链接（选填）",

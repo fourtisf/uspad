@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { GLYPH } from "./jinniuMark";
-import { WORD, WORD_BOX, WORD_RATIO } from "./markPaths";
+import { BRAND, BRAND_LATIN } from "@/lib/brand";
 
 /**
  * The 金牛 mark (owner, 2026-11-02 and 03: a white logo, no gold coin): the brush 牛 in glossy white, like
@@ -51,11 +51,12 @@ export function Mark({ size = 34 }: { size?: number }) {
   );
 }
 
-/** The brush "hwai" wordmark, in the current text colour. It goes when the site takes the 金牛 name. */
-export function Wordmark({ height = 24 }: { height?: number }) {
+/** The 金牛 wordmark: 金牛 in the site's Han face at 900 and "jinniu" small beside it (owner, 2026-11-02). */
+export function Wordmark() {
   return (
-    <svg className="word" height={height} width={Math.round(height * WORD_RATIO)} viewBox={WORD_BOX} aria-hidden="true">
-      <path d={WORD} fill="currentColor" />
-    </svg>
+    <span className="word" aria-hidden="true">
+      {BRAND}
+      <small>{BRAND_LATIN}</small>
+    </span>
   );
 }

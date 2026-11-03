@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { CoinDetail, CoinList, Meter, PayoutRound } from "@divvy/shared";
-import { BRAND } from "@/lib/brand";
+import { BRAND, BRAND_LATIN } from "@/lib/brand";
 import { toCard } from "@/lib/cards";
 import { serverApi, serverApiOrNull } from "@/lib/server-api";
 import { CoinCard } from "@/components/CoinCard";
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ ticker: s
   if (!coin) return {};
   const title = `${coin.name} ($${coin.ticker}) · ${BRAND}`;
   const description = `$${coin.ticker} pays its holders in ${coin.dividendAsset} every hour. 土狗也分红，分的是美股。`;
-  const image = { url: `/og/coin/${coin.mint}`, width: 1200, height: 630, alt: `${coin.name} ($${coin.ticker}) on ${BRAND}` };
+  const image = { url: `/og/coin/${coin.mint}`, width: 1200, height: 630, alt: `${coin.name} ($${coin.ticker}) on ${BRAND_LATIN}` };
   return {
     title,
     description,

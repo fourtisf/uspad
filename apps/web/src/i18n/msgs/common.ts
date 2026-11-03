@@ -1,10 +1,10 @@
-import { BRAND } from "@/lib/brand";
+import { BRAND, BRAND_LATIN } from "@/lib/brand";
 import { defineMsgs } from "../lang";
 
 /** Header, footer, tab bar, live strip and words used all over the site. */
 export const common = defineMsgs(
   {
-    home: `${BRAND} home`,
+    home: `${BRAND_LATIN} home`,
     navBoard: "Board",
     navPayouts: "Payouts",
     navHow: "How it works",
@@ -25,8 +25,8 @@ export const common = defineMsgs(
     stripPaid: (ticker: string) => `$${ticker} holders received`,
     stripLaunched: (ago: string) => `launched ${ago}`,
     stripGraduated: "graduated to Raydium",
-    footDemo: `${BRAND} prototype. Every number here is demo data.`,
-    footLive: `${BRAND}.`,
+    footDemo: `${BRAND_LATIN} prototype. Every number here is demo data.`,
+    footLive: `${BRAND_LATIN}.`,
     footFollow: "Follow",
     footOnX: "on X and join us on",
     footEnd: ".",
@@ -42,12 +42,12 @@ export const common = defineMsgs(
     errorLoading: "Something went wrong loading this page.",
     tryAgain: "Try again",
     period: ".",
-    serverDown: `${BRAND} can't reach its server right now.`,
+    serverDown: `${BRAND_LATIN} can't reach its server right now.`,
     justNow: "just now",
     ago: (min: number) => (min < 1 ? "just now" : min < 60 ? `${Math.round(min)}m ago` : min < 1440 ? `${Math.floor(min / 60)}h ago` : `${Math.floor(min / 1440)}d ago`),
   },
   {
-    home: `${BRAND} 首页`,
+    home: `${BRAND}首页`,
     navBoard: "发现",
     navPayouts: "分红记录",
     navHow: "玩法",
@@ -68,7 +68,7 @@ export const common = defineMsgs(
     stripPaid: (ticker: string) => `$${ticker} 持有人领到`,
     stripLaunched: (ago: string) => `${ago}上线`,
     stripGraduated: "已毕业，进入 Raydium",
-    footDemo: `${BRAND} 演示版。页面上的数字都是演示数据。`,
+    footDemo: `${BRAND}演示版。页面上的数字都是演示数据。`,
     footLive: `${BRAND}。`,
     footFollow: "关注",
     footOnX: "的 X 账号，加入我们的",
@@ -85,7 +85,7 @@ export const common = defineMsgs(
     errorLoading: "页面加载出错了。",
     tryAgain: "重试",
     period: "",
-    serverDown: `${BRAND} 暂时连不上服务器。`,
+    serverDown: `${BRAND}暂时连不上服务器。`,
     justNow: "刚刚",
     ago: (min: number) => (min < 1 ? "刚刚" : min < 60 ? `${Math.round(min)} 分钟前` : min < 1440 ? `${Math.floor(min / 60)} 小时前` : `${Math.floor(min / 1440)} 天前`),
   },

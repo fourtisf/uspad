@@ -1,10 +1,10 @@
-import { BRAND } from "@/lib/brand";
+import { BRAND, BRAND_LATIN } from "@/lib/brand";
 import { defineMsgs } from "../lang";
 
 /** The connected wallet's own page (app/me/page.tsx, components/me/MeView.tsx). */
 export const me = defineMsgs(
   {
-    metaTitle: `Your payouts · ${BRAND}`,
+    metaTitle: `Your payouts · ${BRAND_LATIN}`,
     title: "Your payouts",
     status: { credited: "Credited", sent: "Sent", claimed: "Claimed" },
     failed: "That didn't go through. Try again.",
@@ -18,7 +18,7 @@ export const me = defineMsgs(
     /** `who` is the short address, plus " · @handle" when an X account is linked. */
     lede: (who: string, claim: boolean) =>
       `${who}. ${claim ? "Every hour your coins credit you their stock. Claim it any time; you pay only the network fee and your token account." : "Every hour your coins send you their stock."}`,
-    blocked: `${BRAND} isn't available in your country, so claims are turned off here.`,
+    blocked: `${BRAND_LATIN} isn't available in your country, so claims are turned off here.`,
     creatorTitle: "Your creator fees",
     claiming: "Claiming…",
     nothingToClaim: "Nothing to claim yet",
@@ -56,7 +56,7 @@ export const me = defineMsgs(
     signOut: "退出登录",
     lede: (who: string, claim: boolean) =>
       `${who}。${claim ? "你的代币每小时把股票记入你的账户。随时可以领取，你只需支付网络手续费和代币账户的费用。" : "你的代币每小时把股票发给你。"}`,
-    blocked: `${BRAND} 在你所在的国家或地区不可用，所以这里关闭了领取功能。`,
+    blocked: `${BRAND}在你所在的国家或地区不可用，所以这里关闭了领取功能。`,
     creatorTitle: "我的创建者手续费",
     claiming: "领取中…",
     nothingToClaim: "暂时没有可领取的",

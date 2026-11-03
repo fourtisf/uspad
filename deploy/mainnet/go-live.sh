@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# uspad.fun: from the demo preview to the live mainnet site on this server, and updates afterwards.
+# The live mainnet site on this server (金牛 on jinniu.fun since 2026-11-03; uspad.fun, then hwai.ai, before),
+# from the demo preview, and updates afterwards.
 # Run as root. The API keys come from /root/uspad-secrets.env (HELIUS_API_KEY, JUP_API_KEY).
 #
 #   go-live.sh prepare            no SOL. Postgres, Redis, users, wallet keys, env files, build,
@@ -36,17 +37,19 @@
 #   go-live.sh payouts dry-run    back to computing without sending.
 #   go-live.sh payouts minimum <USD>
 #                                 a coin's hourly holders' share under this waits for the next hour ($1).
-#   go-live.sh token-ca <address> shows the platform token's contract address in the hero; token-ca off
-#                                 puts back "CA: coming soon" (rebuilds the site: it is a NEXT_PUBLIC_ value).
-#   go-live.sh bootstrap          a brand-new server for hwai.ai (new launchpad from zero): packages,
+#   go-live.sh token-ca <address> [TICKER]
+#                                 shows the platform token's contract address in the hero and its card with
+#                                 $TICKER; token-ca off puts back "CA: coming soon" and hides the card
+#                                 (rebuilds the site: they are NEXT_PUBLIC_ values).
+#   go-live.sh bootstrap          a brand-new server for $BRAND_DOMAIN (new launchpad from zero): packages,
 #                                 firewall, Node, pnpm, PM2, DNS check, certificate, API keys typed here,
 #                                 then prepare. Then platform-config and switch as below.
-#   go-live.sh domain             moves the live site to hwai.ai on this server: certificate, Nginx,
-#                                 WEB_ORIGIN; uspad.fun redirects there (and keeps serving old coins'
-#                                 pictures and metadata). Needs hwai.ai and www.hwai.ai pointing here.
+#   go-live.sh domain             moves the live site to $BRAND_DOMAIN (jinniu.fun) on this server:
+#                                 certificate, Nginx, WEB_ORIGIN; the old domain redirects there (and keeps
+#                                 serving old coins' pictures and metadata). Needs it and its www pointing here.
 #   go-live.sh platform-info name | all
-#                                 dry run: the name (and with "all" the web link and picture, once hwai.ai
-#                                 serves the site) Raydium shows for the PlatformConfig, uspad → hwai.
+#                                 dry run: the name (and with "all" the web link and picture, once
+#                                 $BRAND_DOMAIN serves the site) Raydium shows for the PlatformConfig.
 #   I_HAVE_OWNER_APPROVAL=yes go-live.sh platform-info name --send
 #                                 💰 sends it (a network fee only; one update per epoch, see the script).
 #   go-live.sh socials <x> <tg>   the official X and Telegram handles (without @, or "off"), shown in the hero
@@ -62,13 +65,16 @@ set -euo pipefail
 # The domain the live site serves: uspad.fun until `go-live.sh domain` moves it (it writes the new one here).
 DOMAIN_FILE=/root/divvy-domain
 DOMAIN=$(cat "$DOMAIN_FILE" 2>/dev/null || echo uspad.fun)
-# The product's name and domain since the owner's rename (2026-10-31): the domain move, and the
-# PlatformConfig's name, web and picture (go-live.sh platform-info), use these.
-BRAND=hwai
-BRAND_DOMAIN=hwai.ai
+# The product's name and domain (owner, 2026-11-02: 金牛 jinniu on jinniu.fun; hwai on hwai.ai before): the
+# domain move, and the PlatformConfig's name, web and picture (go-live.sh platform-info), use these. The
+# name stays ASCII for the PlatformConfig and the alerts; the site shows 金牛 (packages/shared/src/brand.ts).
+BRAND=jinniu
+BRAND_DOMAIN=jinniu.fun
+# The PlatformConfig's picture on the site (brand/jinniu/src/mark.cjs writes it).
+BRAND_IMG=/brand/jinniu-mark-512.png
 REPO=https://github.com/fourtisf/uspad.git
-# The hwai rename, the Chinese site and design A are on this branch (2026-10-31).
-BRANCH=claude/tender-curie-4uer50
+# The branch every build takes (2026-11-03: main, with the 金牛 rename; it was claude/tender-curie-4uer50).
+BRANCH=main
 SECRETS=/root/uspad-secrets.env
 GEN=/root/uspad-generated.env          # database and Redis passwords made by this script
 ADMIN_KEY=/root/uspad-keys/platform-admin.json
@@ -482,7 +488,7 @@ platform_config() {
   fi
   say "PlatformConfig ${send[*]:-(dry run)}  admin $admin, fee claimer $fee"
   (cd "$CUR/packages/solana" && env RPC_URL="$RPC" PLATFORM_ADMIN_KEYPAIR="$ADMIN_KEY" FEE_WALLET="$fee" NFT_WALLET="$fee" \
-    NAME="$BRAND" WEB="https://$BRAND_DOMAIN" IMG="https://$BRAND_DOMAIN/brand/hwai-mark-512.png" I_HAVE_OWNER_APPROVAL="${I_HAVE_OWNER_APPROVAL:-}" \
+    NAME="$BRAND" WEB="https://$BRAND_DOMAIN" IMG="https://$BRAND_DOMAIN$BRAND_IMG" I_HAVE_OWNER_APPROVAL="${I_HAVE_OWNER_APPROVAL:-}" \
     ./node_modules/.bin/tsx scripts/phase0/create-platform-config.ts "${send[@]}" 2>&1) | sed 's/api-key=[^&" ]*/api-key=…/g'
   sync_platform_pda
   note "PDA di api.env: $(env_get $ENV_DIR/api.env DIVVY_PLATFORM_CONFIG)"
@@ -961,16 +967,20 @@ payouts() {
 
 # --------------------------------------------------------------------------------------------------
 token_ca() {
-  [[ ${1:-} =~ ^[1-9A-HJ-NP-Za-km-z]{32,44}$|^off$ ]] || die "pakai: go-live.sh token-ca <alamat mint token platform> | off"
+  [[ ${1:-} =~ ^[1-9A-HJ-NP-Za-km-z]{32,44}$|^off$ ]] || die "pakai: go-live.sh token-ca <alamat mint token platform> [TICKER] | off"
+  [ -z "${2:-}" ] || [[ ${2#\$} =~ ^[A-Za-z0-9]{1,12}$ ]] || die "ticker: 1 sampai 12 huruf atau angka, misalnya JINNIU"
   [ -f "$LIVE_MARK" ] || die "jalankan 'go-live.sh switch' dulu"
   if [ "$1" = off ]; then
     set_env $ENV_DIR/build.env NEXT_PUBLIC_TOKEN_CA ""
+    set_env $ENV_DIR/build.env NEXT_PUBLIC_TOKEN_TICKER ""
     update
-    note "CA dihapus dari situs: tertulis 'CA: coming soon'."
+    note "CA dihapus dari situs: tertulis 'CA: coming soon', tanpa kartu token resmi."
   else
+    local ticker=${2#\$}
     set_env $ENV_DIR/build.env NEXT_PUBLIC_TOKEN_CA "$1"
+    set_env $ENV_DIR/build.env NEXT_PUBLIC_TOKEN_TICKER "${ticker^^}"
     update
-    note "CA di situs: $1"
+    note "CA di situs: $1${ticker:+ (\$${ticker^^})}"
   fi
 }
 
@@ -1073,7 +1083,7 @@ bootstrap() {
   prepare
 }
 
-# Moves the live site to $BRAND_DOMAIN on this server (owner, 2026-10-31: uspad.fun → hwai.ai): a
+# Moves the live site to $BRAND_DOMAIN on this server (uspad.fun → hwai.ai on 2026-10-31, hwai.ai → jinniu.fun): a
 # certificate for it and www, the Nginx site, WEB_ORIGIN and the media base, and the old name kept as a
 # redirect. The old name still serves /api/media/ itself: coins launched before the move have their
 # metadata (on chain) and pictures (in the database) there, so the new site's CSP allows its pictures.
@@ -1177,7 +1187,7 @@ EOF
 }
 
 # --------------------------------------------------------------------------------------------------
-# The name, web link and picture Raydium shows for the PlatformConfig (owner, 2026-10-31: uspad → hwai).
+# The name, web link and picture Raydium shows for the PlatformConfig (uspad → hwai on 2026-10-31, → jinniu).
 #   platform-info name    only the name, which needs nothing else
 #   platform-info all     name, web https://$BRAND_DOMAIN and picture, once $BRAND_DOMAIN serves the site
 # A dry run unless --send (with I_HAVE_OWNER_APPROVAL=yes). The script checks in the simulation that
@@ -1189,7 +1199,7 @@ platform_info() {
   local what=${1:-} send=() web="" img=""
   case "$what" in
     name) ;;
-    all) web="https://$BRAND_DOMAIN"; img="https://$BRAND_DOMAIN/brand/hwai-mark-512.png" ;;
+    all) web="https://$BRAND_DOMAIN"; img="https://$BRAND_DOMAIN$BRAND_IMG" ;;
     *) die "pakai: go-live.sh platform-info name | all  [--send]" ;;
   esac
   if [ "${2:-}" = "--send" ]; then

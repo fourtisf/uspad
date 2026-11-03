@@ -1,7 +1,7 @@
 /**
  * A coin's share image (1200 x 630), the card X and Telegram show for its link (owner, 2026-11-02): its
  * picture, name and ticker, market cap and 24h move, holders, what holders were paid, the stock it pays
- * in, its sparkline, and the 金牛 mark with hwai's wordmark. The coin page's metadata points here by mint (coins can
+ * in, its sparkline, and the 金牛 mark and name. The coin page's metadata points here by mint (coins can
  * share a ticker). Rendered by next/og; the picture is stored as WebP, which next/og can't read, so sharp
  * turns it into a PNG first. Fonts: Noto Sans SC from Google Fonts, only the characters drawn.
  */
@@ -14,7 +14,6 @@ import { pct, usd, type CoinDetail } from "@divvy/shared";
 import { api, ApiRequestError } from "@/lib/api";
 import { BRAND, DOMAIN } from "@/lib/brand";
 import { stockLogo } from "@/lib/logos";
-import { WORD, WORD_BOX } from "@/components/markPaths";
 import { MARK_FLAT_SVG } from "@/components/jinniuMark";
 
 const MINT = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
@@ -28,8 +27,6 @@ const GOLD = "#FFC84A";
 const svgUri = (svg: string) => `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
 // The 金牛 mark without SVG filters (next/og draws through resvg); brand/jinniu/src/mark.cjs writes it.
 const MARK_URI = svgUri(MARK_FLAT_SVG);
-const WORD_URI = svgUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${WORD_BOX}"><path d="${WORD}" fill="#ECF5EF"/></svg>`);
-const [, , WORD_W, WORD_H] = WORD_BOX.split(" ").map(Number) as [number, number, number, number];
 
 /** A sparkline as an image: an area under the line, green when it ends higher, red otherwise. */
 function sparkUri(values: number[], w: number, h: number): string | null {
@@ -186,7 +183,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ mint: s
           </div>
         </div>
 
-        {/* what holders earn, and hwai */}
+        {/* what holders earn, and 金牛 */}
         <div style={{ display: "flex", alignItems: "center", marginTop: 30, gap: 18 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 22px 12px 12px", borderRadius: 999, backgroundColor: "rgba(255,200,74,0.10)", border: "1.5px solid rgba(255,200,74,0.35)" }}>
             {stock ? (
@@ -198,8 +195,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ mint: s
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={MARK_URI} width={56} height={56} alt="" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={WORD_URI} width={Math.round((36 * WORD_W) / WORD_H)} height={36} alt="" />
+            <span style={{ fontSize: 34, fontWeight: 900, color: "#ECF5EF", letterSpacing: 1 }}>{BRAND}</span>
             <span style={{ fontSize: 24, fontWeight: 500, color: "#64776D", marginLeft: 6 }}>{DOMAIN}</span>
           </div>
         </div>

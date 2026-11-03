@@ -108,7 +108,7 @@ export function Header() {
       <div className="wrap">
         <Link className="logo" href="/" aria-label={t.home}>
           <Mark size={36} />
-          <Wordmark height={24} />
+          <Wordmark />
         </Link>
         <nav className="links" aria-label="Main">
           <Link href="/" {...cur("board")}>{t.navBoard}</Link>

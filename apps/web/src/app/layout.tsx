@@ -5,7 +5,7 @@ import "@solana/wallet-adapter-react-ui/styles.css";
 import "./globals.css";
 import "./additions.css";
 import { sharedApi } from "@/lib/server-api";
-import { BRAND } from "@/lib/brand";
+import { BRAND, BRAND_LATIN } from "@/lib/brand";
 import { htmlLang } from "@/i18n/lang";
 import { LangProvider } from "@/i18n/client";
 import { getLang, getUpDown } from "@/i18n/server";
@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 
 const META = {
   en: {
-    title: `${BRAND}: memecoins that pay dividends in real stocks`,
+    title: `${BRAND_LATIN}: memecoins that pay dividends in real stocks`,
     description: "Launch a memecoin on Solana. Every trade buys a real stock token and splits it between holders, every hour.",
   },
   zh: {

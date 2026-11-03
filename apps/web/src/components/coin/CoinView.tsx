@@ -21,7 +21,7 @@ import {
 import { qs } from "@/lib/api";
 import { useAssets, useConfig } from "@/lib/config";
 import { deliveryCopy } from "@/lib/copy";
-import { BRAND } from "@/lib/brand";
+import { BRAND, BRAND_LATIN } from "@/lib/brand";
 import { useAgo, useLang, useMsgs } from "@/i18n/client";
 import { common } from "@/i18n/msgs/common";
 import { coinMsgs } from "@/i18n/msgs/coin";
@@ -298,7 +298,7 @@ export function CoinView({ coin: initialCoin, initialMeter, initialPayouts }: { 
             <div className="split-legend">
               <span><i style={{ background: "var(--lime)" }} />{t.buysFor(coin.dividendAsset)}<b>{bpsLabel(f.holdersBps)}</b></span>
               <span><i style={{ background: "var(--green-d)" }} />{t.creator}<b>{bpsLabel(f.creatorBps)}</b></span>
-              <span><i style={{ background: "var(--gold)" }} />{BRAND}<b>{bpsLabel(f.divvyBps)}</b></span>
+              <span><i style={{ background: "var(--gold)" }} />{lang === "zh" ? BRAND : BRAND_LATIN}<b>{bpsLabel(f.divvyBps)}</b></span>
               <span><i style={{ background: "rgba(255,255,255,.14)" }} />{t.raydiumProtocol}<b>{bpsLabel(f.protocolBps)}</b></span>
             </div>
           </div>

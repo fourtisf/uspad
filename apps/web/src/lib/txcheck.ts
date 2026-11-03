@@ -4,7 +4,7 @@
  * programs and instructions a Divvy trade or claim needs are allowed, and nothing may move the
  * user's funds anywhere but their own accounts.
  */
-import { BRAND } from "./brand";
+import { BRAND_LATIN } from "./brand";
 import { txErrors } from "../i18n/msgs/errors";
 import { ComputeBudgetProgram, PublicKey, SystemProgram, type VersionedTransaction } from "@solana/web3.js";
 
@@ -183,7 +183,7 @@ export function checkCreate(tx: VersionedTransaction, wallet: PublicKey, network
         if (lamports !== devBuyLamports) throw new UnsafeTransaction("a dev buy that isn't the amount you typed");
         wraps++;
       } else if (fee.to && to === fee.to && fees === 0) {
-        if (lamports > fee.lamports) throw new UnsafeTransaction(`a launch fee above ${BRAND}'s`);
+        if (lamports > fee.lamports) throw new UnsafeTransaction(`a launch fee above ${BRAND_LATIN}'s`);
         fees++;
       } else if (tips === 0 && lamports <= MAX_TIP_LAMPORTS) tips++;
       else throw new UnsafeTransaction("a SOL transfer that isn't the launch fee or the tip");

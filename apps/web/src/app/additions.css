@@ -29,7 +29,10 @@ button.link{border:0;background:none;padding:0;font:inherit;cursor:pointer}
 .panel .btn-lg,.fsec .btn-lg{width:100%}
 
 /* ---------- header extras ---------- */
-.logo .word{color:var(--tx)}
+/* The 金牛 wordmark is text (owner, 2026-11-02), not the brush "hwai" SVG the prototype sizes by height. */
+.logo .word{display:inline-flex;align-items:baseline;gap:7px;height:auto;color:var(--tx);font:900 22px/1 var(--zh);letter-spacing:.04em;white-space:nowrap}
+.logo .word small{font:600 11.5px/1 var(--zh);letter-spacing:.06em;color:var(--tx-3)}
+@media (max-width:760px){.logo .word{height:auto;font-size:20px}.logo .word small{display:none}}
 .search .ico{position:absolute;left:14px;top:13px;color:var(--tx-3);display:flex}
 .search kbd{position:absolute;right:10px;top:10px;font:600 11px var(--num);color:var(--tx-3);border:1px solid var(--line-2);border-radius:6px;padding:2px 7px}
 .wallet-av{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--lime),var(--green))}

@@ -1,4 +1,4 @@
-import { BRAND } from "@/lib/brand";
+import { BRAND, BRAND_LATIN } from "@/lib/brand";
 import { defineMsgs } from "../lang";
 
 /**
@@ -10,7 +10,7 @@ export const create = defineMsgs(
     title: "Create a coin",
     headPaid: (feeSol: number, createSol: number) =>
       `Your wallet signs the create and pays ${feeSol ? `${feeSol} SOL to launch plus ` : ""}about ${createSol} SOL for the coin itself. It goes out in a private bundle, so nobody buys before you, and your holders get the dividend.`,
-    headFree: `It's free. ${BRAND}'s launcher creates your coin in a private bundle and pays the rent, so nobody buys before it lands, and your holders get the dividend.`,
+    headFree: `It's free. ${BRAND_LATIN}'s launcher creates your coin in a private bundle and pays the rent, so nobody buys before it lands, and your holders get the dividend.`,
     optional: "optional",
     // 1. The coin
     coinTitle: "The coin",
@@ -82,7 +82,7 @@ export const create = defineMsgs(
     costDev: (sol: number, accountsSol: number) => `your ${sol} SOL dev buy with about ${accountsSol} SOL for its token accounts`,
     readyApproves: (costs: string[]) => `Ready. Your wallet approves ${costs.length > 1 ? `${costs.slice(0, -1).join(", ")} and ${costs[costs.length - 1]}` : costs[0]}.`,
     readyFree: "Ready. Launching takes a few seconds.",
-    blocked: `${BRAND} isn't available in your country.`,
+    blocked: `${BRAND_LATIN} isn't available in your country.`,
     adminPaused: (hint: string) => `Paused for everyone else; you can launch as an admin. ${hint}`,
     paused: "Launches are paused.",
     feeChanged: (sol: string) => `The launch fee changed to ${sol} SOL after this page opened, so your wallet wasn't asked and nothing was charged. Check the cost and launch again.`,
@@ -104,7 +104,7 @@ export const create = defineMsgs(
     minting: (ticker: string) => `Minting $${ticker}`,
     signingNote: "Your wallet pays for the coin's create and signs it, so the coin is yours on chain. Keep this tab open.",
     keepOpen: "Keep this tab open. It takes a few seconds.",
-    waitingCreate: `Waiting for ${BRAND} to hand your wallet the create. Keep this tab open.`,
+    waitingCreate: `Waiting for ${BRAND_LATIN} to hand your wallet the create. Keep this tab open.`,
     didntSign: (said: string) => `Your wallet didn't sign it (${said}). Ask it again:`,
     noAnswer: "no answer",
     cantSee: "Don't see your wallet? Open it from your browser's toolbar, or ask it again:",
@@ -114,7 +114,7 @@ export const create = defineMsgs(
     title: "创建代币",
     headPaid: (feeSol: number, createSol: number) =>
       `你的钱包签名创建交易，并支付${feeSol ? ` ${feeSol} SOL 发币费，另加` : ""}约 ${createSol} SOL 的代币创建费。它通过私有捆绑交易发出，没人能抢在你之前买入，你的持有人可以拿到分红。`,
-    headFree: `完全免费。${BRAND} 的发币程序用私有捆绑交易创建你的代币并支付租金，代币上链前没人能买入，你的持有人可以拿到分红。`,
+    headFree: `完全免费。${BRAND}的发币程序用私有捆绑交易创建你的代币并支付租金，代币上链前没人能买入，你的持有人可以拿到分红。`,
     optional: "选填",
     coinTitle: "代币",
     coinNote: "名称、代币符号和图片创建后不能修改。",
@@ -180,7 +180,7 @@ export const create = defineMsgs(
     costDev: (sol: number, accountsSol: number) => `${sol} SOL 开发者首买（另加约 ${accountsSol} SOL 代币账户费）`,
     readyApproves: (costs: string[]) => `准备就绪。你的钱包将批准：${costs.join("、")}。`,
     readyFree: "准备就绪。发币只需几秒钟。",
-    blocked: `你所在的国家或地区无法使用 ${BRAND}。`,
+    blocked: `你所在的国家或地区无法使用${BRAND}。`,
     adminPaused: (hint: string) => `其他人暂时不能发币，你是管理员，仍然可以发币。${hint}`,
     paused: "发币已暂停。",
     feeChanged: (sol: string) => `这个页面打开之后，发币手续费变成了 ${sol} SOL，所以没有请你的钱包签名，也没有扣任何费用。看一下现在的费用，再发一次。`,
@@ -201,7 +201,7 @@ export const create = defineMsgs(
     minting: (ticker: string) => `正在创建 $${ticker}`,
     signingNote: "你的钱包支付代币的创建费用并签名，所以代币在链上归你所有。请保持此页面打开。",
     keepOpen: "请保持此页面打开，只需几秒钟。",
-    waitingCreate: `正在等待 ${BRAND} 把创建交易交给你的钱包。请保持此页面打开。`,
+    waitingCreate: `正在等待${BRAND}把创建交易交给你的钱包。请保持此页面打开。`,
     didntSign: (said: string) => `你的钱包没有签名（${said}）。再请求一次：`,
     noAnswer: "没有响应",
     cantSee: "看不到钱包？从浏览器工具栏打开它，或再请求一次：",

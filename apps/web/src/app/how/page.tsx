@@ -2,7 +2,7 @@ import Link from "next/link";
 import { bpsLabel, usd, type Config } from "@divvy/shared";
 import { sharedApi } from "@/lib/server-api";
 import { deliveryCopy } from "@/lib/copy";
-import { BRAND } from "@/lib/brand";
+import { BRAND, BRAND_LATIN } from "@/lib/brand";
 import { getLang, getMsgs } from "@/i18n/server";
 import { how } from "@/i18n/msgs/how";
 import { POOL_CREATOR_FEE_BPS, POOL_CREATOR_RAYDIUM_SHARE, POOL_FEE_BPS, POOL_RAYDIUM_SHARE, poolFees } from "@/lib/poolfees";
@@ -146,7 +146,7 @@ export default async function HowPage() {
               <td className="r">{per1k(after.creator)}</td>
             </tr>
             <tr>
-              <td>{BRAND}</td>
+              <td>{lang === "zh" ? BRAND : BRAND_LATIN}</td>
               <td className="r">{per1k(f.divvyBps)}</td>
               <td className="r">{per1k(after.divvy)}</td>
             </tr>

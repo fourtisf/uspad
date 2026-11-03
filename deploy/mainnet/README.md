@@ -34,6 +34,21 @@ I_HAVE_OWNER_APPROVAL=yes /root/go-live.sh platform-config --send
 
 After that the steps are the ones above (`cp-creator` from the next epoch, `open-launches`, `launches open`), each spending step with the owner's OK. `bootstrap` writes `hwai.ai` to `/root/divvy-domain` first, so every command serves hwai.ai; the PlatformConfig is created as name `hwai`, web `https://hwai.ai`. Internal names (`/root/uspad-keys`, `/root/uspad-secrets.env`, the `divvy-*` users) stay as the script has always called them.
 
+**金牛 on jinniu.fun (owner, 2026-11-02 and 03).** The product is now 金牛 (jinniu), and its domain `jinniu.fun` (Hostinger, A record for `@` and CNAME `www` to this server). The code is on `main`, which go-live.sh builds from now (`BRANCH`); the copy of go-live.sh already on the hwai server still builds the old branch, so take the new one from the server's own mirror first. On the server that runs hwai.ai, as root:
+
+```bash
+cat /root/divvy-domain                   # hwai.ai: this is the live hwai server
+sudo -u divvy git -C /srv/divvy/repo.git fetch --prune -q origin
+sudo -u divvy git -C /srv/divvy/repo.git show refs/heads/main:deploy/mainnet/go-live.sh > /root/go-live.sh.new && chmod 700 /root/go-live.sh.new && mv -f /root/go-live.sh.new /root/go-live.sh
+/root/go-live.sh token-ca off            # hides $HWAI until the 金牛 token, and deploys main: the 金牛 name, mark, icons and share image
+/root/go-live.sh domain                  # certificate, Nginx and WEB_ORIGIN for jinniu.fun; hwai.ai redirects there and keeps serving old coins' pictures
+/root/go-live.sh status
+/root/go-live.sh platform-info all       # dry run: name jinniu, web https://jinniu.fun, picture /brand/jinniu-mark-512.png; then, with the owner's OK:
+I_HAVE_OWNER_APPROVAL=yes /root/go-live.sh platform-info all --send
+```
+
+hwai.ai must keep pointing at this server after the move: it redirects visitors and still serves the pictures and metadata of coins launched under it. When the 金牛 token launches: `/root/go-live.sh token-ca <CA> <TICKER>`.
+
 **Moving the uspad server to hwai.ai instead** (not the owner's plan; kept for the record). On the uspad server:
 
 ```bash

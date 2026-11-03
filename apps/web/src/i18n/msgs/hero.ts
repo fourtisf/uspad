@@ -11,7 +11,7 @@ export const hero = defineMsgs(
     caCopied: "Contract address copied",
     copyCa: (ca: string) => `Copy contract address ${ca}`,
     officialTag: "Official token",
-    officialP: (brand: string) => `The token of ${brand}. Only trust this contract address, the one on ${brand}.ai and @HwaiPad.`,
+    officialP: (brand: string, domain: string, x: string) => `The token of ${brand}. Only trust this contract address, the one on ${domain}${x ? ` and @${x}` : ""}.`,
     buyToken: (ticker: string) => `Buy $${ticker}`,
   },
   {
@@ -23,7 +23,7 @@ export const hero = defineMsgs(
     caCopied: "合约地址已复制",
     copyCa: (ca: string) => `复制合约地址 ${ca}`,
     officialTag: "官方代币",
-    officialP: (brand: string) => `${brand} 的官方代币。只认这个合约地址，以 ${brand}.ai 和 @HwaiPad 公布的为准。`,
+    officialP: (brand: string, domain: string, x: string) => `${brand}的官方代币。只认这个合约地址，以 ${domain}${x ? ` 和 @${x}` : ""} 公布的为准。`,
     buyToken: (ticker: string) => `购买 $${ticker}`,
   },
 );
