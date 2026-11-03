@@ -49,6 +49,19 @@ I_HAVE_OWNER_APPROVAL=yes /root/go-live.sh platform-info all --send
 
 hwai.ai must keep pointing at this server after the move: it redirects visitors and still serves the pictures and metadata of coins launched under it. When the 金牛 token launches: `/root/go-live.sh token-ca <CA> <TICKER>`.
 
+**What the owner did instead: 金牛 on a new server (2026-11-03).** jinniu.fun points at a separate VPS (31.97.66.123), so 金牛 starts from zero there, like hwai did: new wallets, an empty database, its own PlatformConfig; hwai.ai keeps running on its server. As root on the new server:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fourtisf/uspad/main/deploy/mainnet/go-live.sh -o /root/go-live.sh && chmod 700 /root/go-live.sh
+/root/go-live.sh bootstrap               # packages, firewall, Node, DNS check, certificate, API keys (typed there, saved in /root/uspad-secrets.env), then prepare
+/root/go-live.sh preview                 # the site online at https://jinniu.fun behind a password, demo data, nothing signed
+/root/go-live.sh platform-config         # dry run; then, with the owner's OK and about 0.03 SOL on the platform admin:
+I_HAVE_OWNER_APPROVAL=yes /root/go-live.sh platform-config --send
+/root/go-live.sh switch                  # the live site replaces the preview: launches paused, payouts in dry-run
+```
+
+If a key was typed wrong, the stocks step says `0 stock(s) written` (Jupiter answers 401). The keys sit in three files: `/root/uspad-secrets.env` (`HELIUS_API_KEY`, `JUP_API_KEY`), and `/etc/divvy/api.env` and `/etc/divvy/worker.env` (`SOLANA_RPC_URL` with the Helius key, `JUP_API_KEY_API` and `JUP_API_KEY`). Fix all three, then run `prepare` again: it keeps the wallets, the database and the env files, and loads the stocks.
+
 **Moving the uspad server to hwai.ai instead** (not the owner's plan; kept for the record). On the uspad server:
 
 ```bash

@@ -44,6 +44,9 @@
 #   go-live.sh bootstrap          a brand-new server for $BRAND_DOMAIN (new launchpad from zero): packages,
 #                                 firewall, Node, pnpm, PM2, DNS check, certificate, API keys typed here,
 #                                 then prepare. Then platform-config and switch as below.
+#   go-live.sh preview            before the PlatformConfig: the site online at https://$DOMAIN behind a
+#                                 password, with demo data (API in mock mode, nothing signed). `switch`
+#                                 replaces it with the live site; `update` rebuilds it meanwhile.
 #   go-live.sh domain             moves the live site to $BRAND_DOMAIN (jinniu.fun) on this server:
 #                                 certificate, Nginx, WEB_ORIGIN; the old domain redirects there (and keeps
 #                                 serving old coins' pictures and metadata). Needs it and its www pointing here.
@@ -1189,6 +1192,121 @@ EOF
 }
 
 # --------------------------------------------------------------------------------------------------
+# The site online before the PlatformConfig exists (owner, 2026-11-03: "saya ingin websitenya online dulu").
+# deploy/preview: the web app and the API in mock mode from /srv/divvy/app as `divvy`, with demo data: no
+# database, no worker, no keys, nothing signed or sent. It sits behind a password, because demo coins and
+# payouts on a public domain would read as a live product (deploy/preview/README.md). HTTPS uses the
+# certificate bootstrap got (webroot, so renewals keep working); `switch` later removes this site and
+# turns the preview off, and `update` rebuilds it until then.
+preview() {
+  [ -f "$LIVE_MARK" ] && die "situs sudah live; preview hanya untuk sebelum 'switch'"
+  [ -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] || die "sertifikat $DOMAIN belum ada: jalankan 'go-live.sh bootstrap' dulu"
+  command -v pnpm > /dev/null && command -v pm2 > /dev/null || die "pnpm atau PM2 belum terpasang: jalankan 'go-live.sh bootstrap' dulu"
+  id divvy > /dev/null 2>&1 || adduser --disabled-password --gecos "" divvy > /dev/null
+  install -d -o divvy -g divvy -m 755 /srv/divvy
+
+  say "Preview: kode $BRANCH, data demo, build (beberapa menit)"
+  sudo -iu divvy bash -c "set -e
+    if [ -d /srv/divvy/app/.git ]; then
+      cd /srv/divvy/app && git fetch -q origin $BRANCH && git checkout -q $BRANCH && git reset -q --hard origin/$BRANCH
+    else
+      git clone -q --branch $BRANCH $REPO /srv/divvy/app && cd /srv/divvy/app
+    fi
+    umask 077
+    printf '%s\n' '# Preview: demo data only. No database, no keys, nothing on chain (go-live.sh preview).' \
+      API_MODE=mock API_HOST=127.0.0.1 API_PORT=4000 WEB_ORIGIN=https://$DOMAIN API_INTERNAL_URL=http://127.0.0.1:4000 \
+      NEXT_PUBLIC_SOLANA_CLUSTER=devnet NEXT_PUBLIC_TERMS_FINAL=false LOG_LEVEL=info > .env
+    pnpm install --frozen-lockfile
+    pnpm --filter @divvy/api --filter @divvy/web build
+    pm2 startOrReload deploy/preview/preview.config.cjs > /dev/null
+    pm2 save > /dev/null"
+  if has_systemd; then env PATH="$PATH" pm2 startup systemd -u divvy --hp /home/divvy > /dev/null; fi
+  local i
+  for i in $(seq 1 30); do
+    curl -fsS 127.0.0.1:4000/api/health > /dev/null 2>&1 && curl -fsS -o /dev/null 127.0.0.1:3000/ 2>/dev/null && break
+    sleep 2
+  done
+  curl -fsS 127.0.0.1:4000/api/health > /dev/null 2>&1 || die "API preview tidak menjawab (lihat: sudo -iu divvy pm2 logs)"
+  curl -fsS -o /dev/null 127.0.0.1:3000/ 2>/dev/null || die "situs preview tidak menjawab (lihat: sudo -iu divvy pm2 logs)"
+  note "aplikasi preview jalan di 127.0.0.1:3000 dan :4000"
+
+  local pwf=/etc/nginx/uspad-preview.htpasswd
+  if [ ! -s "$pwf" ]; then
+    say "Password preview (user: $BRAND; diketik di sini, tidak tampil)"
+    local pw
+    read -rsp "   password: " pw; echo
+    [ -n "$pw" ] || die "password tidak boleh kosong"
+    printf '%s:%s\n' "$BRAND" "$(printf '%s' "$pw" | openssl passwd -apr1 -stdin)" > "$pwf"
+    unset pw
+    chown root:www-data "$pwf" && chmod 640 "$pwf"
+  fi
+
+  say "Nginx: https://$DOMAIN dengan password"
+  local conf=/etc/nginx/sites-available/uspad.conf
+  install -d -m 755 /var/www/certbot
+  cat > "$conf" <<EOF
+# Password-protected preview of $DOMAIN with demo data (go-live.sh preview, $(date -u +%F)).
+# 'go-live.sh switch' removes it and puts the live site in its place.
+map \$http_upgrade \$uspad_upgrade {
+    default upgrade;
+    ''      '';
+}
+server {
+    listen 80;
+    listen [::]:80;
+    server_name $DOMAIN www.$DOMAIN;
+    server_tokens off;
+    location ^~ /.well-known/acme-challenge/ { root /var/www/certbot; default_type text/plain; }
+    location / { return 301 https://$DOMAIN\$request_uri; }
+}
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name $DOMAIN www.$DOMAIN;
+    server_tokens off;
+    ssl_certificate     /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    client_max_body_size 9m;
+
+    proxy_http_version 1.1;
+    proxy_set_header Host              \$host;
+    proxy_set_header X-Real-IP         \$remote_addr;
+    proxy_set_header X-Forwarded-For   \$remote_addr;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_set_header Upgrade           \$http_upgrade;
+    proxy_set_header Connection        \$uspad_upgrade;
+
+    location / {
+        auth_basic "$BRAND preview";
+        auth_basic_user_file $pwf;
+        proxy_buffering off;
+        proxy_pass http://127.0.0.1:3000;
+    }
+    location ^~ /api/ {
+        auth_basic "$BRAND preview";
+        auth_basic_user_file $pwf;
+        proxy_read_timeout 1h;
+        proxy_pass http://127.0.0.1:4000;
+    }
+    location ~* ^/api(/|\$) { return 404; }
+}
+EOF
+  rm -f /etc/nginx/sites-enabled/default
+  ln -sf "$conf" /etc/nginx/sites-enabled/uspad.conf
+  if ! nginx -t > /dev/null 2>&1; then
+    nginx -t 2>&1 | grep -q "Address family not supported" && sed -i '/listen \[::\]/d' "$conf"
+    if ! nginx -t; then rm -f /etc/nginx/sites-enabled/uspad.conf; reload_nginx; die "konfigurasi Nginx ditolak (lihat di atas); preview tidak dipasang"; fi
+  fi
+  reload_nginx
+  local code
+  code=$(curl --noproxy '*' -s -o /dev/null -w '%{http_code}' --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" || true)
+  [ "$code" = 401 ] || die "https://$DOMAIN menjawab $code, bukan 401 (minta password); lihat /var/log/nginx/error.log"
+  note "https://$DOMAIN online dengan data demo. Masuk dengan user '$BRAND' dan password tadi."
+  note "Berikutnya: go-live.sh platform-config (dry run), lalu --send dengan persetujuan owner, lalu switch."
+}
+
+# --------------------------------------------------------------------------------------------------
 # The name, web link and picture Raydium shows for the PlatformConfig (uspad → hwai on 2026-10-31, → jinniu).
 #   platform-info name    only the name, which needs nothing else
 #   platform-info all     name, web https://$BRAND_DOMAIN and picture, once $BRAND_DOMAIN serves the site
@@ -1283,6 +1401,7 @@ fi
 case "${1:-}" in
   prepare) prepare ;;
   platform-config) platform_config "${2:-}" ;;
+  preview) preview ;;
   switch) switch ;;
   update) update ;;
   x-login) x_login ;;
