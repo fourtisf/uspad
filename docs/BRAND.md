@@ -19,7 +19,7 @@ The 金牛 mark is the brush 牛, so its generator can start from `brand/hwai/sr
 These go when 金牛 is installed, not before, so the live site and what's on chain don't break:
 
 - **The live site** (hwai.ai): the name from `BRAND` (`packages/shared/src/brand.ts`) in every user-facing string, the API's messages, the wallet sign-in statement, the worker's alerts and new coins' `createdOn` metadata; the brush seal in `apps/web/src/components/Mark.tsx` and `markPaths.ts`; the favicon, app icons and share image in `apps/web/src/app/`; and each coin's share image (`app/og/coin/[mint]/route.tsx`), which draws the seal, the wordmark and hwai.ai. Its approved design stays `prototype/hwai-niu-prototype.html` (CLAUDE.md rule 1) until then.
-- **`apps/web/public/brand/hwai-mark-512.png`**: the picture of hwai's PlatformConfig on mainnet points to `https://hwai.ai/brand/hwai-mark-512.png` (VERIFIED item 31). Replacing the file changes what Raydium shows without a transaction; renaming the PlatformConfig (`go-live.sh platform-info`) is a mainnet transaction and needs the owner's approval.
+- **`apps/web/public/brand/hwai-mark-512.png`**: the picture of hwai's PlatformConfig on mainnet points to `https://hwai.ai/brand/hwai-mark-512.png` (VERIFIED item 31). Since 2026-11-03 the file holds the 金牛 mark, which Raydium shows after the next deploy without a transaction (it may cache the old one for a while); renaming the PlatformConfig (`go-live.sh platform-info`) is a mainnet transaction and needs the owner's approval.
 - **`apps/web/public/brand/uspad-mark-512.png`**: uspad's PlatformConfig, on uspad's own server, points to `https://uspad.fun/brand/uspad-mark-512.png` (VERIFIED item 27). uspad.fun, $USPAD and its coins stay on that server (owner, 2026-10-31).
 - **$HWAI** (pump.fun, `9Qh9WLVQ69J2C7oeYx45yKrHiV8Dsn7hVdkRXiBYpump`): the site shows it through `go-live.sh token-ca` (build-time `NEXT_PUBLIC_TOKEN_CA`). It will be hidden (`go-live.sh token-ca off`) until the owner launches the new official token.
 - **Internal names**: `@divvy/*` packages, `DIVVY_*` env vars, `divvy:` Redis keys and server paths like `/root/uspad-keys`. Users don't see them.
@@ -74,7 +74,23 @@ All are sketches with OFL Google Fonts glyphs (Ma Shan Zheng, Noto Serif SC, Cor
 
 After the four concepts the owner said: "jangan koin emas, yang putih aja logonya" (no gold coin, a white logo), and then "putih aja": white everywhere. [`brand/proposals/2026-11-02/logos/white.html`](../brand/proposals/2026-11-02/logos/white.html) (`W1.png`) draws it: the brush 牛 in glossy white, like porcelain, on a soft grey tile (`#F3F3F1` to `#DADAD6`), with a specular bevel and a soft shadow. It sits in the prototype's header, footer and 我的 page. From 16 to 48 px (favicons) the same white 牛 sits on a deeper grey tile (`#D9D9D5` to `#B9B9B4`) with a crisper shadow, so it still reads. A white-on-black form was drawn and dropped. The X and Telegram photos and token avatars use the white mark too.
 
-It is a sketch in Ma Shan Zheng; the final mark is drawn as paths, from the deleted `niu.py` and `glyphs.json` (see above). The gold stays for the 创建代币 button and for what holders are paid.
+The gold stays for the 创建代币 button and for what holders are paid.
+
+**On the site (owner, 2026-11-03: "kirimkan saya logo nya premium serta upload ke webnya").** The mark is final and drawn as paths: `brand/jinniu/src/mark.cjs` takes the brush 牛 outline the app already had (`NIU` in `apps/web/src/components/markPaths.ts`, Ma Shan Zheng, SIL OFL 1.1), places it in a 200 box and writes:
+
+| File | Use |
+|---|---|
+| `brand/jinniu/mark.svg` | The mark: rounded tile, porcelain bevel and soft shadow (SVG filters) |
+| `brand/jinniu/mark-square.svg` | The same on a full square tile: profile photos, the PlatformConfig picture |
+| `brand/jinniu/mark-small.svg` | 16 to 48 px: deeper tile, bolder 牛, crisp shadow, no filters |
+| `brand/jinniu/mark-flat.svg` | No filters, for renderers without them (next/og) |
+| `brand/jinniu/png/` | `mark-1024/512/256.png` (transparent corners), `mark-square-1024.png` (X and Telegram photo), `favicon-16/32/48.png`, `apple-icon-180.png` |
+| `brand/jinniu/sheet.png` | The brand sheet |
+| `apps/web/src/components/jinniuMark.ts` | `GLYPH`, the placed outline, and `MARK_FLAT_SVG` |
+| `apps/web/src/app/icon.svg`, `apple-icon.png`, `public/favicon.png` | The site's favicons and Apple touch icon |
+| `apps/web/public/brand/jinniu-mark-512.png`, `hwai-mark-512.png` | The PlatformConfig picture (square, opaque) |
+
+`Mark` (`apps/web/src/components/Mark.tsx`) draws the same mark inline with per-instance filter ids, so the header, the empty live card and the official token card all show it; each coin's share image draws `MARK_FLAT_SVG`. The rest of the live site is unchanged until the rebrand: the name hwai, its brush wordmark, design 牛 and the site share image (`opengraph-image.png`, which still shows the old seal). Regenerate with `node brand/jinniu/src/mark.cjs` from the repo root (Playwright with Chromium renders the PNGs and the sheet).
 
 ## Stock token logos
 
