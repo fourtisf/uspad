@@ -459,7 +459,9 @@ EOF
   fi
   rm -rf "$xs"
 
-  say "Selesai (tanpa SOL). Situs demo masih jalan."
+  # On a server from bootstrap there is no demo site: the site comes up with `switch` (it needs the
+  # PlatformConfig on mainnet first), so until then the domain answers nothing (owner, 2026-11-03).
+  say "Selesai (tanpa SOL). Situs live menyala dengan 'go-live.sh switch', setelah PlatformConfig dibuat."
   cat <<EOF
 
    Alamat wallet (publik, aman dibagikan):
