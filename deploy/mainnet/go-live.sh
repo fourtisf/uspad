@@ -62,6 +62,9 @@
 #   go-live.sh update             deploys the latest commit (demo or live, whichever is running).
 #   go-live.sh rollback           live site only: back to the release before the current one, with its
 #                                 go-live.sh, so the next `update` builds what this server built before.
+#   go-live.sh wallet-keys        the platform admin and operations wallets' addresses and private keys
+#                                 (base58, for Phantom or an offline backup), after typing TAMPILKAN; then
+#                                 clears the screen. Never screenshot them or send them to anyone.
 #   go-live.sh alerts             owner alerts in Telegram: asks the bot token (hidden) and chat ID, sends a test.
 #   go-live.sh status             apps, health, wallet addresses and balances.
 #
@@ -133,6 +136,20 @@ for (; n > 0n; n /= 58n) addr = B58[Number(n % 58n)] + addr;
 for (const b of pub) { if (b !== 0) break; addr = "1" + addr; }
 console.log(addr);'
 pubkey() { (cd / && node -e "$PUBKEY_JS" "$1"); }
+# The whole 64-byte keypair in base58, as Phantom and Solflare import a private key, after checking that
+# the file's public half is the one its private half makes (so the address shown is the one imported).
+SECKEY_JS='
+const { createPrivateKey, createPublicKey } = require("node:crypto");
+const k = Buffer.from(JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")));
+if (k.length !== 64) throw new Error("bukan keypair 64 byte");
+const x = createPublicKey(createPrivateKey({ key: { kty: "OKP", crv: "Ed25519", d: k.subarray(0, 32).toString("base64url"), x: k.subarray(32).toString("base64url") }, format: "jwk" })).export({ format: "jwk" }).x;
+if (x !== k.subarray(32).toString("base64url")) throw new Error("private key dan address di file ini tidak cocok");
+const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+let n = BigInt("0x" + k.toString("hex")), s = "";
+for (; n > 0n; n /= 58n) s = B58[Number(n % 58n)] + s;
+for (const b of k) { if (b !== 0) break; s = "1" + s; }
+console.log(s);'
+seckey() { (cd / && node -e "$SECKEY_JS" "$1"); }
 gen_key() { # file owner
   [ -e "$1" ] && return 0
   (cd / && sudo -u "$2" node -e "$KEYGEN_JS" "$1")
@@ -716,6 +733,30 @@ rollback() {
   fi
   sleep 8
   status
+}
+
+# The owner's own wallets, on the owner's own screen (owner, 2026-11-03: "berikan command untuk tau
+# private key-nya"). Printed only here, after a typed confirmation, never written to a file or a log;
+# the screen and its scrollback are cleared afterwards. Sending SOL to a wallet needs only its address.
+wallet_keys() {
+  [ -f "$ADMIN_KEY" ] && [ -f $KEYS/fee-claimer.json ] || die "wallet belum ada: jalankan 'go-live.sh bootstrap' (atau prepare) dulu"
+  say "Private key wallet $BRAND"
+  note "Siapa pun yang tahu private key bisa menguras wallet itu. Jangan di-screenshot, jangan dikirim ke"
+  note "siapa pun (termasuk Claude), jangan disimpan di chat, email atau catatan online."
+  note "Untuk mengirim SOL ke wallet ini cukup address-nya (go-live.sh status)."
+  note "Wallet operasional dipakai server untuk launch dan dividen: jangan kirim SOL keluar darinya saat situs jalan."
+  local ok f name
+  read -rp "   Ketik TAMPILKAN untuk lanjut: " ok
+  [ "$ok" = TAMPILKAN ] || die "dibatalkan: tidak ada yang ditampilkan"
+  for name in platform-admin operasional; do
+    if [ "$name" = platform-admin ]; then f=$ADMIN_KEY; else f=$KEYS/fee-claimer.json; fi
+    printf '\n   %s\n   address      %s\n   private key  %s\n' "$name" "$(pubkey "$f")" "$(seckey "$f")"
+  done
+  echo
+  read -rsp "   Sudah dicatat di tempat aman? Tekan Enter untuk menghapus layar. " ok
+  clear 2> /dev/null || true
+  printf '\033[3J\033[H\033[2J'
+  note "Layar dibersihkan. Kalau aplikasi terminal kamu menyimpan log sesi, hapus log itu juga."
 }
 
 self_update() {
@@ -1499,6 +1540,7 @@ case "${1:-}" in
   switch) switch ;;
   update) update ;;
   rollback) rollback ;;
+  wallet-keys) wallet_keys ;;
   x-login) x_login ;;
   cp-creator) cp_creator "${2:-}" ;;
   open-launches) open_launches ;;

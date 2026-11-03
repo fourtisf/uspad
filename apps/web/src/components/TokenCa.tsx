@@ -4,7 +4,8 @@
  * The platform's own token: its contract address from NEXT_PUBLIC_TOKEN_CA and its ticker from
  * NEXT_PUBLIC_TOKEN_TICKER (both read at build time, set with `go-live.sh token-ca <CA> <TICKER>`), as a pill
  * in the pool card's eyebrow (TokenCa) and a card on the home page (OfficialToken). Without a CA the pill says
- * "官方代币：即将公布" and there is no card (owner, 2026-11-02: $HWAI stays hidden until the 金牛 token launches).
+ * "CA：即将公布" / "CA: coming soon" and there is no card (owner, 2026-11-02: $HWAI stays hidden until the 金牛
+ * token launches).
  */
 import { short } from "@divvy/shared";
 import { Icon } from "./Icon";

@@ -1,13 +1,16 @@
 import { defineMsgs } from "../lang";
 
-/** The official token (TokenCa: the pill in the pool card, and its card on the home page) and the X and Telegram pills (XFollow). */
+/**
+ * The official token (TokenCa: the pill in the pool card, and its card on the home page) and the X and Telegram pills (XFollow).
+ * The pill says "CA" (owner, 2026-11-03: "tulis CA coming soon"), not the prototype's 官方代币.
+ */
 export const hero = defineMsgs(
   {
     follow: "Follow",
     followOnX: (h: string) => `Follow @${h} on X`,
     join: "Join",
     joinOnTelegram: (h: string) => `Join @${h} on Telegram`,
-    officialPill: (v: string) => `Official token: ${v}`,
+    officialPill: (v: string) => `CA: ${v}`,
     caSoon: "coming soon",
     caCopied: "Contract address copied",
     copyCa: (ca: string) => `Copy contract address ${ca}`,
@@ -20,7 +23,7 @@ export const hero = defineMsgs(
     followOnX: (h: string) => `在 X 上关注 @${h}`,
     join: "加入",
     joinOnTelegram: (h: string) => `加入 Telegram 频道 @${h}`,
-    officialPill: (v: string) => `官方代币：${v}`,
+    officialPill: (v: string) => `CA：${v}`,
     caSoon: "即将公布",
     caCopied: "合约地址已复制",
     copyCa: (ca: string) => `复制合约地址 ${ca}`,
