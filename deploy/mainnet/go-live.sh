@@ -1206,11 +1206,18 @@ preview() {
   install -d -o divvy -g divvy -m 755 /srv/divvy
 
   say "Preview: kode $BRANCH, data demo, build (beberapa menit)"
-  sudo -iu divvy bash -c "set -e
+  # sudo -u … -H, not sudo -i: -i joins a multi-line script into one line (2026-11-03: "syntax error near `then'").
+  sudo -u divvy -H bash -c "set -e
+    cd ~
+    # One command per line: set -e doesn't stop on a failure inside an && chain.
     if [ -d /srv/divvy/app/.git ]; then
-      cd /srv/divvy/app && git fetch -q origin $BRANCH && git checkout -q $BRANCH && git reset -q --hard origin/$BRANCH
+      cd /srv/divvy/app
+      git fetch -q origin $BRANCH
+      git checkout -q $BRANCH
+      git reset -q --hard origin/$BRANCH
     else
-      git clone -q --branch $BRANCH $REPO /srv/divvy/app && cd /srv/divvy/app
+      git clone -q --branch $BRANCH $REPO /srv/divvy/app
+      cd /srv/divvy/app
     fi
     umask 077
     printf '%s\n' '# Preview: demo data only. No database, no keys, nothing on chain (go-live.sh preview).' \
@@ -1300,7 +1307,7 @@ EOF
   fi
   reload_nginx
   local code
-  code=$(curl --noproxy '*' -s -o /dev/null -w '%{http_code}' --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" || true)
+  code=$(curl --noproxy '*' -sk -o /dev/null -w '%{http_code}' --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" || true)
   [ "$code" = 401 ] || die "https://$DOMAIN menjawab $code, bukan 401 (minta password); lihat /var/log/nginx/error.log"
   note "https://$DOMAIN online dengan data demo. Masuk dengan user '$BRAND' dan password tadi."
   note "Berikutnya: go-live.sh platform-config (dry run), lalu --send dengan persetujuan owner, lalu switch."
