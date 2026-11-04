@@ -1,6 +1,6 @@
 # 金牛 review video
 
-`jinniu-review-1080p.mp4`: a 72-second review of the site and its features, 1920×1080 at 60 fps, H.264 with AAC, loudness-normalized to −14 LUFS for X, YouTube and Telegram. Copy in Chinese and English (owner, 2026-11-04: "video review website dan fitur-fiturnya, premium, ada bahasa Inggris dan China").
+`jinniu-review-1080p.mp4`: a 72-second review of the site and its features, 1920×1080 at 60 fps, H.264 with AAC, loudness-normalized to −14 LUFS for X, YouTube and Telegram. Copy in Chinese and English (owner, 2026-11-04: "video review website dan fitur-fiturnya, premium, ada bahasa Inggris dan China"). `poster.png` (1280×720) is its thumbnail, the intro frame.
 
 | Time | Scene | What it shows |
 |---|---|---|
@@ -15,7 +15,7 @@
 | 1:00 | Languages | 中 / EN and green or red up |
 | 1:04.8 | Outro | jinniu.fun, 创建你的代币 / Launch your coin, the disclaimer |
 
-**Honest by design.** The site is filmed in demo mode (`API_MODE=mock`): the coins and numbers are demo data. The browser frame says "Demo data · 演示数据" in every site scene, and the outro says so with the site's own disclaimer. The fee split is the real one, from 金牛's PlatformConfig (docs/VERIFIED.md item 33). No claim is made that the site doesn't make itself.
+**Honest by design.** The site is filmed in demo mode (`API_MODE=mock`): the coins and numbers are demo data. The browser frame says "Demo data · 演示数据" in every site scene, and the outro says so with the site's own disclaimer. The fee split is the real one, from 金牛's PlatformConfig (docs/VERIFIED.md item 33). No claim is made that the site doesn't make itself: the create scene leaves out the demo's cost lines (the mock config says launching is free; on the live site the creator's wallet pays the create cost).
 
 **The music** is synthesized by `src/music.py` (numpy only: no samples, nothing licensed): 100 BPM in C, Fmaj7 / G6 / Am7 / Em7, and the scenes change on its bar lines.
 
@@ -29,7 +29,7 @@ python3 brand/jinniu/video/src/music.py /tmp/jinniu-video/music.wav       # the 
 node brand/jinniu/video/src/render.cjs /tmp/jinniu-video/assets /tmp/jinniu-video/music.wav brand/jinniu/video/jinniu-review-1080p.mp4 60
 ```
 
-`render.cjs <assets> --stills <dir> 3.6,14.4,…` renders single frames to check before the full render (about 15 minutes for 4,320 frames).
+`render.cjs <assets> --stills <dir> 3.6,14.4,…` renders single frames to check before the full render (about 10 minutes for 4,320 frames).
 
 | File | What it does |
 |---|---|
