@@ -41,6 +41,10 @@
 #                                 shows the platform token's contract address in the hero and its card with
 #                                 $TICKER; token-ca off puts back "CA: coming soon" and hides the card
 #                                 (rebuilds the site: they are NEXT_PUBLIC_ values).
+#   I_HAVE_OWNER_APPROVAL=yes go-live.sh reset
+#                                 clears a previous brand off this server (archives its wallets to
+#                                 /root/retired-*, empties the database, stops the site) so a new brand
+#                                 can bootstrap from zero. Destructive; type HAPUS to confirm.
 #   go-live.sh bootstrap          a brand-new server for $BRAND_DOMAIN (new launchpad from zero): packages,
 #                                 firewall, Node, pnpm, PM2, DNS check, certificate, API keys typed here,
 #                                 then prepare. Then platform-config and switch as below.
@@ -1158,6 +1162,55 @@ issue_cert() {
 # uspad). It installs what `prepare` expects (deploy/preview/README.md §2: packages, firewall, Node 22,
 # pnpm, PM2), checks that the domain points here, gets its certificate and asks for the API keys on
 # this terminal, then runs `prepare`. After it: platform-config and switch, as for any first install.
+# --------------------------------------------------------------------------------------------------
+# Clears a previous brand off this server so a new one can bootstrap from zero (owner, 2026-11-04: 红利
+# reuses 31.97.66.123, 金牛's server). Archives the wallet keys to /root/retired-<ts>/ (they may hold SOL
+# and dividends owed to the old brand's holders: never deleted), drops and recreates the empty database,
+# removes the env, the live mark, the domain file and the Nginx sites. Keeps the API-key secrets and the
+# generated DB/Redis passwords so bootstrap runs without re-prompting. Destructive and owner-approved.
+reset() {
+  [ "${I_HAVE_OWNER_APPROVAL:-}" = yes ] || die "butuh I_HAVE_OWNER_APPROVAL=yes: reset menghapus brand lama dari server ini (CLAUDE.md rule 3)"
+  local old; old=$(cat "$DOMAIN_FILE" 2>/dev/null || echo "brand lama")
+  say "RESET server ini (sekarang: $old). Wallet diarsipkan, database dikosongkan, situs dimatikan."
+  note "Dividen yang belum terkirim ke holder $old TIDAK akan terbayar setelah ini. Wallet diarsipkan di /root/retired-*, tidak dihapus."
+  local ok; read -rp "   Ketik HAPUS untuk lanjut: " ok
+  [ "$ok" = HAPUS ] || die "dibatalkan: tidak ada yang diubah"
+
+  say "Hentikan aplikasi"
+  if has_systemd && systemctl list-unit-files pm2-divvy.service > /dev/null 2>&1; then systemctl disable --now pm2-divvy > /dev/null 2>&1 || true; rm -f /etc/systemd/system/pm2-divvy.service; systemctl daemon-reload; fi
+  if id divvy > /dev/null 2>&1; then sudo -iu divvy pm2 kill > /dev/null 2>&1 || true; fi
+  local u
+  for u in divvy-web divvy-api divvy-worker; do
+    id "$u" > /dev/null 2>&1 || continue
+    if has_systemd && systemctl list-unit-files "pm2-$u.service" > /dev/null 2>&1; then systemctl disable --now "pm2-$u" > /dev/null 2>&1 || true; rm -f "/etc/systemd/system/pm2-$u.service"; fi
+    sudo -iu "$u" pm2 kill > /dev/null 2>&1 || true
+  done
+  has_systemd && systemctl daemon-reload || true
+
+  local arc=/root/retired-$(date -u +%Y%m%d%H%M%S)
+  install -d -m 700 "$arc"
+  say "Arsipkan wallet dan env ke $arc"
+  [ -d "$KEYS" ] && cp -a "$KEYS" "$arc/keys" && note "keys operasional diarsipkan"
+  [ -d /root/uspad-keys ] && cp -a /root/uspad-keys "$arc/uspad-keys" && note "keys admin diarsipkan"
+  [ -f $ENV_DIR/api.env ] && cp -a $ENV_DIR/api.env "$arc/" ; [ -f $ENV_DIR/worker.env ] && cp -a $ENV_DIR/worker.env "$arc/"
+  [ -f "$LIVE_MARK" ] && cp -a "$LIVE_MARK" "$arc/" ; [ -f "$DOMAIN_FILE" ] && cp -a "$DOMAIN_FILE" "$arc/"
+  # Remove the live state (secrets and generated passwords stay).
+  rm -rf "$KEYS" /root/uspad-keys
+  rm -f $ENV_DIR/api.env $ENV_DIR/worker.env "$LIVE_MARK" "$DOMAIN_FILE"
+
+  say "Kosongkan database"
+  sudo -u postgres psql -Xq -c "DROP DATABASE IF EXISTS divvy" || die "gagal drop database (aplikasi masih memakainya?)"
+  sudo -u postgres psql -XAtc "select 1 from pg_roles where rolname='divvy'" | grep -q 1 && sudo -u postgres psql -Xq -c "CREATE DATABASE divvy OWNER divvy" || sudo -u postgres psql -Xq -c "CREATE DATABASE divvy"
+
+  say "Matikan situs lama (Nginx)"
+  rm -f /etc/nginx/sites-enabled/uspad.conf /etc/nginx/sites-enabled/uspad-live.conf
+  rm -f /etc/nginx/sites-available/uspad.conf /etc/nginx/sites-available/uspad-live.conf
+  rm -f /etc/nginx/divvy-launches-paused
+  reload_nginx || true
+
+  note "Server bersih. Berikutnya: /root/go-live.sh bootstrap  (wallet baru, database kosong, build $BRAND_DOMAIN dari main)."
+}
+
 bootstrap() {
   [ -f "$LIVE_MARK" ] && die "server ini sudah live; bootstrap hanya untuk server baru"
   [ -f "$DOMAIN_FILE" ] || echo "$BRAND_DOMAIN" > "$DOMAIN_FILE"
@@ -1560,6 +1613,7 @@ case "${1:-}" in
   socials) socials "${2:-}" "${3:-}" ;;
   platform-info) platform_info "${2:-}" "${3:-}" ;;
   domain) domain_move ;;
+  reset) reset ;;
   bootstrap) bootstrap ;;
   alerts) alerts ;;
   status) status ;;
