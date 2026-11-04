@@ -1077,7 +1077,9 @@ token_ca() {
     update
     note "CA dihapus dari situs: tertulis 'CA: coming soon', tanpa kartu token resmi."
   else
-    local ticker=${2#\$}
+    # ${2:-}: under set -u a missing ticker stopped the script ("2: unbound variable", 2026-11-04).
+    local ticker=${2:-}
+    ticker=${ticker#\$}
     set_env $ENV_DIR/build.env NEXT_PUBLIC_TOKEN_CA "$1"
     set_env $ENV_DIR/build.env NEXT_PUBLIC_TOKEN_TICKER "${ticker^^}"
     update
@@ -1549,7 +1551,7 @@ case "${1:-}" in
   launch-fee) launch_fee "${2:-}" ;;
   fee-rate) fee_rate "${2:-}" ;;
   payouts) payouts "${2:-}" "${3:-}" ;;
-  token-ca) token_ca "${2:-}" ;;
+  token-ca) token_ca "${2:-}" "${3:-}" ;;
   socials) socials "${2:-}" "${3:-}" ;;
   platform-info) platform_info "${2:-}" "${3:-}" ;;
   domain) domain_move ;;
