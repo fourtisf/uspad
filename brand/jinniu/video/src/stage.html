@@ -1,0 +1,532 @@
+<!doctype html>
+<!--
+  金牛 review video, 1920x1080. Nothing moves by itself: render.cjs calls seek(t) for every frame and
+  screenshots the page, so the motion is exact and the same on every render. The site is shown from 2x
+  screenshots (capture.cjs, demo data) inside a browser frame; a camera pans and zooms on them, using the
+  element boxes in layout.json. Copy in Chinese and English; the site's own wording where it has one.
+  Scenes change on the soundtrack's bar lines (music.py: 100 BPM, a bar is 2.4 s).
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800;900&family=Noto+Sans+SC:wght@500;700;800;900&display=block">
+<style>
+:root{--tx:#0A0A0A;--tx2:#6B6B6B;--tx3:#A3A3A3;--line:#EEEEEE;--line2:#E2E2E2;--s1:#F5F5F5;--acc:#FFC21A;--div:#9A6A00;--div-bg:#FFF8E6;--green:#13A04A;--red:#E23B3B}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#fff}
+body{position:relative;font-family:"Inter Tight","Noto Sans SC",sans-serif;color:var(--tx);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.a{position:absolute;left:0;top:0;transform-origin:50% 50%}
+.zh{font-family:"Noto Sans SC","Inter Tight",sans-serif}
+.en{font-family:"Inter Tight","Noto Sans SC",sans-serif}
+#glow{position:absolute;inset:0;background:radial-gradient(1100px 620px at 50% 58%,#FFF8E6 0%,rgba(255,248,230,0) 70%)}
+
+/* scene titles, top left above the frame */
+.ttl{left:248px;top:36px;white-space:nowrap}
+.ttl b{display:block;font:900 46px/1.1 "Noto Sans SC";letter-spacing:.01em}
+.ttl span{display:block;margin-top:8px;font:600 23px/1.2 "Inter Tight";color:var(--tx2)}
+
+/* the browser frame */
+#frame{left:248px;top:140px;width:1424px;height:860px;border-radius:22px;background:#fff;box-shadow:0 0 0 1px var(--line2),0 40px 90px -40px rgba(0,0,0,.35);overflow:hidden}
+#chrome{position:absolute;left:0;top:0;right:0;height:44px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 18px;gap:8px;background:#FCFCFC}
+#chrome .dot{width:12px;height:12px;border-radius:50%;background:var(--line2)}
+#url{position:absolute;left:50%;top:8px;transform:translateX(-50%);height:28px;padding:0 16px;border-radius:999px;background:var(--s1);display:flex;align-items:center;gap:8px;font:600 15px/1 "Inter Tight";color:var(--tx2)}
+#url svg{width:13px;height:13px}
+#demo{position:absolute;right:16px;top:9px;height:26px;padding:0 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line2);display:flex;align-items:center;gap:6px;font:600 13px/1 "Inter Tight";color:var(--tx3)}
+#demo .zh{font-weight:700}
+#vp{position:absolute;left:0;top:44px;width:1424px;height:816px;overflow:hidden;background:#fff}
+#vp img{position:absolute;left:0;top:0;transform-origin:0 0;image-rendering:auto}
+#hl{position:absolute;left:0;top:0;border-radius:18px;box-shadow:0 0 0 3px var(--acc),0 0 0 9px rgba(255,194,26,.22),0 0 0 4000px rgba(10,10,10,.10);pointer-events:none}
+
+/* callouts: a dark pill over the frame's bottom edge */
+.cap{top:960px;left:960px;display:flex;align-items:center;gap:18px;padding:15px 30px 15px 22px;border-radius:999px;background:#0A0A0A;color:#fff;box-shadow:0 24px 60px -24px rgba(0,0,0,.55);white-space:nowrap}
+.cap i{flex:none;width:12px;height:12px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 6px rgba(255,194,26,.2)}
+.cap div{display:flex;flex-direction:column;gap:4px}
+.cap b{font:800 26px/1.15 "Noto Sans SC"}
+.cap span{font:500 19px/1.15 "Inter Tight";color:#C7C7C7}
+
+/* brand bug, top right */
+#bug{left:1672px;top:52px;display:flex;align-items:center;gap:12px;white-space:nowrap}
+#bug img{width:44px;height:44px}
+#bug b{font:900 26px/1 "Noto Sans SC"}
+#bug span{font:700 20px/1 "Inter Tight";color:var(--tx2)}
+
+/* intro and outro */
+.mark{width:200px;height:200px;filter:drop-shadow(0 26px 40px rgba(0,0,0,.16))}
+.word{display:flex;align-items:baseline;gap:22px;white-space:nowrap}
+.word b{font:900 128px/1 "Noto Sans SC";letter-spacing:.02em}
+.word span{font:700 44px/1 "Inter Tight";color:var(--tx3)}
+.tag b{display:block;text-align:center;font:900 58px/1.2 "Noto Sans SC"}
+.tag span{display:block;text-align:center;margin-top:14px;font:600 30px/1.2 "Inter Tight";color:var(--tx2)}
+.cta{display:flex;align-items:center;gap:14px;height:84px;padding:0 44px;border-radius:999px;background:var(--acc);color:#111;white-space:nowrap}
+.cta b{font:900 32px/1 "Noto Sans SC"}
+.cta span{font:700 26px/1 "Inter Tight";opacity:.75}
+.url-big{font:900 104px/1 "Inter Tight";letter-spacing:-.03em;white-space:nowrap}
+.fine{width:1400px;text-align:center;font:500 18px/1.6 "Inter Tight";color:var(--tx3)}
+.fine .zh{font-weight:500}
+
+/* concept: stocks and the hour */
+.stk{display:flex;flex-direction:column;align-items:center;gap:14px}
+.stk img{width:108px;height:108px;border-radius:50%;box-shadow:0 0 0 1px var(--line),0 18px 36px -18px rgba(0,0,0,.35);background:#fff}
+.stk span{font:800 24px/1 "Inter Tight"}
+.hour{width:1000px;height:120px}
+.hour .track{position:absolute;left:0;top:30px;width:1000px;height:10px;border-radius:99px;background:var(--line)}
+.hour .fill{position:absolute;left:0;top:30px;height:10px;border-radius:99px;background:var(--acc)}
+.hour .knob{position:absolute;top:21px;width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px var(--acc),0 8px 20px -6px rgba(0,0,0,.3)}
+.hour .tk{position:absolute;top:60px;font:700 20px/1 "Inter Tight";color:var(--tx3);transform:translateX(-50%)}
+.paid{display:flex;align-items:center;gap:10px;height:54px;padding:0 24px;border-radius:999px;background:var(--div-bg);color:var(--div);white-space:nowrap}
+.paid b{font:800 26px/1 "Inter Tight"}
+.paid span{font:700 20px/1 "Noto Sans SC";color:var(--tx2)}
+.paid img{width:30px;height:30px;border-radius:50%}
+
+/* fee split */
+.bar{width:1300px;height:84px;border-radius:22px;overflow:hidden;background:var(--s1);display:flex}
+.seg{height:100%;flex:none}
+.leg{display:flex;flex-direction:column;gap:8px;white-space:nowrap}
+.leg b{font:900 52px/1 "Inter Tight";letter-spacing:-.02em}
+.leg .zh{font:800 26px/1.1 "Noto Sans SC"}
+.leg .en{font:600 20px/1.1 "Inter Tight";color:var(--tx2)}
+.leg i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:10px;vertical-align:1px}
+.note{width:1300px;text-align:center;font:500 21px/1.5 "Inter Tight";color:var(--tx2)}
+
+/* phones */
+.phone{width:478px;height:796px;border-radius:66px;background:#0A0A0A;padding:16px;box-shadow:0 50px 90px -40px rgba(0,0,0,.45)}
+.phone .scr{position:relative;width:446px;height:764px;border-radius:52px;overflow:hidden;background:#fff}
+.phone .scr img{position:absolute;left:0;top:0;width:446px;height:auto}
+.phone .isl{position:absolute;left:50%;top:12px;width:120px;height:32px;margin-left:-60px;border-radius:20px;background:#0A0A0A;z-index:2}
+.plab{display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap}
+.plab b{font:800 24px/1.1 "Noto Sans SC"}
+.plab span{font:600 18px/1.1 "Inter Tight";color:var(--tx2)}
+</style>
+</head>
+<body>
+<div id="glow" class="a"></div>
+
+<!-- S1 intro -->
+<img id="m1" class="a mark" style="left:860px;top:150px" alt="">
+<div id="w1" class="a word" style="left:960px;top:420px" data-base="translateX(-50%)"><b>金牛</b><span>jinniu</span></div>
+<div id="t1" class="a tag" style="left:960px;top:640px" data-base="translateX(-50%)"><b>土狗也分红，分的是美股</b><span>Memecoins that pay you real stock dividends</span></div>
+
+<!-- S2 concept -->
+<div id="c2a" class="a tag" style="left:960px;top:230px" data-base="translateX(-50%)"><b>每一笔交易，都会买入一只股票代币</b><span>Every trade buys a tokenized stock</span></div>
+<div id="c2b" class="a tag" style="left:960px;top:230px" data-base="translateX(-50%)"><b>每小时按持仓，发给所有持有人</b><span>…and pays every holder, every hour</span></div>
+<div id="stocks"></div>
+<div id="hour" class="a hour" style="left:460px;top:600px">
+  <div class="track"></div><div class="fill" id="hfill"></div><div class="knob" id="hknob"></div>
+  <span class="tk" style="left:0">:00</span><span class="tk" style="left:250px">:15</span><span class="tk" style="left:500px">:30</span><span class="tk" style="left:750px">:45</span><span class="tk" style="left:1000px">:00</span>
+</div>
+<div id="p1" class="a paid" style="left:520px;top:780px" data-base="translateX(-50%)"><img data-stock="QQQx" alt=""><b>+0.7517 QQQx</b><span>到账</span></div>
+<div id="p2" class="a paid" style="left:960px;top:780px" data-base="translateX(-50%)"><img data-stock="NVDAx" alt=""><b>+2.35 NVDAx</b><span>到账</span></div>
+<div id="p3" class="a paid" style="left:1400px;top:780px" data-base="translateX(-50%)"><img data-stock="SPYx" alt=""><b>+0.6258 SPYx</b><span>到账</span></div>
+
+<!-- scene titles -->
+<div id="h3" class="a ttl"><b>发现会分红的代币</b><span>Find coins that pay you</span></div>
+<div id="h4" class="a ttl"><b>每个代币都有自己的页面</b><span>Every coin gets its own page</span></div>
+<div id="h5" class="a ttl"><b>发行你自己的代币</b><span>Launch your own coin</span></div>
+<div id="h6" class="a ttl"><b>每一笔分红都有记录</b><span>Every payout is on the record</span></div>
+<div id="h9" class="a ttl"><b>中文或英文，绿涨或红涨</b><span>Chinese or English. Green up or red up.</span></div>
+<div id="bug" class="a" data-base="translateX(-100%)"><img alt=""><b>金牛</b><span>jinniu.fun</span></div>
+
+<!-- the browser frame -->
+<div id="frame" class="a">
+  <div id="chrome">
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <div id="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>jinniu.fun</div>
+    <div id="demo"><span class="en">Demo data</span><span>·</span><span class="zh">演示数据</span></div>
+  </div>
+  <div id="vp"><div id="hl"></div></div>
+</div>
+
+<!-- callouts -->
+<div id="callouts"></div>
+
+<!-- S7 fees -->
+<div id="h7" class="a tag" style="left:960px;top:190px" data-base="translateX(-50%)"><b>每笔交易 1.25%，分成公开透明</b><span>1.25% a trade, split in the open</span></div>
+<div id="fbar" class="a bar" style="left:310px;top:470px"></div>
+<div id="flegs"></div>
+<div id="fnote" class="a note" style="left:310px;top:860px"><span class="zh">内盘期间的费率；毕业后按 Raydium 池子的费率。</span><br>On the bonding curve. After graduation, the Raydium pool's fees apply.</div>
+
+<!-- S8 phones -->
+<div id="h8" class="a ttl"><b>手机上一样好用</b><span>Made for your phone</span></div>
+<div id="phones"></div>
+
+<!-- S10 outro -->
+<img id="m10" class="a mark" style="left:860px;top:96px" alt="">
+<div id="w10" class="a word" style="left:960px;top:340px" data-base="translateX(-50%)"><b>金牛</b><span>jinniu</span></div>
+<div id="u10" class="a url-big" style="left:960px;top:520px" data-base="translateX(-50%)">jinniu.fun</div>
+<div id="cta10" class="a cta" style="left:960px;top:690px" data-base="translateX(-50%)"><b>创建你的代币</b><span>Launch your coin</span></div>
+<div id="f10" class="a fine" style="left:260px;top:950px"><span class="zh">视频中为演示数据。股票代币由第三方发行，并非所有地区都能使用。本站内容不构成投资建议。</span><br>Demo data in this video. Tokenized stocks are issued by third parties and aren't available everywhere. Nothing here is financial advice.</div>
+
+<script>
+const B = 2.4;                       // one bar of the soundtrack
+const S = { s1: 0, s2: 2 * B, s3: 5 * B, s4: 9 * B, s5: 13 * B, s6: 17 * B, s7: 20 * B, s8: 22 * B, s9: 25 * B, s10: 27 * B, end: 30 * B };
+const VP = { x: 248, y: 184, w: 1424, h: 816 };
+const DSF = 2;
+const $ = (id) => document.getElementById(id);
+
+// ---- tweens --------------------------------------------------------------------------------------------
+const E = {
+  lin: (x) => x,
+  out: (x) => 1 - Math.pow(1 - x, 3),
+  in: (x) => x * x * x,
+  io: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  back: (x) => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+  expo: (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x)),
+};
+const T = new Map(); // target -> channel -> [{from,to,t0,t1,e}]
+const DEF = { o: 1, x: 0, y: 0, s: 1, r: 0 };
+function tw(el, ch, from, to, t0, dur = 0.6, e = "io") {
+  if (!T.has(el)) T.set(el, {});
+  const m = T.get(el);
+  (m[ch] ||= []).push({ from, to, t0, t1: t0 + Math.max(dur, 0.0001), e });
+  m[ch].sort((a, b) => a.t0 - b.t0);
+}
+function val(list, t, d) {
+  if (!list) return d;
+  let cur = null;
+  for (const k of list) { if (k.t0 <= t) cur = k; else break; }
+  if (!cur) return list[0].from;
+  if (t >= cur.t1) return cur.to;
+  return cur.from + (cur.to - cur.from) * E[cur.e]((t - cur.t0) / (cur.t1 - cur.t0));
+}
+const get = (el, ch, t) => val(T.get(el)?.[ch], t, DEF[ch] ?? 0);
+function show(el, t0, t1, { dy = 26, dIn = 0.7, dOut = 0.4, s0 = 1, eIn = "out" } = {}) {
+  tw(el, "o", 0, 1, t0, dIn, "out");
+  tw(el, "y", dy, 0, t0, dIn, eIn);
+  if (s0 !== 1) tw(el, "s", s0, 1, t0, dIn, eIn);
+  if (t1 != null) { tw(el, "o", 1, 0, t1 - dOut, dOut, "in"); tw(el, "y", 0, -14, t1 - dOut, dOut, "in"); }
+}
+function applyEl(el, t) {
+  const o = get(el, "o", t);
+  el.style.opacity = o;
+  el.style.visibility = o <= 0.001 ? "hidden" : "visible";
+  el.style.transform = `${el.dataset.base || ""} translate(${get(el, "x", t)}px,${get(el, "y", t)}px) scale(${get(el, "s", t)}) rotate(${get(el, "r", t)}deg)`;
+}
+
+// ---- screens in the browser frame, each with its own camera --------------------------------------------
+const L = {};      // name -> { img, W, H, box }
+let LAYOUT = {};
+function rect(name, key, ext) {
+  const r = LAYOUT[name][key];
+  return ext ? { x: r.x + (ext.x || 0), y: r.y + (ext.y || 0), w: ext.w ?? r.w, h: ext.h ?? r.h } : r;
+}
+const base = (l) => VP.w / l.W;
+function focus(l, r, pad = 40, zmax = 1.95) {
+  const b = base(l);
+  const z = Math.max(1, Math.min(zmax, Math.min(VP.w / ((r.w + 2 * pad) * DSF), VP.h / ((r.h + 2 * pad) * DSF)) / b));
+  return { cx: (r.x + r.w / 2) * DSF, cy: (r.y + r.h / 2) * DSF, z };
+}
+const top_ = (l, y = 0) => ({ cx: l.W / 2, cy: 0 + y, z: 1 });
+// Moves: [[t, view, dur]]; between moves the camera drifts in a little, so a hold never looks frozen.
+function cam(l, moves, end) {
+  moves.forEach(([t, v, dur = 1.1], i) => {
+    const nextT = i + 1 < moves.length ? moves[i + 1][0] : end;
+    const prev = i ? moves[i - 1][1] : v;
+    const d = i ? dur : 0.0001;
+    tw(l, "cx", prev.cx, v.cx, t, d, "io");
+    tw(l, "cy", prev.cy, v.cy, t, d, "io");
+    tw(l, "z", prev.z, v.z, t, d, "io");
+    if (nextT - t - d > 0.3) tw(l, "z", v.z, v.z * 1.03, t + d, nextT - t - d, "lin");
+  });
+}
+function camState(l, t) {
+  const z = val(T.get(l)?.z, t, 1), s = base(l) * z;
+  const hw = VP.w / (2 * s), hh = VP.h / (2 * s);
+  const cx = Math.min(Math.max(val(T.get(l)?.cx, t, l.W / 2), hw), l.W - hw);
+  const cy = Math.min(Math.max(val(T.get(l)?.cy, t, hh), hh), Math.max(hh, l.H - hh));
+  return { s, tx: VP.w / 2 - cx * s, ty: VP.h / 2 - cy * s };
+}
+function applyLayer(l, t) {
+  const o = val(T.get(l)?.o, t, 0);
+  l.img.style.opacity = o;
+  l.img.style.visibility = o <= 0.001 ? "hidden" : "visible";
+  if (o <= 0.001) return;
+  const c = camState(l, t);
+  l.img.style.transform = `translate(${c.tx}px,${c.ty}px) scale(${c.s})`;
+}
+// Highlights: a gold outline around a box, with the rest of the screen dimmed a little.
+const HL = [];
+function hl(name, r, t0, t1, rad = 24) { HL.push({ name, r, t0, t1, rad }); }
+function applyHl(t) {
+  const el = $("hl");
+  const h = HL.find((k) => t >= k.t0 && t <= k.t1);
+  if (!h) { el.style.opacity = 0; return; }
+  const l = L[h.name], c = camState(l, t);
+  const k = Math.min(1, (t - h.t0) / 0.45, (h.t1 - t) / 0.3);
+  const pad = 10;
+  const x = c.tx + h.r.x * DSF * c.s - pad, y = c.ty + h.r.y * DSF * c.s - pad;
+  const w = h.r.w * DSF * c.s + 2 * pad, hgt = h.r.h * DSF * c.s + 2 * pad;
+  const grow = 1 + 0.04 * (1 - E.out(Math.max(0, k)));
+  el.style.opacity = E.out(Math.max(0, k));
+  el.style.left = x + (w - w * grow) / 2 + "px";
+  el.style.top = y + (hgt - hgt * grow) / 2 + "px";
+  el.style.width = w * grow + "px";
+  el.style.height = hgt * grow + "px";
+  el.style.borderRadius = h.rad * DSF * c.s + pad + "px";
+}
+
+// ---- building blocks ----------------------------------------------------------------------------------
+function callout(zh, en, t0, t1) {
+  const el = document.createElement("div");
+  el.className = "a cap";
+  el.dataset.base = "translateX(-50%)";
+  el.innerHTML = `<i></i><div><b>${zh}</b><span>${en}</span></div>`;
+  $("callouts").appendChild(el);
+  show(el, t0, t1, { dy: 18, dIn: 0.55, dOut: 0.3, s0: 0.96 });
+  return el;
+}
+const STOCKS = ["NVDAx", "SPYx", "TSLAx", "AAPLx", "GOOGLx", "AMZNx", "QQQx", "MSTRx"];
+
+function build(p) {
+  LAYOUT = p.layout;
+  // screens
+  for (const [name, W, H] of p.screens) {
+    const img = new Image();
+    img.src = p.assets + "/" + name + ".png";
+    img.width = W; img.height = H;
+    $("vp").insertBefore(img, $("hl"));
+    L[name] = { img, W, H };
+  }
+  for (const id of ["m1", "m10"]) $(id).src = p.mark;
+  document.querySelector("#bug img").src = p.mark;
+  for (const im of document.querySelectorAll("img[data-stock]")) im.src = `${p.stocks}/${im.dataset.stock}.png`;
+
+  // S2 stock row
+  const row = $("stocks");
+  STOCKS.forEach((s, i) => {
+    const el = document.createElement("div");
+    el.className = "a stk";
+    el.style.left = 960 - (STOCKS.length - 1) * 82 + i * 164 - 54 + "px";
+    el.style.top = "440px";
+    el.innerHTML = `<img src="${p.stocks}/${s}.png" alt=""><span>${s}</span>`;
+    row.appendChild(el);
+    tw(el, "o", 0, 1, S.s2 + 0.7 + i * 0.12, 0.5, "out");
+    tw(el, "y", 40, 0, S.s2 + 0.7 + i * 0.12, 0.8, "back");
+    tw(el, "s", 0.7, 1, S.s2 + 0.7 + i * 0.12, 0.8, "back");
+    // they rise and shrink away when the hour comes in
+    tw(el, "y", 0, -80, S.s2 + 3.4, 0.8, "io");
+    tw(el, "s", 1, 0.62, S.s2 + 3.4, 0.8, "io");
+    tw(el, "o", 1, 0.0, S.s2 + 6.7, 0.4, "in");
+  });
+
+  // S7 fee split (curve fees, VERIFIED item 33: fee_rate 8500 = 0.50% holders + 0.35% jinniu, creator 1500, Raydium 2500)
+  const SEG = [
+    ["0.50%", "持有人", "Holders", "#FFC21A", 0.5],
+    ["0.35%", "金牛", "jinniu", "#0A0A0A", 0.35],
+    ["0.15%", "创建者", "Creator", "#8A8A8A", 0.15],
+    ["0.25%", "Raydium", "Raydium", "#D9D9D9", 0.25],
+  ];
+  SEG.forEach(([pct, zh, en, c, v], i) => {
+    const w = (1300 * v) / 1.25;
+    const seg = document.createElement("div");
+    seg.className = "seg";
+    seg.style.background = c;
+    seg.style.width = w + "px";
+    seg.dataset.w = w;
+    $("fbar").appendChild(seg);
+    tw(seg, "w", 0, w, S.s7 + 0.9 + i * 0.32, 0.7, "out");
+    const leg = document.createElement("div");
+    leg.className = "a leg";
+    // even columns: the creator's slice is too narrow to hold its own label
+    leg.style.left = 310 + i * 325 + "px";
+    leg.style.top = "590px";
+    leg.innerHTML = `<b>${pct}</b><div class="zh"><i style="background:${c}"></i>${zh}</div><div class="en">${en}</div>`;
+    $("flegs").appendChild(leg);
+    show(leg, S.s7 + 1.1 + i * 0.32, S.s8 + 0.05, { dy: 20 });
+  });
+
+  // S8 phones
+  const PH = [["m_home", "悬浮导航", "Floating dock"], ["m_grid", "按股票浏览", "Browse by stock"], ["m_coin", "底部交易面板", "Trade from a bottom sheet"]];
+  PH.forEach(([img, zh, en], i) => {
+    const ph = document.createElement("div");
+    ph.className = "a phone";
+    ph.style.left = 960 - 239 + (i - 1) * 560 + "px";
+    ph.style.top = "152px";
+    ph.innerHTML = `<div class="scr"><div class="isl"></div><img src="${p.assets}/${img}.png" alt="">${i === 2 ? `<img id="sheetimg" src="${p.assets}/m_sheet.png" alt="">` : ""}</div>`;
+    $("phones").appendChild(ph);
+    tw(ph, "o", 0, 1, S.s8 + 0.25 + i * 0.18, 0.6, "out");
+    tw(ph, "y", 160, 0, S.s8 + 0.25 + i * 0.18, 1.1, "back");
+    tw(ph, "o", 1, 0, S.s9 - 0.35, 0.35, "in");
+    tw(ph, "y", 0, -30, S.s9 - 0.35, 0.35, "in");
+    const lab = document.createElement("div");
+    lab.className = "a plab";
+    lab.dataset.base = "translateX(-50%)";
+    lab.style.left = 960 + (i - 1) * 560 + "px";
+    lab.style.top = "968px";
+    lab.innerHTML = `<b>${zh}</b><span>${en}</span>`;
+    $("phones").appendChild(lab);
+    show(lab, S.s8 + 0.9 + i * 0.18, S.s9, { dy: 14 });
+  });
+
+  timeline();
+}
+
+// ---- the timeline -------------------------------------------------------------------------------------
+function timeline() {
+  // S1: the mark, the name, the line
+  tw($("m1"), "o", 0, 1, 0.15, 0.8, "out");
+  tw($("m1"), "s", 0.78, 1, 0.15, 1.2, "back");
+  tw($("m1"), "y", 30, 0, 0.15, 1.2, "out");
+  show($("w1"), 0.9, null, { dy: 30, dIn: 0.8 });
+  show($("t1"), 2.2, null, { dy: 26, dIn: 0.8 });
+  for (const id of ["m1", "w1", "t1"]) { tw($(id), "o", 1, 0, S.s2 - 0.45, 0.45, "in"); tw($(id), "y", 0, -40, S.s2 - 0.45, 0.45, "in"); }
+  tw($("glow"), "o", 1, 0.55, S.s3 - 0.6, 1.2, "io");
+  tw($("glow"), "o", 0.55, 1, S.s10 - 0.6, 1.2, "io");
+
+  // S2: every trade buys a stock; holders are paid every hour
+  show($("c2a"), S.s2 + 0.15, S.s2 + 3.4, { dIn: 0.7 });
+  show($("c2b"), S.s2 + 3.5, S.s3, { dIn: 0.7 });
+  show($("hour"), S.s2 + 3.9, S.s3, { dy: 20 });
+  const h0 = S.s2 + 4.2, h1 = S.s2 + 6.0;
+  tw($("hfill"), "w", 0, 1000, h0, h1 - h0, "io");
+  tw($("hknob"), "x", 0, 1000, h0, h1 - h0, "io");
+  ["p1", "p2", "p3"].forEach((id, i) => show($(id), h1 + 0.05 + i * 0.12, S.s3, { dy: 36, s0: 0.85, eIn: "back" }));
+
+  // the frame comes in for the site, leaves for the fee split and the phones, comes back for languages
+  const fr = $("frame");
+  tw(fr, "o", 0, 1, S.s3, 0.8, "out"); tw(fr, "y", 90, 0, S.s3, 1.0, "out"); tw(fr, "s", 0.96, 1, S.s3, 1.0, "out");
+  tw(fr, "o", 1, 0, S.s7 - 0.45, 0.45, "in"); tw(fr, "y", 0, 40, S.s7 - 0.45, 0.45, "in");
+  tw(fr, "o", 0, 1, S.s9, 0.7, "out"); tw(fr, "y", 60, 0, S.s9, 0.9, "out");
+  tw(fr, "o", 1, 0, S.s10 - 0.45, 0.45, "in"); tw(fr, "y", 0, 40, S.s10 - 0.45, 0.45, "in");
+  const bug = $("bug");
+  tw(bug, "o", 0, 1, S.s3 + 0.4, 0.6, "out"); tw(bug, "o", 1, 0, S.s10 - 0.45, 0.45, "in");
+
+  // S3 home
+  const H = L.home_zh;
+  tw(H, "o", 0, 1, S.s3, 0.001); tw(H, "o", 1, 0, S.s4 + 0.6, 0.6, "io");
+  cam(H, [
+    [S.s3, top_(H)],
+    [S.s3 + 1.2, focus(H, rect("home_zh", "pool"), 36)],
+    [S.s3 + 3.6, focus(H, rect("home_zh", "feed"), 36)],
+    [S.s3 + 5.6, focus(H, rect("home_zh", "bento"), 30)],
+    [S.s3 + 7.6, focus(H, rect("home_zh", "all", { h: 520 }), 24)],
+  ], S.s4 + 1.2);
+  show($("h3"), S.s3 + 0.2, S.s4);
+  hl("home_zh", rect("home_zh", "pool"), S.s3 + 2.0, S.s3 + 3.5);
+  hl("home_zh", rect("home_zh", "feed"), S.s3 + 4.4, S.s3 + 5.5);
+  hl("home_zh", rect("home_zh", "bento"), S.s3 + 6.4, S.s3 + 7.5);
+  hl("home_zh", rect("home_zh", "chips"), S.s3 + 8.4, S.s4 - 0.1, 14);
+  callout("本轮分红池，整点发给持有人", "This round's pool, paid to holders on the hour", S.s3 + 1.6, S.s3 + 3.6);
+  callout("刚刚到账：每一笔分红实时出现", "Just paid: every payout as it lands", S.s3 + 3.9, S.s3 + 5.6);
+  callout("精选：按 24 小时持有人所得排名", "Featured: ranked by what holders earned in 24h", S.s3 + 5.9, S.s3 + 7.6);
+  callout("按股票浏览，每个代币都标明分红股票", "Browse by stock: every coin shows what it pays", S.s3 + 7.9, S.s4);
+
+  // S4 coin
+  const C = L.coin_zh;
+  tw(C, "o", 0, 1, S.s4, 0.6, "io"); tw(C, "o", 1, 0, S.s5 + 0.6, 0.6, "io");
+  cam(C, [
+    [S.s4, top_(C)],
+    [S.s4 + 1.2, focus(C, rect("coin_zh", "chart"), 30)],
+    [S.s4 + 3.6, focus(C, rect("coin_zh", "trade"), 40, 1.7)],
+    [S.s4 + 6.0, focus(C, rect("coin_zh", "divc"), 40, 1.7)],
+  ], S.s5 + 1.2);
+  show($("h4"), S.s4 + 0.2, S.s5);
+  hl("coin_zh", rect("coin_zh", "chart"), S.s4 + 2.0, S.s4 + 3.5);
+  hl("coin_zh", rect("coin_zh", "trade"), S.s4 + 4.4, S.s4 + 5.9);
+  hl("coin_zh", rect("coin_zh", "divc"), S.s4 + 6.8, S.s5 - 0.1);
+  callout("实时 K 线：价格或市值，1 分钟到 1 天", "Live chart: price or market cap, from 1 minute to 1 day", S.s4 + 1.6, S.s4 + 3.6);
+  callout("内盘直接买卖：手续费 1.25%，其中 0.50% 分给持有人", "Trade on the curve: a 1.25% fee, 0.50% of it to holders", S.s4 + 3.9, S.s4 + 6.0);
+  callout("下一轮分红倒计时，以 TSLAx 发放", "Countdown to the next payout, paid in TSLAx", S.s4 + 6.3, S.s5);
+
+  // S5 create: empty, then filled in under the same camera
+  const CE = L.create_empty, CF = L.create_filled;
+  const createCam = (l) => cam(l, [
+    [S.s5, top_(l)],
+    [S.s5 + 1.2, focus(l, rect("create_empty", "sec1"), 30)],
+    [S.s5 + 3.6, focus(l, rect("create_empty", "stocks"), 34)],
+    [S.s5 + 6.0, focus(l, rect("create_filled", "aside", { h: 600 }), 30, 1.6)],
+  ], S.s6 + 1.2);
+  createCam(CE); createCam(CF);
+  tw(CE, "o", 0, 1, S.s5, 0.6, "io"); tw(CE, "o", 1, 0, S.s5 + 2.3, 0.7, "io");
+  tw(CF, "o", 0, 1, S.s5 + 2.3, 0.7, "io"); tw(CF, "o", 1, 0, S.s6 + 0.6, 0.6, "io");
+  show($("h5"), S.s5 + 0.2, S.s6);
+  hl("create_filled", rect("create_filled", "sec1"), S.s5 + 2.4, S.s5 + 3.5);
+  hl("create_filled", rect("create_filled", "stocks"), S.s5 + 4.4, S.s5 + 5.9, 14);
+  hl("create_filled", rect("create_filled", "preview"), S.s5 + 6.8, S.s6 - 0.1);
+  callout("名称、代币符号和图片", "A name, a ticker and a picture", S.s5 + 1.6, S.s5 + 3.6);
+  callout("选好持有人每小时拿到的股票", "Pick the stock your holders earn every hour", S.s5 + 3.9, S.s5 + 6.0);
+  callout("发币前先预览；私有捆绑发币，0 号区块无狙击", "Preview it first. Private bundle launch: no sniper in block 0", S.s5 + 6.3, S.s6);
+
+  // S6 payouts
+  const P = L.payouts_zh;
+  tw(P, "o", 0, 1, S.s6, 0.6, "io"); tw(P, "o", 1, 0, S.s7, 0.001);
+  cam(P, [
+    [S.s6, top_(P)],
+    [S.s6 + 1.2, focus(P, rect("payouts_zh", "tiles"), 30)],
+    [S.s6 + 3.6, focus(P, rect("payouts_zh", "meter", { h: 520 }), 30)],
+  ], S.s7);
+  show($("h6"), S.s6 + 0.2, S.s7);
+  hl("payouts_zh", rect("payouts_zh", "tiles"), S.s6 + 2.0, S.s6 + 3.5);
+  hl("payouts_zh", rect("payouts_zh", "meter"), S.s6 + 4.4, S.s7 - 0.5);
+  callout("累计分红、轮次和钱包笔数", "What's been paid, in how many rounds, to how many wallets", S.s6 + 1.6, S.s6 + 3.6);
+  callout("每小时一轮，每张收据都能在链上查看", "A round every hour, and every receipt checkable on chain", S.s6 + 3.9, S.s7 - 0.2);
+
+  // S7 fee split
+  show($("h7"), S.s7 + 0.2, S.s8 + 0.05);
+  show($("fbar"), S.s7 + 0.6, S.s8 + 0.05, { dy: 20 });
+  show($("fnote"), S.s7 + 2.4, S.s8 + 0.05, { dy: 14 });
+
+  // S8 phones; the coin's trade sheet slides up
+  show($("h8"), S.s8 + 0.2, S.s9);
+  tw($("sheetimg"), "o", 0, 1, S.s8 + 3.6, 0.35, "out");
+  tw($("sheetimg"), "y", 120, 0, S.s8 + 3.6, 0.6, "out");
+
+  // S9 languages and colours
+  const HZ = L.home_zh, HE = L.home_en, HC = L.home_zh_cn;
+  tw(HZ, "o", 0, 1, S.s9, 0.001); // home_zh again, from the top
+  tw(HZ, "cx", HZ.W / 2, HZ.W / 2, S.s9, 0.001); tw(HZ, "cy", 0, 0, S.s9, 0.001); tw(HZ, "z", 1, 1, S.s9, 0.001);
+  tw(HE, "o", 0, 1, S.s9 + 1.0, 0.5, "io"); tw(HE, "o", 1, 0, S.s9 + 2.4, 0.4, "io");
+  // Still, like home_zh under it, so the crossfade shows only what the language changes.
+  tw(HE, "cx", HE.W / 2, HE.W / 2, 0, 0.001); tw(HE, "cy", 0, 0, 0, 0.001); tw(HE, "z", 1, 1, 0, 0.001);
+  const row1 = { x: 144, y: 1630, w: 1152, h: 267 };
+  const v2 = focus(HZ, { ...row1, y: row1.y - 120, h: row1.h + 120 }, 20);
+  tw(HZ, "cx", HZ.W / 2, v2.cx, S.s9 + 2.4, 0.9, "io"); tw(HZ, "cy", 0, v2.cy, S.s9 + 2.4, 0.9, "io"); tw(HZ, "z", 1, v2.z, S.s9 + 2.4, 0.9, "io");
+  tw(HC, "cx", v2.cx, v2.cx, 0, 0.001); tw(HC, "cy", v2.cy, v2.cy, 0, 0.001); tw(HC, "z", v2.z, v2.z, 0, 0.001);
+  tw(HC, "o", 0, 1, S.s9 + 3.5, 0.5, "io"); tw(HC, "o", 1, 0, S.s10 - 0.45, 0.45, "in");
+  tw(HZ, "o", 1, 0, S.s10 - 0.45, 0.45, "in");
+  show($("h9"), S.s9 + 0.2, S.s10);
+  hl("home_en", rect("home_en", "lang", { x: -10, y: -6, w: 82, h: 39 }), S.s9 + 1.2, S.s9 + 2.3, 10);
+  hl("home_zh_cn", { ...row1 }, S.s9 + 3.6, S.s10 - 0.3);
+  callout("一键切换中文和英文", "Switch between Chinese and English in one tap", S.s9 + 0.8, S.s9 + 2.5);
+  callout("涨跌颜色随你选", "Pick your up and down colours", S.s9 + 2.8, S.s10 - 0.2);
+
+  // S10 outro
+  tw($("m10"), "o", 0, 1, S.s10 + 0.1, 0.7, "out");
+  tw($("m10"), "s", 0.8, 1, S.s10 + 0.1, 1.1, "back");
+  show($("w10"), S.s10 + 0.5, null, { dy: 26 });
+  show($("u10"), S.s10 + 0.9, null, { dy: 30, s0: 0.94, eIn: "back" });
+  show($("cta10"), S.s10 + 1.4, null, { dy: 24, s0: 0.9, eIn: "back" });
+  show($("f10"), S.s10 + 2.0, null, { dy: 10 });
+}
+
+// ---- one frame ----------------------------------------------------------------------------------------
+function seek(t) {
+  for (const [el] of T) {
+    if (el instanceof HTMLElement && !el.classList.contains("seg") && el.id !== "hfill" && el.id !== "hknob") applyEl(el, t);
+  }
+  for (const seg of document.querySelectorAll(".seg")) seg.style.width = get(seg, "w", t) + "px";
+  $("hfill").style.width = get($("hfill"), "w", t) + "px";
+  $("hknob").style.left = get($("hknob"), "x", t) + "px";
+  for (const l of Object.values(L)) applyLayer(l, t);
+  applyHl(t);
+}
+
+window.init = async (p) => {
+  build(p);
+  // Google serves the Han font in unicode-range slices: ask for every glyph on the page, in every weight.
+  document.body.offsetHeight;
+  const txt = document.body.innerText + "0123456789%.,:;·+$";
+  await Promise.all([
+    ...["500", "700", "800", "900"].map((w) => document.fonts.load(`${w} 40px "Noto Sans SC"`, txt)),
+    ...["500", "600", "700", "800", "900"].map((w) => document.fonts.load(`${w} 40px "Inter Tight"`, txt)),
+  ]);
+  await document.fonts.ready;
+  await Promise.all([...document.images].map((im) => (im.complete ? Promise.resolve() : im.decode().catch(() => {}))));
+  await Promise.all([...document.images].map((im) => im.decode().catch(() => {})));
+  seek(0);
+  await document.fonts.ready;
+  return { duration: S.end };
+};
+window.seek = seek;
+</script>
+</body>
+</html>
