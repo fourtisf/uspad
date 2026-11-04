@@ -16,6 +16,8 @@ export const board = defineMsgs(
         Every trade buys the stock you picked, like NVDAx or SPYx. In <b className="n">{countdown}</b> it&apos;s {claim ? "credited to" : "split between"} all holders by how much they hold.
       </>
     ),
+    nextPayout: "Next payout in",
+    splitLine: (claim: boolean): string => (claim ? "Every trade buys the stock you picked, like NVDAx or SPYx. It's credited to all holders by how much they hold." : "Every trade buys the stock you picked, like NVDAx or SPYx, then split between all holders by how much they hold."),
     createCoin: "Create a coin",
     howItWorks: "How it works",
     feedH: "Just paid",
@@ -80,6 +82,8 @@ export const board = defineMsgs(
         每一笔交易都会买入你选的股票代币，比如 NVDAx、SPYx。<b className="n">{countdown}</b> 后按持仓比例{claim ? "记入" : "发给"}所有持有人。
       </>
     ),
+    nextPayout: "下一轮发放还有",
+    splitLine: (claim: boolean) => (claim ? "每一笔交易都会买入你选的股票代币，比如 NVDAx、SPYx，按持仓比例记入所有持有人。" : "每一笔交易都会买入你选的股票代币，比如 NVDAx、SPYx，按持仓比例发给所有持有人。"),
     createCoin: "创建代币",
     howItWorks: "玩法说明",
     feedH: "刚刚到账",

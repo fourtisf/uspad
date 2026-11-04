@@ -4,7 +4,7 @@ import cookie from "@fastify/cookie";
 import multipart from "@fastify/multipart";
 import rateLimit from "@fastify/rate-limit";
 import websocket from "@fastify/websocket";
-import { avatarSvg, IMAGE_MAX_BYTES, loadParams, phash64, BRAND_LATIN } from "@divvy/shared";
+import { memeAvatarSvg, IMAGE_MAX_BYTES, loadParams, phash64, BRAND_LATIN } from "@divvy/shared";
 import type { Env } from "./env";
 import { sendError } from "./errors";
 import { memoryKv, redisKv, type Kv } from "./kv";
@@ -79,7 +79,7 @@ export async function buildApp({ env, store, kv, live }: BuildOptions): Promise<
   // Fingerprint the demo coins' pictures so uploads of them are refused.
   for (const c of s.coins) {
     if (c.image.kind !== "svg") continue;
-    const svg = Buffer.from(avatarSvg(c.image.seed));
+    const svg = Buffer.from(memeAvatarSvg(c.image.seed, c.name));
     s.sha256s.set(c.ticker, sha256Hex(svg));
     s.phashes.set(c.ticker, phash64(await grayPixels(svg)));
   }

@@ -5,7 +5,7 @@
  *
  * None of these coins, mints, wallets or signatures exist on chain.
  */
-import { avatarSvg, hashStr, mulberry32 } from "@divvy/shared";
+import { memeAvatarSvg, hashStr, mulberry32 } from "@divvy/shared";
 
 export const SOL_USD = 100.7;
 export const STOCK_DECIMALS = 8;
@@ -131,7 +131,7 @@ export function seedCoins(bootAt: number): MockCoin[] {
   });
 }
 
-export const coinSvg = (c: MockCoin): string | null => (c.image.kind === "svg" ? avatarSvg(c.image.seed) : null);
+export const coinSvg = (c: MockCoin): string | null => (c.image.kind === "svg" ? memeAvatarSvg(c.image.seed, c.name) : null);
 
 /* ---------- time series ---------- */
 

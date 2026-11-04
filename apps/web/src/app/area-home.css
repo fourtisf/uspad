@@ -23,22 +23,28 @@
 /* A coin's page has its buy and sell bar where the dock sits on phones (prototype body.v-coin .dock). */
 @media (max-width:640px){.dock.on-coin{display:none}}
 
-/* ---------- pool band (board/Board.tsx `.band`): a wide hero with the pool big on the left, the hour on the
-   right and the headline stats on a hairline below — a horizontal band, not the prototype's hero split ---------- */
-.band{position:relative;overflow:hidden;margin-top:20px;padding:30px 34px 28px;border-radius:30px;background:radial-gradient(560px 380px at 88% -34%,rgba(23,224,124,.20),transparent 60%),var(--glass);box-shadow:var(--card-sh)}
-.band-main{position:relative;z-index:1}
-.band .eyebrow .ey-pills{margin-left:auto}
-.band-row{display:flex;align-items:flex-end;gap:16px 40px;flex-wrap:wrap;margin-top:14px}
-.band .big{font:800 clamp(50px,7vw,88px)/1 var(--ff);letter-spacing:-.045em;color:#fff}
-.band-hour{flex:1;min-width:300px;padding-bottom:4px}
-.band-hour p{margin:0 0 14px;font-size:15.5px;color:var(--tx2);max-width:560px}
-.band-hour p b{color:var(--tx)}
-.band-hour .hour{margin:0 0 8px}
-.band-lede{margin:14px 0 0;font-size:17px;color:var(--tx2);max-width:640px}
-.band-lede b{color:var(--tx)}
-.band .pool-h{margin:14px 0 0}
-.band .ctas{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
-.band-stats{position:relative;z-index:1;display:flex;margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+/* ---------- pool band (board/Board.tsx `.band2`): two panels — the round's pool on the left, the next payout
+   and the create actions on the right — with the headline stats on a strip below ---------- */
+.band2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr);gap:18px;margin-top:20px;align-items:stretch}
+.panel-pool,.panel-next{position:relative;overflow:hidden;padding:28px 30px;border-radius:28px;background:var(--glass);box-shadow:var(--card-sh)}
+.panel-pool{background:radial-gradient(460px 320px at 10% -34%,rgba(23,224,124,.22),transparent 58%),var(--glass)}
+.panel-pool .eyebrow{margin-bottom:0}
+.panel-pool .eyebrow .ey-pills{margin-left:auto}
+.panel-pool .big{position:relative;z-index:1;font:800 clamp(48px,6.4vw,84px)/1 var(--ff);letter-spacing:-.045em;color:#fff;margin:16px 0 26px}
+.panel-pool .hour{margin:0 0 8px}
+.panel-pool .pool-h{margin:16px 0 10px}
+.panel-pool .band-lede{margin:0;font-size:16px;color:var(--tx2);max-width:560px}
+.panel-pool .band-lede b{color:var(--tx)}
+/* Right panel: the next payout countdown on top, the create actions pinned to the bottom. */
+.panel-next{display:flex;flex-direction:column;background:radial-gradient(380px 280px at 100% 0,rgba(23,224,124,.10),transparent 62%),var(--glass)}
+.next-lead{font:600 13.5px var(--ff);color:var(--tx2)}
+.next-cd{margin:8px 0 0;font:800 clamp(40px,4.8vw,62px)/1 var(--ff);letter-spacing:-.03em;color:#fff}
+.panel-next>p{margin:14px 0 0;font-size:14.5px;color:var(--tx2);max-width:420px}
+.panel-next .next-p0{margin-top:10px}
+.panel-next .ctas{display:flex;gap:10px;margin-top:auto;padding-top:24px;flex-wrap:wrap}
+.panel-next .ctas .btn{flex:1;min-width:150px}
+/* The stats strip below the two panels. */
+.band-stats{display:flex;margin-top:18px;padding:18px 28px;border-radius:24px;background:var(--glass);box-shadow:var(--sh)}
 .band-stats>div{flex:1;padding:0 22px;border-left:1px solid var(--line)}
 .band-stats>div:first-child{border-left:0;padding-left:0}
 .band-stats b{display:block;font:800 26px/1.2 var(--ff);letter-spacing:-.02em}
@@ -48,17 +54,18 @@
 .eyebrow .ey-pills .pill{margin-left:0}
 .eyebrow .ey-pills:empty{display:none}
 .eyebrow .pill svg{flex:none}
-/* Before the first coin the band carries the headline instead of a $0 pool. */
-.pool-h{position:relative;z-index:1;font:800 clamp(34px,4.6vw,56px)/1.12 var(--ff);letter-spacing:-.03em}
+/* Before the first coin the pool panel carries the headline instead of a $0 pool. */
+.pool-h{position:relative;z-index:1;font:800 clamp(32px,3.6vw,46px)/1.14 var(--ff);letter-spacing:-.03em}
 :lang(en) .pool-h{letter-spacing:-.035em}
+@media (max-width:860px){
+  .band2{grid-template-columns:1fr}
+}
 @media (max-width:640px){
-  .band{padding:22px 20px 20px;border-radius:26px;margin-top:14px}
-  .band .big{font-size:clamp(42px,13vw,58px)}
-  .band-row{flex-direction:column;align-items:stretch;gap:14px}
-  .band-hour{min-width:0}
-  .band-hour p{margin-bottom:12px}
-  .band .ctas{display:none}
-  .band-stats{flex-wrap:wrap;row-gap:16px;margin-top:20px}
+  .panel-pool,.panel-next{padding:22px 20px;border-radius:24px}
+  .band2{gap:12px;margin-top:14px}
+  .panel-pool .big{font-size:clamp(42px,13vw,58px);margin:14px 0 20px}
+  .next-cd{font-size:clamp(38px,12vw,52px)}
+  .band-stats{flex-wrap:wrap;row-gap:16px;padding:18px 20px}
   .band-stats>div{flex:0 0 50%;padding:0 0 0 16px}
   .band-stats>div:nth-child(odd){border-left:0;padding-left:0}
 }

@@ -7,7 +7,7 @@ import useSWR from "swr";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import {
-  avatarDataUri,
+  memeAvatarDataUri,
   bpsLabel,
   DEV_BUY_ACCOUNTS_LAMPORTS,
   devBuyEstimate,
@@ -198,7 +198,7 @@ export function CreateForm() {
                 : t.readyFree;
 
   const tick = displayTicker(d.ticker) || "TICKER";
-  const previewImg = d.upload?.url ?? d.imgPreview ?? avatarDataUri(tick);
+  const previewImg = d.upload?.url ?? d.imgPreview ?? memeAvatarDataUri(tick, d.name);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();

@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import {
-  avatarSvg,
+  memeAvatarSvg,
   mulberry32,
   CandleTfSchema,
   CoinSortSchema,
@@ -304,7 +304,7 @@ export async function publicRoutes(app: FastifyInstance, { store }: { store: Moc
   /* media (mock only; production serves images from object storage / IPFS) */
   app.get<{ Params: { ticker: string } }>("/api/media/coin/:ticker.svg", async (req, reply) => {
     const c = store.coinByTicker(req.params.ticker);
-    const svg = c && c.image.kind === "svg" ? avatarSvg(c.image.seed) : avatarSvg(req.params.ticker);
+    const svg = c && c.image.kind === "svg" ? memeAvatarSvg(c.image.seed, c.name) : memeAvatarSvg(req.params.ticker, req.params.ticker);
     return reply.header("content-type", "image/svg+xml").header("cache-control", "public, max-age=86400").send(svg);
   });
 

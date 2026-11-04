@@ -237,8 +237,8 @@ export function Board({
 
   return (
     <>
-      <section className="band">
-        <div className="band-main">
+      <section className="band2">
+        <div className="card panel-pool">
           <div className="eyebrow">
             <i className="live" />
             {pool !== null ? (
@@ -258,15 +258,10 @@ export function Board({
           {pool !== null ? (
             <>
               <h1 className="sr">{t.h1}</h1>
-              <div className="band-row">
-                <div className="big n">
-                  <CountUp value={pool} format={usd2} />
-                </div>
-                <div className="band-hour">
-                  <p>{t.poolP(<Countdown nextAt={stats.nextRoundAt} />, claim)}</p>
-                  <HourLine nextAt={stats.nextRoundAt} />
-                </div>
+              <div className="big n">
+                <CountUp value={pool} format={usd2} />
               </div>
+              <HourLine nextAt={stats.nextRoundAt} />
             </>
           ) : (
             <>
@@ -274,33 +269,47 @@ export function Board({
               <p className="band-lede">{t.lede(paidLaunch, deliveryCopy(config, lang).heroTail)}</p>
             </>
           )}
+        </div>
+        <div className="card panel-next">
+          {pool !== null ? (
+            <>
+              <span className="next-lead">{t.nextPayout}</span>
+              <div className="next-cd n"><Countdown nextAt={stats.nextRoundAt} /></div>
+              <p>{t.splitLine(claim)}</p>
+            </>
+          ) : (
+            <>
+              <span className="next-lead">{t.kickIdle}</span>
+              <p className="next-p0">{t.splitLine(claim)}</p>
+            </>
+          )}
           <div className="ctas">
             <Link className="btn btn-acc btn-lg" href="/create">{t.createCoin}</Link>
             <Link className="btn btn-line btn-lg" href="/how">{t.howItWorks}</Link>
           </div>
         </div>
-        {/* Zeros on an empty board read as a dead site: the numbers appear with the first coin. */}
-        {hasCoins && (
-          <div className="band-stats">
-            <div>
-              <b className="g n"><CountUp value={stats.paidToHoldersUsd} format={usdFull} /></b>
-              <span>{t.paidToHolders}</span>
-            </div>
-            <div>
-              <b className="n"><CountUp value={stats.volume24hUsd} format={usd} /></b>
-              <span>{t.traded24h}</span>
-            </div>
-            <div>
-              <b className="n">{stats.coinsLive.toLocaleString("en-US")}</b>
-              <span>{t.coinsLive}</span>
-            </div>
-            <div>
-              <b className="n">{stocksToEarn}</b>
-              <span>{t.stocksToEarn}</span>
-            </div>
-          </div>
-        )}
       </section>
+      {/* Zeros on an empty board read as a dead site: the numbers appear with the first coin. */}
+      {hasCoins && (
+        <div className="band-stats">
+          <div>
+            <b className="g n"><CountUp value={stats.paidToHoldersUsd} format={usdFull} /></b>
+            <span>{t.paidToHolders}</span>
+          </div>
+          <div>
+            <b className="n"><CountUp value={stats.volume24hUsd} format={usd} /></b>
+            <span>{t.traded24h}</span>
+          </div>
+          <div>
+            <b className="n">{stats.coinsLive.toLocaleString("en-US")}</b>
+            <span>{t.coinsLive}</span>
+          </div>
+          <div>
+            <b className="n">{stocksToEarn}</b>
+            <span>{t.stocksToEarn}</span>
+          </div>
+        </div>
+      )}
 
       <Ticker events={stats.activity} names={names} hasCoins={hasCoins} now={now} />
 

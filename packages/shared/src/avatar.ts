@@ -1,4 +1,5 @@
 import { hashStr, mulberry32 } from "./random";
+import { TWEMOJI } from "./memes";
 
 /**
  * Deterministic placeholder coin picture (prototype `avatar`). Used for the create-page preview before
@@ -40,3 +41,45 @@ export function avatarSvg(seed: string): string {
 }
 
 export const avatarDataUri = (seed: string): string => "data:image/svg+xml;utf8," + encodeURIComponent(avatarSvg(seed));
+
+/**
+ * A meme-coin picture: a real emoji (Twemoji, CC-BY 4.0; see memes.ts) on a tinted tile, chosen from the
+ * coin's name — Frog Lord gets the frog, Cash Cow the cow, and so on — falling back to a varied pool by seed.
+ * Used for the demo coins and the create-page placeholder, so a coin with no uploaded picture still reads as a
+ * real token rather than a generated face. The tile's hue is deterministic from the seed.
+ */
+const MEME_KW: [string, string][] = [
+  // Specific characters first, so they win over the finance words below (Chart Chimp -> chimp, Cash Cow -> cow).
+  ["sleepy", "1f634"], ["shiba", "1f436"], ["bun", "1f35e"], ["chimp", "1f435"], ["cow", "1f42e"], ["yak", "1f403"],
+  ["dog", "1f436"], ["cat", "1f431"], ["frog", "1f438"], ["bear", "1f43b"], ["duck", "1f986"], ["pigeon", "1f426"],
+  ["goose", "1f426"], ["snail", "1f40c"], ["llama", "1f999"], ["crab", "1f980"], ["mouse", "1f42d"], ["koala", "1f428"],
+  ["iguana", "1f98e"], ["lizard", "1f98e"], ["snake", "1f98e"], ["eel", "1f41f"], ["fish", "1f41f"], ["whale", "1f433"],
+  ["dolphin", "1f42c"], ["monkey", "1f435"], ["ape", "1f98d"], ["gorilla", "1f98d"], ["unicorn", "1f984"],
+  ["lambo", "1f3ce"], ["tape", "1f9fe"], ["ticker", "1f9fe"], ["candle", "1f4c8"], ["chart", "1f4c8"], ["index", "1f4c8"],
+  ["hood", "1f3f9"], ["robin", "1f3f9"], ["couch", "1f6cb"], ["wall", "1f9f1"], ["brick", "1f9f1"], ["bob", "1f9f1"],
+  ["bot", "1f916"], ["gary", "1f916"], ["squeeze", "1f34b"], ["lemon", "1f34b"], ["paper", "1f9fb"], ["moon", "1f319"],
+  ["intern", "1f319"], ["rug", "1f6e1"], ["proof", "1f6e1"], ["gamma", "1f426"], ["cash", "1f4b0"], ["money", "1f4b0"],
+  ["yield", "1f403"], ["diamond", "1f48e"], ["fire", "1f525"], ["rocket", "1f680"], ["alien", "1f47d"],
+];
+const MEME_POOL = ["1f680", "1f48e", "1f525", "1f4b0", "1f911", "1f98d", "1f47d", "1f4af", "1f42c", "1f984", "1f433", "1f436", "1f438", "1f431"];
+
+export function memeAvatarSvg(seed: string, name = ""): string {
+  const n = name.toLowerCase();
+  let cp = "";
+  for (const [k, c] of MEME_KW) if (n.includes(k)) { cp = c; break; }
+  const r = mulberry32(hashStr(seed));
+  const h = Math.floor(r() * 360);
+  if (!cp) cp = MEME_POOL[Math.floor(r() * MEME_POOL.length)]!;
+  const glyph = TWEMOJI[cp] ?? TWEMOJI["1f680"]!;
+  const sc = 62 / 36; // the emoji fills ~62% of the tile
+  const off = (100 - 36 * sc) / 2;
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="256" height="256">` +
+    `<defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${h} 72% 70%)"/><stop offset="1" stop-color="hsl(${(h + 32) % 360} 64% 46%)"/></linearGradient>` +
+    `<linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>` +
+    `<rect width="100" height="100" fill="url(#b)"/><rect width="100" height="100" fill="url(#s)"/>` +
+    `<g transform="translate(${off.toFixed(2)} ${(off - 1).toFixed(2)}) scale(${sc.toFixed(4)})">${glyph}</g></svg>`
+  );
+}
+
+export const memeAvatarDataUri = (seed: string, name = ""): string => "data:image/svg+xml;utf8," + encodeURIComponent(memeAvatarSvg(seed, name));
