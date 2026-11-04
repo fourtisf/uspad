@@ -319,6 +319,11 @@ export function CreateForm() {
                 </div>
               </label>
               <input ref={fileInput} type="file" id="fImg" accept={config.limits.imageTypes.join(",")} className="sr" onChange={(e) => void handleFile(e.target.files?.[0])} />
+              {/* Why the picture isn't in yet, under the box that was clicked (owner, 2026-11-04: "upload logo
+                  tidak bekerja"): the checks card says it too, but it can be off screen. */}
+              {(ci.s === "fail" || (ci.s === "idle" && ci.m !== t.uploadPicture)) && (
+                <p className={"drop-note" + (ci.s === "fail" ? " bad" : "")} id="dropNote" role="status" aria-live="polite">{ci.m}</p>
+              )}
             </div>
           </section>
 

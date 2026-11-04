@@ -10,6 +10,9 @@
 .drop{cursor:pointer;transition:border-color .15s}
 .drop:hover,.drop.over{border-color:var(--tx)}
 .drop.bad{border-color:var(--red)}
+/* The picture's status under its box: signing in, checking, or why it was refused. */
+.drop-note{margin:8px 4px 0;font-size:13.5px;line-height:1.4;color:var(--tx2)}
+.drop-note.bad{color:var(--red);font-weight:600}
 .drop .ico{flex:none}
 .drop img.ico{object-fit:cover}
 /* The stock picker is a radio group: the prototype's pressed look on the checked stock, with the real icons. */
