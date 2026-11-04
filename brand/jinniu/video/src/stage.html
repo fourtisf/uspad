@@ -429,11 +429,12 @@ function timeline() {
 
   // S5 create: empty, then filled in under the same camera
   const CE = L.create_empty, CF = L.create_filled;
+  // On the form itself, and the preview with the checks: the demo's cost lines ("free", from the mock
+  // config) aren't what the live site says, so they stay out of the shot.
   const createCam = (l) => cam(l, [
-    [S.s5, top_(l)],
-    [S.s5 + 1.2, focus(l, rect("create_empty", "sec1"), 30)],
+    [S.s5, focus(l, rect("create_empty", "sec1"), 30)],
     [S.s5 + 3.6, focus(l, rect("create_empty", "stocks"), 34)],
-    [S.s5 + 6.0, focus(l, rect("create_filled", "aside", { h: 600 }), 30, 1.6)],
+    [S.s5 + 6.0, focus(l, rect("create_filled", "aside", { y: 23, h: 590 }), 30, 1.6)],
   ], S.s6 + 1.2);
   createCam(CE); createCam(CF);
   tw(CE, "o", 0, 1, S.s5, 0.6, "io"); tw(CE, "o", 1, 0, S.s5 + 2.3, 0.7, "io");
