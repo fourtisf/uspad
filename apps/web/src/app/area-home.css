@@ -23,22 +23,61 @@
 /* A coin's page has its buy and sell bar where the dock sits on phones (prototype body.v-coin .dock). */
 @media (max-width:640px){.dock.on-coin{display:none}}
 
-/* ---------- pool card ---------- */
-.eyebrow .ey-pills{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px}
+/* ---------- pool band (board/Board.tsx `.band`): a wide hero with the pool big on the left, the hour on the
+   right and the headline stats on a hairline below — a horizontal band, not the prototype's hero split ---------- */
+.band{position:relative;overflow:hidden;margin-top:20px;padding:30px 34px 28px;border-radius:30px;background:radial-gradient(560px 380px at 88% -34%,rgba(23,224,124,.20),transparent 60%),var(--glass);box-shadow:var(--card-sh)}
+.band-main{position:relative;z-index:1}
+.band .eyebrow .ey-pills{margin-left:auto}
+.band-row{display:flex;align-items:flex-end;gap:16px 40px;flex-wrap:wrap;margin-top:14px}
+.band .big{font:800 clamp(50px,7vw,88px)/1 var(--ff);letter-spacing:-.045em;color:#fff}
+.band-hour{flex:1;min-width:300px;padding-bottom:4px}
+.band-hour p{margin:0 0 14px;font-size:15.5px;color:var(--tx2);max-width:560px}
+.band-hour p b{color:var(--tx)}
+.band-hour .hour{margin:0 0 8px}
+.band-lede{margin:14px 0 0;font-size:17px;color:var(--tx2);max-width:640px}
+.band-lede b{color:var(--tx)}
+.band .pool-h{margin:14px 0 0}
+.band .ctas{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.band-stats{position:relative;z-index:1;display:flex;margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+.band-stats>div{flex:1;padding:0 22px;border-left:1px solid var(--line)}
+.band-stats>div:first-child{border-left:0;padding-left:0}
+.band-stats b{display:block;font:800 26px/1.2 var(--ff);letter-spacing:-.02em}
+.band-stats b.g{color:var(--div)}
+.band-stats span{font:500 13.5px var(--ff);color:var(--tx2)}
+.eyebrow .ey-pills{display:flex;flex-wrap:wrap;gap:8px}
 .eyebrow .ey-pills .pill{margin-left:0}
 .eyebrow .ey-pills:empty{display:none}
 .eyebrow .pill svg{flex:none}
-/* Before the first coin the card carries the headline instead of a $0 pool. */
-.pool-h{position:relative;z-index:1;margin:18px 0 12px;font:800 clamp(34px,4.6vw,56px)/1.12 var(--ff);letter-spacing:-.03em}
+/* Before the first coin the band carries the headline instead of a $0 pool. */
+.pool-h{position:relative;z-index:1;font:800 clamp(34px,4.6vw,56px)/1.12 var(--ff);letter-spacing:-.03em}
 :lang(en) .pool-h{letter-spacing:-.035em}
-@media (max-width:640px){.pool-h{font-size:32px;margin:12px 0 8px}}
+@media (max-width:640px){
+  .band{padding:22px 20px 20px;border-radius:26px;margin-top:14px}
+  .band .big{font-size:clamp(42px,13vw,58px)}
+  .band-row{flex-direction:column;align-items:stretch;gap:14px}
+  .band-hour{min-width:0}
+  .band-hour p{margin-bottom:12px}
+  .band .ctas{display:none}
+  .band-stats{flex-wrap:wrap;row-gap:16px;margin-top:20px}
+  .band-stats>div{flex:0 0 50%;padding:0 0 0 16px}
+  .band-stats>div:nth-child(odd){border-left:0;padding-left:0}
+}
 
-/* ---------- payout feed ---------- */
-.fr .t{min-width:0}
-.fr .t b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fr .v{flex:none}
-.feed-none{padding:16px 0 14px;font-size:14px;color:var(--tx2)}
-.feed-none b{display:block;margin-bottom:4px;font:700 15.5px var(--ff);color:var(--tx)}
+/* ---------- "just paid" ticker (board/Board.tsx `.ticker`): a running strip, replacing the feed card ---------- */
+.ticker{display:flex;align-items:center;gap:18px;margin-top:14px;padding:0 20px;height:58px;overflow:hidden;border-radius:18px;background:var(--glass);box-shadow:var(--sh)}
+.tk-head{flex:none;display:inline-flex;align-items:center;gap:8px;font:700 14px var(--ff);color:var(--tx)}
+.tk-head a{margin-left:2px;font:600 12px var(--ff);color:var(--tx3)}
+.tk-track{position:relative;flex:1;min-width:0;overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 3%,#000 95%,transparent);mask:linear-gradient(90deg,transparent,#000 3%,#000 95%,transparent)}
+.tk-run{display:flex;align-items:center;width:max-content;animation:tkscroll 52s linear infinite;will-change:transform}
+.ticker:hover .tk-run{animation-play-state:paused}
+@keyframes tkscroll{to{transform:translateX(-50%)}}
+.tk-item{display:inline-flex;align-items:center;gap:9px;margin-right:30px;color:var(--tx2)}
+.tk-item .tile{width:26px;height:26px;border-radius:8px;--z:26px}
+.tk-nm{font:600 13.5px var(--ff);color:var(--tx)}
+.tk-amt{font:700 13.5px var(--ff);color:var(--div)}
+.tk-item small{font:500 12px var(--ff);color:var(--tx3)}
+.tk-empty{font-size:14px;color:var(--tx2)}
+@media (prefers-reduced-motion:reduce){.tk-run{animation:none}}
 
 /* ---------- official token (TokenCa.tsx OfficialToken) ---------- */
 .otk{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:22px;align-items:center;margin-top:22px;padding:22px 24px;border-radius:28px}
@@ -55,16 +94,81 @@
 @media (max-width:1100px){.otk{grid-template-columns:auto minmax(0,1fr)}.otk-ca,.otk .btn{grid-column:1/-1;max-width:none}}
 @media (max-width:640px){.otk{gap:14px;padding:18px;border-radius:26px}.otk>svg{width:52px;height:52px}.otk h2{font-size:23px}}
 
-/* ---------- featured ---------- */
-.dvl.solo{padding-left:10px}
-.feat .hd .nmw{min-width:0}
-.feat h3{overflow-wrap:anywhere}
-.chart-none{display:grid;place-items:center;height:100%;min-height:150px;border-radius:18px;background:var(--s1);font:500 13px var(--ff);color:var(--tx3)}
-.mini{min-width:0}
-.mini .nm{min-width:0}
-.mini .nm>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mini .nm small{flex:none}
-.mini .dvl{max-width:100%;overflow:hidden}
+/* ---------- live markets: a dense coin table with a leaders rail beside it (board/Board.tsx) ---------- */
+.home-main{display:grid;grid-template-columns:minmax(0,1fr) 322px;gap:22px;align-items:start;margin-top:56px}
+.markets{min-width:0}
+.markets .sh{margin-bottom:16px}
+.markets .chips{margin-bottom:12px}
+
+/* The table: a header row and one `.crow` per coin, their columns aligned by the same grid. */
+.ctable{border-radius:22px;overflow:hidden;background:var(--glass);box-shadow:var(--card-sh)}
+.ctable-h,.crow{display:grid;grid-template-columns:34px minmax(150px,1.6fr) minmax(94px,1fr) 66px minmax(96px,.9fr) 96px minmax(140px,1.1fr);align-items:center;gap:14px;padding:0 20px}
+.ctable-h{height:42px;font:600 11.5px var(--ff);color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+.ctable-h .c-mcap,.ctable-h .c-chg,.ctable-h .c-curve,.ctable-h .c-chart{text-align:right}
+.crow{height:66px;border-bottom:1px solid var(--line);color:var(--tx);transition:background .12s}
+.crow:last-child{border-bottom:0}
+.crow:hover{background:rgba(255,255,255,.035)}
+.c-rank{font:700 13px var(--ff);color:var(--tx3);text-align:center}
+.c-coin{display:flex;align-items:center;gap:11px;min-width:0}
+.c-coin .tile{width:38px;height:38px;border-radius:11px;--z:38px}
+.c-nm{min-width:0}
+.c-nm b{display:block;font:700 15px var(--ff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-nm small{font:500 12px var(--ff);color:var(--tx3);white-space:nowrap}
+.c-mcap{font:800 15.5px var(--ff);letter-spacing:-.01em;text-align:right}
+.c-chg{font:700 13.5px var(--ff);text-align:right}
+.c-curve{display:flex;align-items:center;justify-content:flex-end;gap:8px;font:600 12px var(--ff);color:var(--tx2)}
+.c-curve .bar{width:56px;height:6px;flex:none}
+.c-curve .grad{font-style:normal;color:var(--acc-hi)}
+.c-chart{height:34px}
+.c-chart svg{width:100%;height:34px;display:block}
+.c-chart .no{display:block;height:1px;margin-top:16px;background:var(--line)}
+.c-pays{display:flex;flex-direction:column;gap:3px;min-width:0;text-align:right;align-items:flex-end}
+.c-pays .stock{display:inline-flex;align-items:center;gap:7px;font:600 13px var(--ff);color:var(--tx2)}
+.c-pays .paid{font:700 13px var(--ff);color:var(--div)}
+.c-pays .wait{font:500 12px var(--ff);color:var(--tx3);white-space:nowrap}
+
+/* The leaders rail. */
+.side{position:sticky;top:84px}
+.side-card{padding:20px 20px 10px;border-radius:26px;background:var(--glass);box-shadow:var(--card-sh)}
+.side .panel-h{margin:0}
+.side-p{margin:4px 0 12px;font:500 12.5px var(--ff);color:var(--tx3)}
+.leads{display:flex;flex-direction:column}
+.lead{display:grid;grid-template-columns:18px 40px minmax(0,1fr) auto;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--line);color:var(--tx)}
+.lead:first-child{border-top:0}
+.lead .r{font:700 13px var(--ff);color:var(--tx3);text-align:center}
+.lead .tile{width:40px;height:40px;border-radius:12px;--z:40px}
+.lead .nm{min-width:0}
+.lead .nm b{display:block;font:700 14px var(--ff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lead .nm small{font:500 12px var(--ff);color:var(--tx3)}
+.lead .v{display:flex;flex-direction:column;align-items:flex-end;gap:1px;text-align:right}
+.lead .v b{font:800 14px var(--ff);letter-spacing:-.01em}
+.lead .v b.g{color:var(--div)}
+.lead .v small{font:700 12px var(--ff)}
+
+/* Wide tablets: the rail drops below the table. */
+@media (max-width:1080px){
+  .home-main{grid-template-columns:1fr}
+  .side{position:static}
+  .leads{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}
+  .lead{border-top:1px solid var(--line)}
+}
+/* Narrow: drop the chart and curve columns before the row gets cramped. */
+@media (max-width:860px){
+  .ctable-h,.crow{grid-template-columns:32px minmax(140px,1.7fr) minmax(90px,1fr) 64px minmax(132px,1.1fr)}
+  .c-curve,.c-chart{display:none}
+}
+/* Phones: the row folds like the prototype's card did — picture, name, cap and change, then the stock below. */
+@media (max-width:600px){
+  .home-main{margin-top:40px}
+  .leads{grid-template-columns:1fr}
+  .ctable-h{display:none}
+  .crow{grid-template-columns:minmax(0,1fr) auto;grid-auto-rows:auto;gap:2px 12px;height:auto;padding:13px 15px;align-items:center}
+  .c-rank{display:none}
+  .c-coin{grid-column:1;grid-row:1/span 2}
+  .c-mcap{grid-column:2;grid-row:1}
+  .c-chg{grid-column:2;grid-row:2}
+  .c-pays{grid-column:1/-1;grid-row:3;flex-direction:row;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);text-align:left}
+}
 
 /* ---------- all coins ---------- */
 /* Under the sticky header when the search button scrolls here. */

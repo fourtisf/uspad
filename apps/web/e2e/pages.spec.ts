@@ -16,7 +16,7 @@ test("the site opens in Chinese and the switch changes it to English", async ({ 
 test("board lists coins and opens one", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Memecoins that pay you");
-  const first = page.locator("#grid a").first();
+  const first = page.locator(".crow").first();
   await expect(first).toBeVisible();
   await first.click();
   // Coin pages open by mint: coins can share a ticker.
@@ -28,7 +28,7 @@ test("search filters the board", async ({ page }) => {
   // The search box is in the home page's all-coins section, on phones too.
   await page.goto("/");
   await page.locator("#search").fill("zzzz-no-such-coin");
-  await expect(page.locator("#grid .empty")).toBeVisible();
+  await expect(page.locator("#all .empty")).toBeVisible();
 });
 
 test("payouts page shows receipts", async ({ page }) => {
@@ -56,7 +56,7 @@ test("create form runs the server checks", async ({ page }) => {
 
 test("report a coin", async ({ page }) => {
   await page.goto("/");
-  await page.locator("#grid a").first().click();
+  await page.locator(".crow").first().click();
   await page.getByRole("button", { name: "Report" }).click();
   await page.getByLabel("It's a scam").check();
   await page.getByRole("button", { name: "Send report" }).click();
