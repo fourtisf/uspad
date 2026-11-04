@@ -40,7 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#FFFFFF" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#050807" };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const [config, lang, upDown] = await Promise.all([sharedApi<Config>("/api/config"), getLang(), getUpDown()]);
@@ -51,7 +51,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         {/* 金牛's faces (prototype/jinniu-prototype.html): Inter Tight for Latin and numbers, Noto Sans SC for Chinese. Google splits the Han font by unicode-range, so a page only loads the slices it uses. */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;800;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet" />
       </head>
       <body>
         <LangProvider lang={lang} upDown={upDown}>

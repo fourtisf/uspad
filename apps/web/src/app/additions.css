@@ -2,7 +2,7 @@
  * 金牛 (prototype/jinniu-prototype.html, in globals.css) for the parts of the app the prototype doesn't draw
  * and that more than one area uses: real coin pictures and stock icons, small extra buttons, the modals
  * (the launch and the report modal), the toasts, the wallet picker and the admin page. Built only from
- * globals.css's tokens, white only. Each area's own extras are in area-home.css, area-coin.css and
+ * globals.css's tokens, dark green (红利). Each area's own extras are in area-home.css, area-coin.css and
  * area-pages.css.
  */
 
@@ -41,7 +41,7 @@ img.tile{display:block;object-fit:cover;background:var(--s1)}
 .modal p{margin:0 0 14px;color:var(--tx2)}
 .modal .note{margin:10px 0 0}
 .modal textarea{display:block;width:100%;min-height:84px;resize:vertical;border:0;outline:0;border-radius:14px;background:var(--s1);padding:13px 14px;font-size:15px;color:var(--tx);box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .15s}
-.modal textarea:focus{box-shadow:inset 0 0 0 2px var(--tx)}
+.modal textarea:focus{box-shadow:inset 0 0 0 2px var(--acc)}
 .modal textarea::placeholder{color:var(--tx3)}
 
 /* The launch modal (LaunchModal.tsx): the coin's picture, its steps as the prototype's .chk rows, then
@@ -64,7 +64,7 @@ img.tile{display:block;object-fit:cover;background:var(--s1)}
 .report-modal .in{padding:24px}
 .report-reasons{display:grid;gap:8px;margin:14px 0}
 .report-reason{display:flex;gap:10px;align-items:center;color:var(--tx2);cursor:pointer}
-.report-reason input{accent-color:var(--tx)}
+.report-reason input{accent-color:var(--acc)}
 .report-acts{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
 
 /* ---------- toasts (Toasts.tsx): the prototype's dark pill, stacked when several show at once ---------- */

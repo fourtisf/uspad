@@ -77,10 +77,10 @@ DOMAIN_FILE=/root/divvy-domain
 # The product's name and domain (owner, 2026-11-02: 金牛 jinniu on jinniu.fun; hwai on hwai.ai before): the
 # domain move, and the PlatformConfig's name, web and picture (go-live.sh platform-info), use these. The
 # name stays ASCII for the PlatformConfig and the alerts; the site shows 金牛 (packages/shared/src/brand.ts).
-BRAND=jinniu
-BRAND_DOMAIN=jinniu.fun
+BRAND=hongli
+BRAND_DOMAIN=hongli.fun
 # The PlatformConfig's picture on the site (brand/jinniu/src/mark.cjs writes it).
-BRAND_IMG=/brand/jinniu-mark-512.png
+BRAND_IMG=/brand/hongli-mark-512.png
 # The domain this server serves (bootstrap and `domain` write the file); 金牛's when it's missing.
 DOMAIN=$(cat "$DOMAIN_FILE" 2>/dev/null || echo "$BRAND_DOMAIN")
 REPO=https://github.com/fourtisf/uspad.git
@@ -398,11 +398,11 @@ EOF
   local business
   business=$(cat <<EOF
 # Business parameters: identical in api.env and worker.env (envcheck).
-FEE_TRADE_BPS=125
+FEE_TRADE_BPS=120
 FEE_PROTOCOL_BPS=25
-FEE_HOLDERS_BPS=50
-FEE_CREATOR_BPS=15
-FEE_DIVVY_BPS=35
+FEE_HOLDERS_BPS=25
+FEE_CREATOR_BPS=30
+FEE_DIVVY_BPS=40
 PAYOUT_DELIVERY=push
 PAYOUTS_DRY_RUN=true
 MIN_ROUND_USD=1
@@ -513,8 +513,13 @@ platform_config() {
     [ "${I_HAVE_OWNER_APPROVAL:-}" = yes ] || die "--send butuh I_HAVE_OWNER_APPROVAL=yes (persetujuan owner di chat)"
     send=(--send)
   fi
-  say "PlatformConfig ${send[*]:-(dry run)}  admin $admin, fee claimer $fee"
+  # The PlatformConfig's fee split, from the env bps written by prepare: fee_rate = (holders + hongli) * 100,
+  # creator_fee_rate = creator * 100 (owner, 2026-11-04: total 1.2%). Keeps the chain and the app in step.
+  local h d c
+  h=$(env_get $ENV_DIR/worker.env FEE_HOLDERS_BPS); d=$(env_get $ENV_DIR/worker.env FEE_DIVVY_BPS); c=$(env_get $ENV_DIR/worker.env FEE_CREATOR_BPS)
+  say "PlatformConfig ${send[*]:-(dry run)}  admin $admin, fee claimer $fee, fee_rate $(( (h + d) * 100 )), creator_fee_rate $(( c * 100 ))"
   (cd "$CUR/packages/solana" && env RPC_URL="$RPC" PLATFORM_ADMIN_KEYPAIR="$ADMIN_KEY" FEE_WALLET="$fee" NFT_WALLET="$fee" \
+    FEE_RATE=$(( (h + d) * 100 )) CREATOR_FEE_RATE=$(( c * 100 )) \
     NAME="$BRAND" WEB="https://$BRAND_DOMAIN" IMG="https://$BRAND_DOMAIN$BRAND_IMG" I_HAVE_OWNER_APPROVAL="${I_HAVE_OWNER_APPROVAL:-}" \
     ./node_modules/.bin/tsx scripts/phase0/create-platform-config.ts "${send[@]}" 2>&1) | sed 's/api-key=[^&" ]*/api-key=…/g'
   sync_platform_pda
@@ -929,7 +934,7 @@ launch_fee() {
 # so uspad gets 0.35% instead of 0.10% and a trade pays 1.25%. Every coin still on its curve pays the
 # new rate from the next trade (docs/VERIFIED.md item 28). Trades from before the change keep the old
 # split through FEE_SPLIT_BEFORE, so holders get exactly what those trades paid them.
-FEE_RATE_NEW=8500
+FEE_RATE_NEW=6500
 fee_rate() {
   load_secrets
   [ -L "$CUR" ] && [ -f "$ADMIN_KEY" ] || die "jalankan 'go-live.sh prepare' dulu"

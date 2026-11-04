@@ -162,7 +162,7 @@ describe("checkCreate", () => {
 
   it("refuses more SOL than the fee and a small tip, and anything that isn't a create", () => {
     const [cu, c, f, t] = ok();
-    expect(() => checkCreate(build([cu!, c!, SystemProgram.transfer({ fromPubkey: me, toPubkey: feeTo, lamports: 30_000_000 }), t!]), me, "mainnet-beta", fee)).toThrow(/above jinniu's/);
+    expect(() => checkCreate(build([cu!, c!, SystemProgram.transfer({ fromPubkey: me, toPubkey: feeTo, lamports: 30_000_000 }), t!]), me, "mainnet-beta", fee)).toThrow(/above hongli's/);
     expect(() => checkCreate(build([cu!, c!, f!, SystemProgram.transfer({ fromPubkey: me, toPubkey: tip, lamports: 50_000_000 })]), me, "mainnet-beta", fee)).toThrow(/isn't the launch fee or the tip/);
     expect(() => checkCreate(build([...ok(), SystemProgram.transfer({ fromPubkey: me, toPubkey: tip, lamports: 1 })]), me, "mainnet-beta", fee)).toThrow(/isn't the launch fee or the tip/);
     expect(() => checkCreate(build([cu!, create(me, me, mint, "faea0d7b9eb9d7d0"), f!, t!]), me, "mainnet-beta", fee)).toThrow(/isn't a coin create/);
@@ -292,7 +292,7 @@ describe("in the browser", () => {
     vi.stubGlobal("Buffer", NextBuffer);
     const got = VersionedTransaction.deserialize(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)));
     expect(() => checkCreate(got, me, "mainnet-beta", { to: feeTo.toBase58(), lamports: 20_000_000n })).not.toThrow();
-    expect(() => checkCreate(got, me, "mainnet-beta", { to: feeTo.toBase58(), lamports: 10_000_000n })).toThrow(/above jinniu's/);
+    expect(() => checkCreate(got, me, "mainnet-beta", { to: feeTo.toBase58(), lamports: 10_000_000n })).toThrow(/above hongli's/);
     expect(() => checkTransaction(trade, wallet, "mainnet-beta", "trade")).not.toThrow();
   });
 });

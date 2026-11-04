@@ -1,5 +1,14 @@
 # Brand
 
+## 红利 hongli (owner, 2026-11-04) — current
+
+The brand is now **红利** (hónglì, "dividend / bonus"), replacing 金牛. The look is **premium green on a dark page** (clean like the Pools launchpad, not a copy): a soft green glow, glass cards with hairline borders, one green button, green up, the round's pool as the hero. It is built as the app itself: `apps/web/src/app/globals.css` is the source of truth (a dark-green retheme of the earlier jinniu class system, so every component kept its class names and markup — no component rewrite). `BRAND` "红利", `BRAND_LATIN` "hongli", `DOMAIN` "hongli.fun" (`packages/shared/src/brand.ts`). The mark is the brush 红 in white on an emerald tile: inline in `Mark.tsx` (Ma Shan Zheng, loaded in layout), and `brand/hongli/src/mark.cjs` renders the favicon, app icon, `public/brand/hongli-mark-512.png` (the PlatformConfig picture) and the site share images; `apps/web/src/components/honglimark.ts` is the mark as a PNG data URI for the coin share route. Logo and social assets drawn in this session are in the scratchpad (`brand/hongli/*` holds the generator).
+
+**Fee: total 1.2%** — holders 0.25%, 红利 0.40%, creator 0.30%, Raydium 0.25% (owner, 2026-11-04). On-chain that is PlatformConfig `fee_rate` 6500 and `creator_fee_rate` 3000; the holder/platform/creator split is `FEE_HOLDERS_BPS`/`FEE_DIVVY_BPS`/`FEE_CREATOR_BPS` = 25/40/30, written by `go-live.sh prepare` and passed to `platform-config`. (`packages/shared/src/params.ts` defaults stay at the old 50/15/35 as a fallback and keep the fee-math unit tests valid; the live server always sets the env.)
+
+**New launchpad from zero on 31.97.66.123** (the server 金牛 ran on, cleaned and set up fresh): new wallets, empty database, its own PlatformConfig. jinniu.fun was taken offline and abandoned (its holders are owed ~$99 of dividends — the owner's call). Domain hongli.fun → 31.97.66.123.
+
+
 The brand is **金牛 jinniu** (owner, 2026-11-02; below), live on jinniu.fun since 2026-11-03 with its own server and PlatformConfig.
 
 ## The old brands were deleted (owner, 2026-11-02)

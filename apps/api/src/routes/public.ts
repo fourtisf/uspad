@@ -44,7 +44,7 @@ type CoinPayoutList = z.infer<typeof CoinPayoutListSchema>;
 type HolderList = z.infer<typeof HolderListSchema>;
 type TradeList = z.infer<typeof TradeListSchema>;
 
-export const FEES = { tradeFeeBps: 125, protocolBps: 25, holdersBps: 50, creatorBps: 15, divvyBps: 35, afterGraduation: { holders: 50, creator: 15, divvy: 10 } };
+export const FEES = { tradeFeeBps: 120, protocolBps: 25, holdersBps: 25, creatorBps: 30, divvyBps: 40, afterGraduation: { holders: 50, creator: 30, divvy: 20 } };
 
 export function buildConfig(): Config {
   const c = LAUNCHLAB_DEFAULT_CURVE;

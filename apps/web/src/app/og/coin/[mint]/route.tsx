@@ -1,7 +1,7 @@
 /**
  * A coin's share image (1200 x 630), the card X and Telegram show for its link (owner, 2026-11-02): its
  * picture, name and ticker, market cap and 24h move, holders, what holders were paid, the stock it pays
- * in, its sparkline, and the 金牛 mark and name. The coin page's metadata points here by mint (coins can
+ * in, its sparkline, and the 红利 mark and name. The coin page's metadata points here by mint (coins can
  * share a ticker). Rendered by next/og; the picture is stored as WebP, which next/og can't read, so sharp
  * turns it into a PNG first. Fonts: Noto Sans SC from Google Fonts, only the characters drawn.
  */
@@ -14,7 +14,7 @@ import { pct, usd, type CoinDetail } from "@divvy/shared";
 import { api, ApiRequestError } from "@/lib/api";
 import { BRAND, DOMAIN } from "@/lib/brand";
 import { stockLogo } from "@/lib/logos";
-import { MARK_FLAT_SVG } from "@/components/jinniuMark";
+import { MARK_PNG_URI } from "@/components/honglimark";
 
 const MINT = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const W = 1200;
@@ -25,8 +25,6 @@ const RED = "#FF4D61";
 const GOLD = "#FFC84A";
 
 const svgUri = (svg: string) => `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
-// The 金牛 mark without SVG filters (next/og draws through resvg); brand/jinniu/src/mark.cjs writes it.
-const MARK_URI = svgUri(MARK_FLAT_SVG);
 
 /** A sparkline as an image: an area under the line, green when it ends higher, red otherwise. */
 function sparkUri(values: number[], w: number, h: number): string | null {
@@ -152,7 +150,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ mint: s
             <img src={picture} width={150} height={150} style={{ borderRadius: 36, border: "2px solid #27352E" }} alt="" />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={MARK_URI} width={150} height={150} alt="" />
+            <img src={MARK_PNG_URI} width={150} height={150} alt="" />
           )}
           <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
             <div style={{ fontSize: 72, fontWeight: 900, lineHeight: 1.25, letterSpacing: -1, display: "flex", maxWidth: 640, paddingBottom: 4, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{c.name}</div>
@@ -194,7 +192,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ mint: s
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={MARK_URI} width={56} height={56} alt="" />
+            <img src={MARK_PNG_URI} width={56} height={56} alt="" />
             <span style={{ fontSize: 34, fontWeight: 900, color: "#ECF5EF", letterSpacing: 1 }}>{BRAND}</span>
             <span style={{ fontSize: 24, fontWeight: 500, color: "#64776D", marginLeft: 6 }}>{DOMAIN}</span>
           </div>

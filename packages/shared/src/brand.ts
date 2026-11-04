@@ -7,6 +7,6 @@
  * The web copy, the API's messages, the sign-in statement, alerts and new coins' metadata take them from here.
  * Internal names (`@divvy/*`, DIVVY_* env vars, `divvy:` Redis keys, server paths) stay as they are.
  */
-export const BRAND = "金牛";
-export const BRAND_LATIN = "jinniu";
-export const DOMAIN = "jinniu.fun";
+export const BRAND = "红利";
+export const BRAND_LATIN = "hongli";
+export const DOMAIN = "hongli.fun";
