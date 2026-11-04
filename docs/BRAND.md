@@ -102,6 +102,10 @@ The site is built to `prototype/jinniu-prototype.html`: its CSS is `apps/web/src
 
 `brand/jinniu/social/x-header-1500x500.png` (X's size) and `x-header-3000x1000.png` (the same at 2x, sharper on phones; upload this one), made by `brand/jinniu/src/x-header.cjs`. White like the site: the mark's brush 牛 large and porcelain-light on the right, six xStocks logos (unchanged, as the site shows them) on an orbit with a gold arc for the hour, and in the middle 土狗也分红，分的是美股 with 美股 marked in gold, the English line and jinniu.fun. The bottom left is empty because X puts the profile photo there; `x-header-mockup.png` shows it on a desktop and a phone profile (the handle there is a placeholder). The profile photo is `brand/jinniu/png/mark-square-1024.png`.
 
+### X post: launch on 金牛 (owner, 2026-11-04)
+
+`brand/jinniu/social/x-post-launch-1600x900.png` and `x-post-launch-3200x1800.png`, made by `brand/jinniu/src/x-post-launch.cjs`: 在金牛发币，让持有人赚美股 / Launch on 金牛, three things true of every coin (holders paid in a stock every hour, the creator's 0.15%, no sniper in block 0), the link, and an illustrative "your coin" card with no numbers. No coins from the board and no launch fee (it can change).
+
 ### X article: Meet 金牛 (owner, 2026-11-04)
 
 The cover is `brand/jinniu/social/x-article-cover-2500x1000.png` (5:2, X's recommendation), made by `brand/jinniu/src/x-article-cover.cjs` with the X header's art. The text, in English and Chinese, is `brand/jinniu/copy/meet-jinniu-article.md`, every figure taken from the live configuration (listed at its top). The X account is @jinniupad.
