@@ -1,23 +1,27 @@
-/* Generates 红利 brand assets (brush 红 on an emerald tile) into apps/web.
- *   node brand/hongli/src/mark.cjs   (needs Playwright with Chromium + Google Fonts)
+/* Generates 红利 brand assets (emerald infinity loop on a dark tile) into apps/web.
+ *   node brand/hongli/src/mark.cjs   (needs Playwright with Chromium + Google Fonts for the OG wordmark)
  * Writes: apps/web/src/app/icon.png, apple-icon.png; apps/web/public/favicon.png;
- *         apps/web/public/brand/hongli-mark-512.png; apps/web/src/app/opengraph-image.png + twitter-image.png. */
+ *         apps/web/public/brand/hongli-mark-512.png; apps/web/src/app/opengraph-image.png + twitter-image.png;
+ *         apps/web/src/components/honglimark.ts (the mark as a PNG data URI for the coin share route). */
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
 const ROOT = path.resolve(__dirname, "../../..");
 const APP = path.join(ROOT, "apps/web");
 
+/** The infinity loop (the dividend cycle), one continuous stroke on a 240 grid. */
+const LOOP = "M120 120 C120 80 92 64 76 64 C48 64 36 92 36 120 C36 148 48 176 76 176 C104 176 120 120 120 120 C120 120 136 64 164 64 C192 64 204 92 204 120 C204 148 192 176 164 176 C148 176 120 160 120 120 Z";
+
 function tileSvg(box, { fullBleed = false } = {}) {
-  const r = fullBleed ? 0 : Math.round(box * 0.235), pad = fullBleed ? 0 : Math.round(box * 0.02), sz = box - pad * 2, fs2 = Math.round(box * (fullBleed ? 0.66 : 0.63));
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${box}" height="${box}" viewBox="0 0 ${box} ${box}">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2DF08F"/><stop offset=".52" stop-color="#12D273"/><stop offset="1" stop-color="#04A455"/></linearGradient>
-  <linearGradient id="h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".4"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-  <rect x="${pad}" y="${pad}" width="${sz}" height="${sz}" rx="${r}" fill="url(#g)"/><rect x="${pad}" y="${pad}" width="${sz}" height="${sz}" rx="${r}" fill="url(#h)"/>
-  ${fullBleed ? "" : `<rect x="${pad + .5}" y="${pad + .5}" width="${sz - 1}" height="${sz - 1}" rx="${r - .5}" fill="none" stroke="#fff" stroke-opacity=".22"/>`}
-  <text x="${box / 2}" y="${box * .53}" text-anchor="middle" dominant-baseline="central" font-family="'Ma Shan Zheng',serif" font-size="${fs2}" fill="#fff">红</text></svg>`;
+  const r = fullBleed ? 0 : 56, pad = fullBleed ? 0 : 8, sz = 240 - pad * 2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${box}" height="${box}" viewBox="0 0 240 240">
+  <defs><radialGradient id="t" cx="32%" cy="22%" r="92%"><stop offset="0" stop-color="#0E2A1D"/><stop offset="1" stop-color="#05110B"/></radialGradient>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6BFBB4"/><stop offset=".5" stop-color="#19D877"/><stop offset="1" stop-color="#06A452"/></linearGradient></defs>
+  <rect x="${pad}" y="${pad}" width="${sz}" height="${sz}" rx="${r}" fill="url(#t)"/>
+  ${fullBleed ? "" : `<rect x="${pad + 0.75}" y="${pad + 0.75}" width="${sz - 1.5}" height="${sz - 1.5}" rx="${r - 0.75}" fill="none" stroke="#fff" stroke-opacity=".08"/>`}
+  <path d="${LOOP}" fill="none" stroke="url(#g)" stroke-width="22" stroke-linecap="round"/></svg>`;
 }
-const page = (inner, w, h) => `<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800;900&family=Noto+Sans+SC:wght@500;700;900&family=Ma+Shan+Zheng&display=block"><style>*{margin:0}html,body{width:${w}px;height:${h}px}</style><body>${inner}</body>`;
+const page = (inner, w, h) => `<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800;900&family=Noto+Sans+SC:wght@500;700;900&display=block"><style>*{margin:0}html,body{width:${w}px;height:${h}px}</style><body>${inner}</body>`;
 
 const OG = page(`<div style="width:1200px;height:630px;position:relative;overflow:hidden;background:#050807;color:#EAF4EE;font-family:'Inter Tight','Noto Sans SC',sans-serif">
   <div style="position:absolute;inset:0;background:radial-gradient(760px 520px at 82% -12%,rgba(23,224,124,.22),transparent 58%)"></div>
@@ -31,8 +35,8 @@ const OG = page(`<div style="width:1200px;height:630px;position:relative;overflo
 async function shot(page, html, w, h, out, transparent) {
   await page.setViewportSize({ width: w, height: h });
   await page.setContent(html, { waitUntil: "networkidle" });
-  await page.evaluate(() => Promise.all([document.fonts.load("400 100px 'Ma Shan Zheng'", "红"), document.fonts.load("900 40px 'Noto Sans SC'", "红利土狗也分红分的是美股")]).then(() => document.fonts.ready));
-  await page.waitForTimeout(300);
+  await page.evaluate(() => document.fonts.load("900 40px 'Noto Sans SC'", "红利土狗也分红分的是美股").then(() => document.fonts.ready));
+  await page.waitForTimeout(250);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   await page.screenshot({ path: out, omitBackground: !!transparent });
   console.log("wrote", path.relative(ROOT, out));
@@ -43,9 +47,14 @@ async function shot(page, html, w, h, out, transparent) {
   await shot(p, page(tileSvg(256), 256, 256), 256, 256, path.join(APP, "src/app/icon.png"), true);
   await shot(p, page(tileSvg(180), 180, 180), 180, 180, path.join(APP, "src/app/apple-icon.png"), false);
   await shot(p, page(tileSvg(32), 32, 32), 32, 32, path.join(APP, "public/favicon.png"), true);
-  await shot(p, page(tileSvg(512, { fullBleed: true }), 512, 512), 512, 512, path.join(APP, "public/brand/hongli-mark-512.png"), false);
+  await shot(p, page(tileSvg(512), 512, 512), 512, 512, path.join(APP, "public/brand/hongli-mark-512.png"), false);
   await shot(p, OG, 1200, 630, path.join(APP, "src/app/opengraph-image.png"), false);
   fs.copyFileSync(path.join(APP, "src/app/opengraph-image.png"), path.join(APP, "src/app/twitter-image.png"));
   console.log("wrote apps/web/src/app/twitter-image.png");
+  // The mark as a PNG data URI for the coin share route (og/coin/[mint]).
+  const iconBuf = fs.readFileSync(path.join(APP, "src/app/icon.png"));
+  fs.writeFileSync(path.join(APP, "src/components/honglimark.ts"),
+    `/* Generated: the 红利 mark (emerald infinity on a dark tile) as a PNG data URI, for next/og share images\n * (resvg rasterizes it, no font needed). brand/hongli/src/mark.cjs writes this. Do not edit by hand. */\nexport const MARK_PNG_URI = "data:image/png;base64,${iconBuf.toString("base64")}";\n`);
+  console.log("wrote apps/web/src/components/honglimark.ts");
   await b.close();
 })().catch((e) => { console.error(e); process.exit(1); });
