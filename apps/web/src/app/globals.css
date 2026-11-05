@@ -244,7 +244,7 @@ table.t{width:100%;border-collapse:collapse}
 .amount{display:flex;align-items:center;gap:10px;margin-top:14px;padding:14px 16px;border-radius:18px;background:var(--s1)}
 .amount input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:800 30px/1 var(--ff);letter-spacing:-.02em}
 .amount .unit{display:inline-flex;align-items:center;gap:7px;font:700 15px var(--ff)}
-.amount .sol{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#9945FF,#14F195)}
+.amount .sol{width:22px;height:22px;flex:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 398 312'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%239945FF'/%3E%3Cstop offset='1' stop-color='%2314F195'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='url(%23s)'%3E%3Cpath d='M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z'/%3E%3Cpath d='M64.6 3.8C67.1 1.4 70.4 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z'/%3E%3Cpath d='M333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}
 .flab{display:flex;justify-content:space-between;margin-top:14px;font:600 13px var(--ff);color:var(--tx2)}
 .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
 .quick button{border:0;padding:9px 0;border-radius:12px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line);font:700 13.5px var(--ff);color:var(--tx2)}
